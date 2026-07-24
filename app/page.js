@@ -400,7 +400,50 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* SECTION 7 - TESTIMONIALS */}
+      {/* SECTION 7 - FEEDBACK & SUPPORT */}
+      <section className="py-5 bg-white border-top border-bottom" id="feedback-support">
+        <div className="container py-4">
+          <div className="row align-items-center gx-5">
+            <div className="col-lg-6">
+              <h2 className="fw-bold text-dark">Need help or want to report an issue?</h2>
+              <p className="text-muted fs-6 mb-4" style={{ lineHeight: 1.8 }}>
+                Send feedback directly to our admin support team from anywhere in the app. If you notice a bug, onboarding issue, or service problem, we will route your message to the right team quickly.
+              </p>
+              <div className="d-flex flex-column flex-sm-row gap-3">
+                <Link href="/contact" className="btn btn-primary px-4 py-2.5 rounded-pill shadow-sm">
+                  Send Feedback
+                </Link>
+                <a href="mailto:skillsconnectgh@zohomail.com" className="btn btn-outline-primary px-4 py-2.5 rounded-pill">
+                  Email Support
+                </a>
+              </div>
+            </div>
+            <div className="col-lg-6">
+              <div className="card border rounded-4 p-4 shadow-sm bg-light">
+                <div className="d-flex align-items-center gap-3 mb-3">
+                  <div className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style={{ width: '52px', height: '52px' }}>
+                    <i className="fa-solid fa-headset fs-4"></i>
+                  </div>
+                  <div>
+                    <h5 className="fw-bold mb-1">Customer Support</h5>
+                    <p className="text-muted small mb-0">Reach our admin support team by email or submit feedback through the contact form.</p>
+                  </div>
+                </div>
+                <div className="mb-3">
+                  <p className="text-secondary mb-1 small">Support email</p>
+                  <a href="mailto:skillsconnectgh@zohomail.com" className="d-block text-dark fw-semibold">skillsconnectgh@zohomail.com</a>
+                </div>
+                <div>
+                  <p className="text-secondary mb-1 small">Support phone</p>
+                  <a href="tel:+233530600127" className="d-block text-dark fw-semibold">+233 530 600 127</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 8 - TESTIMONIALS */}
       <section className="py-5 bg-light" id="testimonials">
         <div className="container py-4">
           <div className="text-center mb-5">

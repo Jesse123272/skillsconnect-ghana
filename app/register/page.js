@@ -478,6 +478,16 @@ export default function Register() {
                 </label>
               </div>
 
+              <div className="alert alert-info rounded-4 border-0 mb-4" role="alert">
+                <h6 className="fw-semibold mb-2">Need help during signup?</h6>
+                <p className="mb-1 small text-secondary">
+                  If you have an issue with registration, payment, or account verification, send feedback directly to the admin support team.
+                </p>
+                <p className="mb-0 small">
+                  Email: <a href="mailto:skillsconnectgh@zohomail.com" className="text-primary">skillsconnectgh@zohomail.com</a> or <Link href="/contact" className="text-primary">submit feedback here</Link>.
+                </p>
+              </div>
+
               {/* SUBMIT BUTTON */}
               <button
                 type="submit"

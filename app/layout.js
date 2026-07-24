@@ -1,10 +1,5 @@
 /* eslint-disable @next/next/no-page-custom-font */
-import { AuthProvider } from '@/context/AuthContext';
-import { Toaster } from 'react-hot-toast';
-import AiMatchmaker from '@/components/AiMatchmaker';
-import InstallAppPrompt from '@/components/InstallAppPrompt';
-import NotificationPermissionPrompt from '@/components/NotificationPermissionPrompt';
-import ServiceWorkerRegister from '@/components/ServiceWorkerRegister';
+import ClientShell from '@/components/ClientShell';
 
 export const metadata = {
   title: 'SkillsConnect Ghana - Local Artisan Marketplace',
@@ -489,14 +484,9 @@ export default function RootLayout({ children }) {
         ` }} />
       </head>
       <body suppressHydrationWarning>
-        <AuthProvider>
-          <Toaster position="top-right" />
-          <ServiceWorkerRegister />
-          <InstallAppPrompt />
-          <NotificationPermissionPrompt />
+        <ClientShell>
           {children}
-          <AiMatchmaker />
-        </AuthProvider>
+        </ClientShell>
       </body>
     </html>
   );

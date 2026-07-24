@@ -1,5 +1,31 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
+import { sendEmail } from '@/lib/mailer';
+
+async function getAdminContactEmail() {
+  try {
+    await query(`
+      CREATE TABLE IF NOT EXISTS system_settings (
+        setting_key VARCHAR(100) PRIMARY KEY,
+        setting_value TEXT NOT NULL,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    const result = await query(
+      'SELECT setting_value FROM system_settings WHERE setting_key = ?',
+      ['contact_email']
+    );
+
+    if (result && result.length > 0 && result[0].setting_value) {
+      return result[0].setting_value;
+    }
+  } catch (err) {
+    console.warn('Failed to retrieve contact email from system settings:', err);
+  }
+
+  return process.env.EMAIL_USER || 'support@skillsconnectgh.com';
+}
 
 export async function POST(req) {
   try {
@@ -30,7 +56,7 @@ export async function POST(req) {
           subject VARCHAR(255) NOT NULL,
           message TEXT NOT NULL,
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+        )
       `);
     } catch (schemaErr) {
       console.warn("Table contact_messages initialization warning (might already exist):", schemaErr);
@@ -45,7 +71,28 @@ export async function POST(req) {
 
     const messageId = insertResult.insertId;
 
-    // 4. Return success
+    // 4. Send a copy to admin contact email
+    const adminEmail = await getAdminContactEmail();
+    try {
+      await sendEmail({
+        to: adminEmail,
+        subject: `[SkillsConnect Feedback] ${subject.trim()}`,
+        html: `
+          <h2>New feedback received from the website</h2>
+          <p><strong>Name:</strong> ${name.trim()}</p>
+          <p><strong>Email:</strong> ${email.trim()}</p>
+          <p><strong>Subject:</strong> ${subject.trim()}</p>
+          <p><strong>Message:</strong></p>
+          <p>${message.trim().replace(/\n/g, '<br/>')}</p>
+          <hr />
+          <p>This message was submitted through the SkillsConnect Ghana contact page.</p>
+        `
+      });
+    } catch (emailError) {
+      console.warn('Contact feedback email delivery failure:', emailError);
+    }
+
+    // 5. Return success
     return NextResponse.json({
       success: true,
       data: {

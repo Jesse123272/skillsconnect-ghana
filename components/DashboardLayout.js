@@ -143,6 +143,7 @@ export default function DashboardLayout({ children, pageTitle = 'Dashboard' }) {
           { icon: Star, label: 'My Reviews', href: '/dashboard/customer/reviews' },
           { icon: FileText, label: 'Platform Testimonials', href: '/dashboard/customer/testimonials' },
           { icon: Bell, label: 'Notifications', href: '/dashboard/customer/notifications', badge: unreadNotifications },
+          { icon: HelpCircle, label: 'Support', href: '/contact' },
           { icon: User, label: 'Profile Settings', href: '/dashboard/customer/settings' },
         ];
       case 'artisan':
@@ -154,6 +155,7 @@ export default function DashboardLayout({ children, pageTitle = 'Dashboard' }) {
           { icon: CreditCard, label: 'Earnings & Payments', href: '/dashboard/artisan/transactions' },
           { icon: Star, label: 'My Reviews', href: '/dashboard/artisan/reviews' },
           { icon: Bell, label: 'Notifications', href: '/dashboard/artisan/notifications', badge: unreadNotifications },
+          { icon: HelpCircle, label: 'Support', href: '/contact' },
           { icon: Settings, label: 'Account Settings', href: '/dashboard/artisan/settings' },
           { icon: User, label: 'Preview Profile', href: `/artisans/${user.user_id}` },
         ];
@@ -167,6 +169,7 @@ export default function DashboardLayout({ children, pageTitle = 'Dashboard' }) {
           { icon: MessageSquare, label: 'Enquiries', href: '/dashboard/admin/enquiries' },
           { icon: FileText, label: 'Reports', href: '/dashboard/admin/reports' },
           { icon: CreditCard, label: 'Transactions', href: '/dashboard/admin/transactions' },
+          { icon: HelpCircle, label: 'Support', href: '/contact' },
           { icon: Activity, label: 'Activity Logs', href: '/dashboard/admin/logs' },
           { icon: Settings, label: 'Settings', href: '/dashboard/admin/settings' },
         ];
@@ -222,7 +225,7 @@ export default function DashboardLayout({ children, pageTitle = 'Dashboard' }) {
         <span className="bg-primary text-white p-2 rounded-3 d-flex align-items-center justify-content-center" style={{ width: '36px', height: '36px' }}>
           <i className="fa-solid fa-wrench"></i>
         </span>
-        <span className="fs-5 fw-bold text-primary">
+        <span className="fs-6 fw-bold text-primary" style={{ letterSpacing: '-0.5px' }}>
           SkillsConnect<span className="text-secondary">Ghana</span>
         </span>
       </div>

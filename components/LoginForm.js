@@ -30,20 +30,20 @@ export default function LoginForm({
   const navigateToDashboard = useCallback(
     (role) => {
       if (redirectPath && redirectPath.startsWith('/dashboard/')) {
-        window.location.href = redirectPath;
+        router.replace(redirectPath);
         return;
       }
 
       const normalizedRole = (role || '').toLowerCase();
       if (normalizedRole === 'admin') {
-        window.location.href = '/dashboard/admin';
+        router.replace('/dashboard/admin');
       } else if (normalizedRole === 'artisan') {
-        window.location.href = '/dashboard/artisan';
+        router.replace('/dashboard/artisan');
       } else {
-        window.location.href = '/dashboard/customer';
+        router.replace('/dashboard/customer');
       }
     },
-    [redirectPath]
+    [redirectPath, router]
   );
 
   useEffect(() => {

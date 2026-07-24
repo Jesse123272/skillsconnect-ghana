@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
@@ -85,7 +86,7 @@ export default function TermsAndConditions() {
           <section className="mb-4">
             <h4 className="fw-bold text-dark mb-3">7. Contact Us</h4>
             <p>
-              If you have any questions or require clarifications regarding these Terms & Conditions, please contact us at: <strong className="text-dark">skillsconnectgh@zohomail.com</strong> or write to us through our official <a href="/contact" className="text-primary text-decoration-none fw-semibold">Contact Page</a>.
+              If you have any questions or require clarifications regarding these Terms & Conditions, please contact us at: <strong className="text-dark">skillsconnectgh@zohomail.com</strong> or write to us through our official <Link href="/contact" className="text-primary text-decoration-none fw-semibold">Contact Page</Link>.
             </p>
           </section>
 

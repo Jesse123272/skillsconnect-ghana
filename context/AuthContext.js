@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 const AuthContext = createContext({
   user: null,
@@ -10,6 +11,7 @@ const AuthContext = createContext({
 });
 
 export function AuthProvider({ children }) {
+  const router = useRouter();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -41,6 +43,10 @@ export function AuthProvider({ children }) {
 
   // Logout method
   const logout = async () => {
+    setUser(null);
+    setLoading(true);
+    router.replace('/');
+
     try {
       const response = await fetch('/api/auth/logout', {
         method: 'POST',
@@ -48,11 +54,7 @@ export function AuthProvider({ children }) {
           'Content-Type': 'application/json',
         },
       });
-      if (response.ok) {
-        setUser(null);
-        // Force complete reload to clear cache/state
-        window.location.href = '/';
-      } else {
+      if (!response.ok) {
         console.error('Failed to logout of SkillsConnect session');
       }
     } catch (error) {
