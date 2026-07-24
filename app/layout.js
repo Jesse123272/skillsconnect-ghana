@@ -72,7 +72,7 @@ export default function RootLayout({ children }) {
           }
 
           html {
-            font-size: 13px;
+            font-size: 15px;
           }
 
           body {
@@ -82,7 +82,7 @@ export default function RootLayout({ children }) {
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            font-size: 0.9rem;
+            font-size: 1rem;
           }
 
           /* Custom styling and overrides */
