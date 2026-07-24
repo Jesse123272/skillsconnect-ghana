@@ -633,7 +633,7 @@ export default function CustomerSettings() {
                         </div>
                       </div>
                     )}
-                    <div className="form-text fs-8 text-muted">Use a strong password with at least 10 characters, including uppercase letters, lowercase letters, numbers, and symbols.</div>
+                    <div className="form-text fs-8 text-muted">Use a strong password with at least 8 characters, including uppercase letters, lowercase letters, numbers, and symbols.</div>
                   </div>
 
                   {/* CONFIRM NEW PASSWORD */}

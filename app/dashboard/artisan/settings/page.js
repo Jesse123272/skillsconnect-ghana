@@ -413,7 +413,7 @@ export default function ArtisanSettings() {
                       </div>
                     )}
                     <div className="form-text fs-8 text-muted mt-1.5">
-                      Strong passwords should be at least 10 characters long and include uppercase letters, lowercase letters, digits, and symbols.
+                      Strong passwords should be at least 8 characters long and include uppercase letters, lowercase letters, digits, and symbols.
                     </div>
                   </div>
 

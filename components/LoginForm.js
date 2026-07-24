@@ -204,12 +204,20 @@ export default function LoginForm({
               </button>
 
               {!requiredRole && (
-                <div className="text-center mt-2">
-                  <span className="text-muted small">Need admin access? </span>
-                  <Link href="/admin/login" className="text-primary fw-semibold small text-decoration-none">
-                    Admin Login
-                  </Link>
-                </div>
+                <>
+                  <div className="text-center mt-2">
+                    <span className="text-muted small">Need admin access? </span>
+                    <Link href="/admin/login" className="text-primary fw-semibold small text-decoration-none">
+                      Admin Login
+                    </Link>
+                  </div>
+                  <div className="text-center mt-2">
+                    <span className="text-muted small">Don't have an account? </span>
+                    <Link href="/register" className="text-primary fw-semibold small text-decoration-none">
+                      Create Account
+                    </Link>
+                  </div>
+                </>
               )}
 
               {showBackLink && (

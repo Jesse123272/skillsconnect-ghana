@@ -21,9 +21,9 @@ export async function GET(req) {
     }
 
     const { searchParams } = new URL(req.url);
-    const page = parseInt(searchParams.get('page') || '1', 10);
-    const limit = parseInt(searchParams.get('limit') || '10', 10);
-    const offset = (page - 1) * limit;
+    const page = Math.max(parseInt(searchParams.get('page') || '1', 10), 1);
+    const limit = Math.min(Math.max(parseInt(searchParams.get('limit') || '10', 10), 1), 100);
+    const offset = Math.max((page - 1) * limit, 0);
 
     // Count total saved artisans
     const countResult = await query(
@@ -44,8 +44,8 @@ export async function GET(req) {
        INNER JOIN categories c ON ap.category_id = c.category_id
        WHERE sa.customer_id = ? AND u.is_active = 1
        ORDER BY sa.saved_at DESC
-       LIMIT ? OFFSET ?`,
-      [payload.user_id, limit, offset]
+       LIMIT ${limit} OFFSET ${offset}`,
+      [payload.user_id]
     );
 
     const formattedSaved = saved.map(item => {

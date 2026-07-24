@@ -13,9 +13,9 @@ export async function GET(req) {
     }
 
     const { searchParams } = new URL(req.url);
-    const page = parseInt(searchParams.get('page') || '1', 10);
-    const limit = parseInt(searchParams.get('limit') || '10', 10);
-    const offset = (page - 1) * limit;
+    const page = Math.max(parseInt(searchParams.get('page') || '1', 10), 1);
+    const limit = Math.min(Math.max(parseInt(searchParams.get('limit') || '10', 10), 1), 100);
+    const offset = Math.max((page - 1) * limit, 0);
 
     const search = searchParams.get('search') || '';
     const status = searchParams.get('status') || 'All'; // All, pending, replied
@@ -83,10 +83,10 @@ export async function GET(req) {
       INNER JOIN users a ON e.artisan_id = a.user_id
       ${whereClause}
       ORDER BY e.created_at DESC
-      LIMIT ? OFFSET ?
+      LIMIT ${limit} OFFSET ${offset}
     `;
 
-    const enquiries = await query(selectSql, [...params, limit, offset]);
+    const enquiries = await query(selectSql, params);
 
     return NextResponse.json({
       success: true,

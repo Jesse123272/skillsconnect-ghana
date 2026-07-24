@@ -3,6 +3,7 @@ import { AuthProvider } from '@/context/AuthContext';
 import { Toaster } from 'react-hot-toast';
 import AiMatchmaker from '@/components/AiMatchmaker';
 import InstallAppPrompt from '@/components/InstallAppPrompt';
+import NotificationPermissionPrompt from '@/components/NotificationPermissionPrompt';
 import ServiceWorkerRegister from '@/components/ServiceWorkerRegister';
 
 export const metadata = {
@@ -70,6 +71,10 @@ export default function RootLayout({ children }) {
             --muted: #6C757D;
           }
 
+          html {
+            font-size: 13px;
+          }
+
           body {
             font-family: 'Poppins', sans-serif;
             background-color: var(--background);
@@ -77,6 +82,7 @@ export default function RootLayout({ children }) {
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            font-size: 0.9rem;
           }
 
           /* Custom styling and overrides */
@@ -487,6 +493,7 @@ export default function RootLayout({ children }) {
           <Toaster position="top-right" />
           <ServiceWorkerRegister />
           <InstallAppPrompt />
+          <NotificationPermissionPrompt />
           {children}
           <AiMatchmaker />
         </AuthProvider>

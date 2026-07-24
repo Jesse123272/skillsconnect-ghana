@@ -13,9 +13,9 @@ export async function GET(req) {
     }
 
     const { searchParams } = new URL(req.url);
-    const page = parseInt(searchParams.get('page') || '1', 10);
-    const limit = parseInt(searchParams.get('limit') || '10', 10);
-    const offset = (page - 1) * limit;
+    const page = Math.max(parseInt(searchParams.get('page') || '1', 10), 1);
+    const limit = Math.min(Math.max(parseInt(searchParams.get('limit') || '10', 10), 1), 100);
+    const offset = Math.max((page - 1) * limit, 0);
 
     const search = searchParams.get('search') || '';
     const status = searchParams.get('status') || 'All'; // All, Pending, Approved, Suspended
@@ -80,10 +80,10 @@ export async function GET(req) {
       LEFT JOIN categories c ON ap.category_id = c.category_id
       ${whereClause}
       ORDER BY u.created_at DESC
-      LIMIT ? OFFSET ?
+      LIMIT ${limit} OFFSET ${offset}
     `;
 
-    const artisans = await query(selectSql, [...params, limit, offset]);
+    const artisans = await query(selectSql, params);
 
     return NextResponse.json({
       success: true,

@@ -15,48 +15,84 @@ export default function NearbyArtisans() {
   const [artisans, setArtisans] = useState([]);
   const [status, setStatus] = useState('Finding artisans near you...');
   const [currentPosition, setCurrentPosition] = useState(null);
+  const [permissionDenied, setPermissionDenied] = useState(false);
+  const [locationSource, setLocationSource] = useState('fresh');
+  const [retryKey, setRetryKey] = useState(0);
 
   useEffect(() => {
+    async function loadArtisansForPosition(lat, lng, source = 'fresh') {
+      if (!lat || !lng) {
+        setError('Invalid location coordinates.');
+        setIsLoading(false);
+        return;
+      }
+
+      setCurrentPosition([lat, lng]);
+      setLocationSource(source);
+      setPermissionDenied(false);
+      setStatus(source === 'session' ? 'Using location from this browser session.' : 'Showing artisans closest to your location.');
+
+      try {
+        const params = new URLSearchParams({
+          latitude: lat.toString(),
+          longitude: lng.toString(),
+          radius: radius.toString(),
+          limit: '12'
+        });
+
+        const res = await fetch(`/api/artisans/nearby?${params.toString()}`);
+        const json = await res.json();
+        if (json.success) {
+          setArtisans(json.data || []);
+          setError('');
+          setStatus(source === 'session' ? 'Using location from this browser session.' : 'Showing artisans closest to your location.');
+          if (typeof window !== 'undefined' && window.sessionStorage) {
+            window.sessionStorage.setItem('scg_geo_location', JSON.stringify([lat, lng]));
+          }
+        } else {
+          setError(json.error || 'Unable to load nearby artisans.');
+        }
+      } catch (err) {
+        console.error(err);
+        setError('Unable to fetch nearby artisans right now.');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
     async function locateAndFetch() {
       setIsLoading(true);
       setError('');
       setStatus('Finding artisans near you...');
+      setPermissionDenied(false);
 
-      if (!navigator.geolocation) {
+      if (typeof window === 'undefined' || !navigator.geolocation) {
         setError('Geolocation is not supported in this browser.');
         setIsLoading(false);
         return;
       }
 
+      const stored = typeof window !== 'undefined' && window.sessionStorage.getItem('scg_geo_location');
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length === 2) {
+            await loadArtisansForPosition(parsed[0], parsed[1], 'session');
+            return;
+          }
+        } catch {
+          // Ignore stale stored location
+        }
+      }
+
       navigator.geolocation.getCurrentPosition(
         async (position) => {
-          try {
-            setCurrentPosition([position.coords.latitude, position.coords.longitude]);
-            const params = new URLSearchParams({
-              latitude: position.coords.latitude.toString(),
-              longitude: position.coords.longitude.toString(),
-              radius: radius.toString(),
-              limit: '12'
-            });
-
-            const res = await fetch(`/api/artisans/nearby?${params.toString()}`);
-            const json = await res.json();
-            if (json.success) {
-              setArtisans(json.data || []);
-              setStatus('Showing artisans closest to your location.');
-            } else {
-              setError(json.error || 'Unable to load nearby artisans.');
-            }
-          } catch (err) {
-            console.error(err);
-            setError('Unable to fetch nearby artisans right now.');
-          } finally {
-            setIsLoading(false);
-          }
+          await loadArtisansForPosition(position.coords.latitude, position.coords.longitude, 'fresh');
         },
         (geoError) => {
           console.error(geoError);
           setError('Enable location to see artisans near you.');
+          setPermissionDenied(true);
           setIsLoading(false);
         },
         { enableHighAccuracy: true, timeout: 10000 }
@@ -64,7 +100,7 @@ export default function NearbyArtisans() {
     }
 
     locateAndFetch();
-  }, [radius]);
+  }, [radius, retryKey]);
 
   const sortedArtisans = useMemo(() => {
     return [...artisans].sort((a, b) => (b.weighted_score || 0) - (a.weighted_score || 0));
@@ -99,7 +135,7 @@ export default function NearbyArtisans() {
                 {currentPosition ? `${currentPosition[0].toFixed(4)}, ${currentPosition[1].toFixed(4)}` : 'Location pending...'}
               </div>
             </div>
-            {currentPosition && artisans.length > 0 ? (
+            {currentPosition ? (
               <div className="map-container" style={{ height: '360px' }}>
                 <ArtisanMap artisans={artisans} currentPosition={currentPosition} />
               </div>
@@ -121,9 +157,22 @@ export default function NearbyArtisans() {
       ) : error ? (
         <div className="alert alert-warning" role="alert">
           {error}
+          {permissionDenied && (
+            <div className="mt-3">
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-primary rounded-pill"
+                onClick={() => setRetryKey((prev) => prev + 1)}
+              >
+                Retry location access
+              </button>
+            </div>
+          )}
         </div>
       ) : sortedArtisans.length === 0 ? (
-        <div className="alert alert-info" role="alert">No nearby artisans matched this search radius.</div>
+        <div className="alert alert-info" role="alert">
+          No nearby artisans matched this search radius. Try increasing the radius or update your location permissions.
+        </div>
       ) : (
         <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
           {sortedArtisans.map((artisan, index) => (

@@ -66,10 +66,10 @@ export async function GET(req) {
       INNER JOIN users a ON r.artisan_id = a.user_id
       ${whereClause}
       ORDER BY r.created_at DESC
-      LIMIT ? OFFSET ?
+      LIMIT ${limit} OFFSET ${offset}
     `;
 
-    const reviews = await query(selectSql, [...params, limit, offset]);
+    const reviews = await query(selectSql, params);
 
     return NextResponse.json({
       success: true,

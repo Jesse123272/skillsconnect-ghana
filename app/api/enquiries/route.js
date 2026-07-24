@@ -17,9 +17,9 @@ export async function GET(req) {
     const { searchParams } = new URL(req.url);
     const status = searchParams.get('status') || 'all'; // 'all', 'pending', 'replied'
     const artisanId = parseInt(searchParams.get('artisan_id') || '0', 10);
-    const page = parseInt(searchParams.get('page') || '1', 10);
-    const limit = parseInt(searchParams.get('limit') || '10', 10);
-    const offset = (page - 1) * limit;
+    const page = Math.max(parseInt(searchParams.get('page') || '1', 10), 1);
+    const limit = Math.min(Math.max(parseInt(searchParams.get('limit') || '10', 10), 1), 100);
+    const offset = Math.max((page - 1) * limit, 0);
 
     let enquiries = [];
     let total = 0;
@@ -60,8 +60,8 @@ export async function GET(req) {
          LEFT JOIN categories c ON ap.category_id = c.category_id
          ${whereClause}
          ORDER BY e.created_at DESC
-         LIMIT ? OFFSET ?`,
-        [...params, limit, offset]
+         LIMIT ${limit} OFFSET ${offset}`,
+        params
       );
 
     } else if (payload.role === 'artisan') {
@@ -98,8 +98,8 @@ export async function GET(req) {
          INNER JOIN users u ON e.customer_id = u.user_id
          ${whereClause}
          ORDER BY e.created_at DESC
-         LIMIT ? OFFSET ?`,
-        [...params, limit, offset]
+         LIMIT ${limit} OFFSET ${offset}`,
+        params
       );
     } else if (payload.role === 'admin') {
       // Admins see all
@@ -113,8 +113,8 @@ export async function GET(req) {
          INNER JOIN users c ON e.customer_id = c.user_id
          INNER JOIN users a ON e.artisan_id = a.user_id
          ORDER BY e.created_at DESC
-         LIMIT ? OFFSET ?`,
-        [limit, offset]
+         LIMIT ${limit} OFFSET ${offset}`,
+        []
       );
     } else {
       return NextResponse.json({ success: false, error: 'Unauthorized role' }, { status: 403 });

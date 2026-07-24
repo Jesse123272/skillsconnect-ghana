@@ -13,9 +13,9 @@ export async function GET(req) {
     }
 
     const { searchParams } = new URL(req.url);
-    const page = parseInt(searchParams.get('page') || '1', 10);
-    const limit = parseInt(searchParams.get('limit') || '15', 10);
-    const offset = (page - 1) * limit;
+    const page = Math.max(parseInt(searchParams.get('page') || '1', 10), 1);
+    const limit = Math.min(Math.max(parseInt(searchParams.get('limit') || '15', 10), 1), 100);
+    const offset = Math.max((page - 1) * limit, 0);
 
     const search = searchParams.get('search') || '';
     const actionFilter = searchParams.get('action') || '';
@@ -68,10 +68,10 @@ export async function GET(req) {
       LEFT JOIN users u ON al.user_id = u.user_id
       ${whereClause}
       ORDER BY al.created_at DESC
-      LIMIT ? OFFSET ?
+      LIMIT ${limit} OFFSET ${offset}
     `;
 
-    const logs = await query(selectSql, [...params, limit, offset]);
+    const logs = await query(selectSql, params);
 
     return NextResponse.json({
       success: true,

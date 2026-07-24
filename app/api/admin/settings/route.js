@@ -9,7 +9,7 @@ async function ensureSettingsTable() {
       CREATE TABLE IF NOT EXISTS system_settings (
         setting_key VARCHAR(100) PRIMARY KEY,
         setting_value TEXT NOT NULL,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
 
@@ -86,8 +86,8 @@ export async function POST(req) {
     for (const [key, value] of Object.entries(updates)) {
       if (value !== undefined) {
         await query(
-          'INSERT INTO system_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?',
-          [key, value, value]
+          'REPLACE INTO system_settings (setting_key, setting_value) VALUES (?, ?)',
+          [key, value]
         );
       }
     }

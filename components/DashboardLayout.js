@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
@@ -34,6 +34,8 @@ export default function DashboardLayout({ children, pageTitle = 'Dashboard' }) {
   const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [pendingArtisansCount, setPendingArtisansCount] = useState(0);
   const [unreadEnquiries, setUnreadEnquiries] = useState(0);
+  const prevUnreadNotificationsRef = useRef(0);
+  const hasFetchedNotificationsRef = useRef(false);
 
   // Fetch badges/counts on mount
   useEffect(() => {
@@ -47,6 +49,24 @@ export default function DashboardLayout({ children, pageTitle = 'Dashboard' }) {
           const notifData = await notifRes.json();
           if (notifData.success && notifData.data && notifData.data.notifications) {
             const unread = notifData.data.notifications.filter(n => !n.is_read).length;
+            if (
+              hasFetchedNotificationsRef.current &&
+              unread > prevUnreadNotificationsRef.current &&
+              typeof window !== 'undefined' &&
+              'Notification' in window &&
+              Notification.permission === 'granted'
+            ) {
+              try {
+                new Notification('SkillsConnect Ghana Alert', {
+                  body: `You have ${unread} unread notification${unread === 1 ? '' : 's'}.`,
+                  icon: '/icons/icon-192.svg',
+                });
+              } catch (notifErr) {
+                console.error('Browser notification delivery failed:', notifErr);
+              }
+            }
+            prevUnreadNotificationsRef.current = unread;
+            hasFetchedNotificationsRef.current = true;
             setUnreadNotifications(unread);
           }
         }

@@ -106,18 +106,18 @@ export default function AiMatchmaker() {
   };
 
   return (
-    <div className="position-fixed bottom-0 end-0 m-4 z-5" id="ai-matchmaker-container">
+    <div className="position-fixed bottom-0 end-0 m-3 z-5" id="ai-matchmaker-container">
       {/* Floating Trigger Button */}
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="btn btn-primary rounded-pill shadow-lg d-flex align-items-center gap-2 px-4 py-3 border-0 transition-all hover-scale"
-          style={{ cursor: 'pointer' }}
+          className="btn btn-primary rounded-pill shadow-lg d-flex align-items-center gap-2 px-2.5 py-1.5 border-0 transition-all hover-scale"
+          style={{ cursor: 'pointer', fontSize: '0.83rem' }}
           id="ai-matchmaker-trigger"
         >
-          <Sparkles size={20} className="text-warning animate-pulse" />
-          <span className="fw-bold text-white">Ask AI Matchmaker</span>
-          <span className="badge bg-danger rounded-pill px-2 py-1 fs-8">Beta</span>
+          <Sparkles size={18} className="text-warning animate-pulse" />
+          <span className="fw-semibold text-white">Ask AI Matchmaker</span>
+          <span className="badge bg-danger rounded-pill px-2 py-1 fs-9">Beta</span>
         </button>
       )}
 
@@ -126,24 +126,24 @@ export default function AiMatchmaker() {
         <div 
           className="card shadow-lg border border-opacity-10 rounded-4 overflow-hidden bg-white d-flex flex-column"
           style={{
-            width: '400px',
-            maxWidth: '92vw',
-            height: '600px',
-            maxHeight: '80vh',
-            boxShadow: '0 12px 40px rgba(0,0,0,0.15)'
+            width: '300px',
+            maxWidth: '88vw',
+            height: '480px',
+            maxHeight: '70vh',
+            boxShadow: '0 10px 28px rgba(0,0,0,0.12)'
           }}
           id="ai-matchmaker-chatbox"
         >
           {/* Header */}
-          <div className="bg-primary text-white p-3 d-flex justify-content-between align-items-center border-bottom">
+          <div className="bg-primary text-white p-2 d-flex justify-content-between align-items-center border-bottom">
             <div className="d-flex align-items-center gap-2">
-              <div className="rounded-circle bg-white bg-opacity-20 p-1.5 d-flex align-items-center justify-content-center">
-                <Sparkles size={18} className="text-warning" />
+              <div className="rounded-circle bg-white bg-opacity-20 p-1 d-flex align-items-center justify-content-center">
+                <Sparkles size={16} className="text-warning" />
               </div>
               <div>
-                <h6 className="fw-bold mb-0 text-white leading-tight">Akwaaba AI Matchmaker</h6>
-                <small className="text-white-50 fs-8 d-flex align-items-center gap-1">
-                  <span className="bg-success rounded-circle" style={{ width: '6px', height: '6px', display: 'inline-block' }}></span>
+                <h6 className="fw-bold mb-0 text-white leading-tight" style={{ fontSize: '0.95rem' }}>Akwaaba AI Matchmaker</h6>
+                <small className="text-white-50 fs-9 d-flex align-items-center gap-1">
+                  <span className="bg-success rounded-circle" style={{ width: '5px', height: '5px', display: 'inline-block' }}></span>
                   {messages.some((message) => message.source === 'local') ? 'Local matching available' : 'Powered by Gemini 2.0'}
                 </small>
               </div>
@@ -153,12 +153,12 @@ export default function AiMatchmaker() {
               className="btn btn-link text-white p-1 border-0 shadow-none hover-scale"
               style={{ cursor: 'pointer' }}
             >
-              <X size={20} />
+              <X size={18} />
             </button>
           </div>
 
           {/* Messages Viewport */}
-          <div className="flex-grow-1 p-3 overflow-y-auto bg-light" style={{ fontSize: '13.5px' }}>
+          <div className="flex-grow-1 p-2 overflow-y-auto bg-light" style={{ fontSize: '13px' }}>
             <div className="d-flex flex-column gap-3">
               {messages.map((msg) => (
                 <div key={msg.id} className={`d-flex flex-column ${msg.sender === 'user' ? 'align-items-end' : 'align-items-start'}`}>
@@ -178,19 +178,19 @@ export default function AiMatchmaker() {
                       <div className="mt-2 pt-2 border-top border-opacity-10 d-flex flex-column gap-1.5">
                         <div className="d-flex flex-wrap gap-1">
                           {msg.filters.category_name && (
-                            <span className="badge bg-light text-primary px-2 py-1 fs-8 border">
+                            <span className="badge bg-light text-primary px-2 py-1 fs-9 border">
                               🛠️ {msg.filters.category_name}
                             </span>
                           )}
                           {msg.filters.region && (
-                            <span className="badge bg-light text-secondary px-2 py-1 fs-8 border">
+                            <span className="badge bg-light text-secondary px-2 py-1 fs-9 border">
                               📍 {msg.filters.region}
                             </span>
                           )}
                         </div>
                         <button
                           onClick={() => handleApplyFilters(msg.filters)}
-                          className="btn btn-primary btn-sm rounded-pill py-1 px-3 mt-1 fw-bold fs-8 d-flex align-items-center justify-content-center gap-1 text-white border-0"
+                          className="btn btn-primary btn-sm rounded-pill py-1 px-3 mt-1 fw-bold fs-9 d-flex align-items-center justify-content-center gap-1 text-white border-0"
                           style={{ cursor: 'pointer' }}
                         >
                           <span>Apply matching filters</span>

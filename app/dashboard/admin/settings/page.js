@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import DashboardLayout from '@/components/DashboardLayout';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { 
@@ -41,6 +42,8 @@ export default function SystemSettings() {
   const [autoVerify, setAutoVerify] = useState(false);
   const [maintenanceMode, setMaintenanceMode] = useState(false);
 
+  const router = useRouter();
+
   useEffect(() => {
     let active = true;
     async function loadSettings() {
@@ -53,13 +56,18 @@ export default function SystemSettings() {
         const settingsData = await settingsRes.json();
         const mailData = await mailRes.json();
 
-        if (settingsData.success && active) {
+        if (!settingsRes.ok) {
+          if (settingsRes.status === 401 || settingsRes.status === 403) {
+            toast.error('Your session has expired. Please sign in again.');
+            router.push('/admin/login');
+            return;
+          }
+          toast.error(settingsData.error || 'Failed to fetch platform configurations.');
+        } else if (settingsData.success && active) {
           setPlatformName(settingsData.data.platform_name);
           setContactEmail(settingsData.data.contact_email);
           setContactPhone(settingsData.data.contact_phone);
           setAboutText(settingsData.data.about_text);
-        } else if (active) {
-          toast.error(settingsData.error || 'Failed to fetch platform configurations.');
         }
 
         if (mailData.success && active) {
@@ -74,7 +82,7 @@ export default function SystemSettings() {
     }
     loadSettings();
     return () => { active = false; };
-  }, []);
+  }, [router]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -96,7 +104,14 @@ export default function SystemSettings() {
         credentials: 'include'
       });
       const data = await res.json();
-      if (data.success) {
+      if (!res.ok) {
+        if (res.status === 401 || res.status === 403) {
+          toast.error('Your session has expired. Please sign in again.');
+          router.push('/admin/login');
+          return;
+        }
+        toast.error(data.error || 'Failed to update system variables.');
+      } else if (data.success) {
         toast.success(data.message || 'System configurations updated successfully!');
       } else {
         toast.error(data.error || 'Failed to update system variables.');

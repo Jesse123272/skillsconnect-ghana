@@ -146,6 +146,9 @@ export async function GET(req) {
         ${whereClause}
       `;
 
+      const safeLimit = parsedLimit;
+      const safeOffset = offset;
+
       querySql = `
         SELECT 
           u.user_id, u.full_name, u.email, u.phone, u.region, u.district, u.profile_photo,
@@ -156,7 +159,7 @@ export async function GET(req) {
         INNER JOIN categories c ON ap.category_id = c.category_id
         ${whereClause}
         ORDER BY ${orderBy}
-        LIMIT ? OFFSET ?
+        LIMIT ${safeLimit} OFFSET ${safeOffset}
       `;
 
       countParams = params;
