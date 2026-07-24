@@ -23,7 +23,8 @@ import {
   Menu, 
   Settings, 
   ChevronRight,
-  ShieldAlert
+  ShieldAlert,
+  HelpCircle
 } from 'lucide-react';
 
 export default function DashboardLayout({ children, pageTitle = 'Dashboard' }) {
