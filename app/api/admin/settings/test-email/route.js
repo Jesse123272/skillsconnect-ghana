@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getUserFromRequest } from '@/lib/auth';
-import { sendEmail } from '@/lib/mailer';
+import { getMailerSettings, isMockEmailMode, sendEmail } from '@/lib/mailer';
 
 export async function POST(req) {
   try {
@@ -21,16 +21,8 @@ export async function POST(req) {
       );
     }
 
-    const host = process.env.EMAIL_HOST;
-    const port = process.env.EMAIL_PORT;
-    const userEmail = process.env.EMAIL_USER;
-    const pass = process.env.EMAIL_PASS;
-
-    const isMock = !host || !port || !userEmail || !pass || 
-                   userEmail === 'your_email@gmail.com' || 
-                   pass === 'your_app_password' || 
-                   userEmail.includes('placeholder') || 
-                   pass.includes('placeholder');
+    const isMock = isMockEmailMode();
+    const { host, port, user: userEmail } = getMailerSettings();
 
     const htmlContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">

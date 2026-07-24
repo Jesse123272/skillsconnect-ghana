@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
-import { sendEmail, welcomeEmail, verificationEmail } from '@/lib/mailer';
+import { isMockEmailMode, sendEmail, welcomeEmail, verificationEmail } from '@/lib/mailer';
 
 // POST: Verify 6-digit code
 export async function POST(req) {
@@ -37,17 +37,7 @@ export async function POST(req) {
       });
     }
 
-    // Check if mail server is in mock/sandbox mode
-    const host = process.env.EMAIL_HOST;
-    const port = process.env.EMAIL_PORT;
-    const userEmail = process.env.EMAIL_USER;
-    const pass = process.env.EMAIL_PASS;
-    const isMockMode = !host || !port || !userEmail || !pass || 
-                       userEmail === 'your_email@gmail.com' || 
-                       pass === 'your_app_password' || 
-                       userEmail.includes('placeholder') || 
-                       pass.includes('placeholder');
-
+    const isMockMode = isMockEmailMode();
     const isBypass = isMockMode && code.trim() === '123456';
     const isTokenMatch = user.verification_token && user.verification_token.trim() === code.trim();
 
@@ -171,20 +161,9 @@ export async function PUT(req) {
 // GET: Check if email service is in mock/sandbox mode
 export async function GET() {
   try {
-    const host = process.env.EMAIL_HOST;
-    const port = process.env.EMAIL_PORT;
-    const userEmail = process.env.EMAIL_USER;
-    const pass = process.env.EMAIL_PASS;
-
-    const isMock = !host || !port || !userEmail || !pass || 
-                   userEmail === 'your_email@gmail.com' || 
-                   pass === 'your_app_password' || 
-                   userEmail.includes('placeholder') || 
-                   pass.includes('placeholder');
-
     return NextResponse.json({
       success: true,
-      mockMode: isMock
+      mockMode: isMockEmailMode(),
     });
   } catch (error) {
     return NextResponse.json({ success: true, mockMode: true });
