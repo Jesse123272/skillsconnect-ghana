@@ -1,0 +1,218 @@
+# 🇬🇭 SkillsConnect Ghana
+
+**SkillsConnect Ghana** is a full-stack web application designed to connect verified Ghanaian artisans (electricians, plumbers, carpenters, masons, mechanics, tailors, beauticians, and more) with customers across all 16 regions of Ghana.
+
+The platform provides a secure, reliable environment featuring AI-powered artisan matching, direct enquiries, Paystack Mobile Money & Card escrow payments, customer reviews, and a management control panel.
+
+---
+
+## ✨ Features
+
+### 👥 For Customers
+- **Artisan Directory**: Search artisans by trade category, region, district, rating, and keywords.
+- **AI Matchmaker**: Describe your project in plain language to get instant AI-recommended artisans.
+- **Enquiries & Messaging**: Send job requests and communicate directly with artisans in real-time.
+- **Secure Escrow Payments**: Pay artisans safely via Paystack using **MTN Mobile Money**, **Telecel Cash**, **AT Money**, or **Bank Cards**.
+- **Ratings & Reviews**: Share feedback and rate completed jobs.
+- **Payment Receipts**: Access printable receipts and transaction histories anytime.
+
+### 🛠️ For Artisans
+- **Profile & Gallery Showcase**: Display trade skills, years of experience, service areas, and work portfolio photos.
+- **Enquiry Management**: Receive job requests, update status (Pending, In Progress, Completed), and chat with clients.
+- **Earnings & Payout Tracking**: Track received customer payments and transaction records.
+- **Verification Badge**: Gain customer trust through admin profile approval.
+
+### 🛡️ For Administrators
+- **Management Dashboard**: Monitor platform metrics, user registrations, and overall system activity.
+- **Artisan Approval Workflow**: Verify and approve artisan profiles before they go live.
+- **User & Category Control**: Manage accounts, trade categories, testimonials, and payment logs.
+
+---
+
+## 🛠️ Tech Stack
+
+- **Framework**: [Next.js 15](https://nextjs.org/) (App Router) & [React 19](https://react.dev/)
+- **Styling**: Tailwind CSS, Bootstrap 5, and [Lucide React](https://lucide.dev/) Icons
+- **Backend**: Next.js API Routes (Serverless / Server-side)
+- **Database**: Dual Mode — MySQL / MariaDB support with zero-config **SQLite** fallback (`sql.js`)
+- **Authentication**: Custom JWT Authentication (`jose`, `bcryptjs`) with HTTP-only cookies
+- **Payments**: Paystack Gateway API (Ghana Mobile Money & Cards)
+- **AI Integration**: `@google/genai` (Google Gemini API)
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+Ensure you have the following installed on your machine:
+- [Node.js](https://nodejs.org/) (v18.0.0 or higher)
+- [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/)
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/your-username/skillsconnect-ghana.git
+cd skillsconnect-ghana
+```
+
+### 2. Install Dependencies
+
+```bash
+npm install
+```
+
+### 3. Environment Configuration
+
+Create a `.env.local` file in the root directory (you can copy `.env.example` as a template):
+
+```bash
+cp .env.example .env.local
+```
+
+Fill in the required environment variables:
+
+```env
+# General
+APP_URL=http://localhost:3000
+
+# Authentication
+JWT_SECRET=your_jwt_secret_key_here
+JWT_EXPIRES_IN=7d
+
+# Database (Optional: Defaults to built-in SQLite if host is omitted)
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_USER=root
+DB_PASSWORD=your_mysql_password
+DB_NAME=skillsconnect_db
+
+# Paystack Payments
+PAYSTACK_SECRET_KEY=sk_test_xxx
+PAYSTACK_PUBLIC_KEY=pk_test_xxx
+NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY=pk_test_xxx
+
+# Google Gemini AI
+GEMINI_API_KEY=your_gemini_api_key_here
+
+# Email SMTP (SendGrid or Zoho Mail free tier recommended)
+EMAIL_HOST=smtp.sendgrid.net
+EMAIL_PORT=587
+EMAIL_USER=apikey
+EMAIL_PASS=your_sendgrid_api_key_here
+EMAIL_FROM="SkillsConnect Ghana <no-reply@skillsconnectghana.com>"
+```
+
+### Email SMTP Setup (Free, production-ready)
+
+#### SendGrid
+
+1. Create a free SendGrid account at https://sendgrid.com.
+2. Generate an API key under Settings → API Keys.
+3. Paste the key into `EMAIL_PASS`.
+4. Keep `EMAIL_USER=apikey` and `EMAIL_HOST=smtp.sendgrid.net`.
+5. Set `EMAIL_FROM` to a verified sender email or domain.
+
+#### Zoho Mail
+
+1. Create a free Zoho Mail account at https://www.zoho.com/mail/.
+2. Verify your sender email or domain.
+3. If you use 2FA, generate an app password in Zoho Mail settings.
+4. Use these SMTP settings:
+
+```env
+EMAIL_HOST=smtp.zoho.com
+EMAIL_PORT=587
+EMAIL_USER=skillsconnectgh@zohomail.com
+EMAIL_PASS=your_zoho_app_password_here
+EMAIL_FROM="SkillsConnect Ghana <no-reply@skillsconnectghana.com>"
+```
+
+SendGrid and Zoho Mail both support free-tier email delivery and are suitable for verification codes, enquiries, and notification emails.
+
+### Test SMTP Delivery
+
+After you start the app, sign in as an admin and use the built-in SMTP diagnostics route to confirm email delivery:
+
+1. Open the admin dashboard.
+2. Navigate to the email settings or diagnostics section.
+3. Enter a valid recipient email address and submit the test.
+4. The app will send a live test message using your configured SMTP credentials.
+
+If SMTP is not fully configured, the app will still log a mock delivery message in the server console.
+
+### 4. Run the Development Server
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) in your browser to view the application.
+
+---
+
+## 📜 Available Scripts
+
+In the project directory, you can run:
+
+| Command | Description |
+| :--- | :--- |
+| `npm run dev` | Starts the Next.js development server on port 3000 |
+| `npm run build` | Builds the application for production deployment |
+| `npm start` | Starts the production server |
+| `npm run lint` | Runs ESLint to check for code quality and syntax issues |
+
+---
+## 📦 Upload Storage Path
+
+Uploaded files are stored under the project root in `public/uploads`.
+The application writes files to:
+
+```text
+[project root]/public/uploads
+```
+
+Public URLs are served from `/uploads/<filename>`.
+
+## 📫 Support Contact
+
+If you need assistance, use the current contact details:
+
+- **Email:** skillsconnectgh@zohomail.com
+- **Phone:** +233530600127
+
+---
+## 📁 Project Structure
+
+```text
+skillsconnect-ghana/
+├── app/                      # Next.js App Router pages and API routes
+│   ├── api/                  # Server API endpoints (auth, artisans, payments, etc.)
+│   ├── artisans/             # Public artisan directory
+│   ├── dashboard/            # Role-based dashboards (customer, artisan, admin)
+│   ├── login/                # User login page
+│   ├── payments/             # Paystack payment verification callback
+│   ├── register/             # User registration (customer & artisan)
+│   ├── globals.css           # Global CSS styles
+│   └── page.js               # Landing page / Home
+├── components/               # Reusable UI components & layouts
+├── context/                  # React Context providers (AuthContext)
+├── lib/                      # Helper modules (database, auth, paystack, mailer)
+├── public/                   # Static assets & images
+├── .env.example              # Environment variables template
+├── package.json              # Project dependencies & scripts
+└── README.md                 # Project documentation
+```
+
+---
+
+## 🔒 Security & Privacy
+
+- All API key secrets (Paystack, Gemini) are kept securely on the server side (`/app/api/*`).
+- Authentication uses secure HTTP-only cookies and bcrypt password hashing.
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License.

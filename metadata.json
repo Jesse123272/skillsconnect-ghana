@@ -1,0 +1,8 @@
+{
+  "name": "Remix: SkillsConnect Ghana",
+  "description": "A digital marketplace connecting skilled Ghanaian artisans with customers across Ghana.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
