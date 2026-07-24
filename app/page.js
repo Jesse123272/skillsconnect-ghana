@@ -29,8 +29,7 @@ export default async function Home() {
       categoriesCountRes,
       regionsCountRes,
       categoriesRes,
-      artisansRes,
-      platformTestimonials
+      artisansRes
     ] = await Promise.all([
       query("SELECT COUNT(*) as count FROM artisan_profiles WHERE is_approved = 1"),
       query("SELECT COUNT(*) as count FROM reviews WHERE is_approved = 1"),
@@ -48,8 +47,12 @@ export default async function Home() {
         WHERE u.is_active = 1 AND ap.is_approved = 1
         ORDER BY ap.average_rating DESC, ap.total_reviews DESC
         LIMIT 6
-      `),
-      query(`
+      `)
+    ]);
+
+    let platformTestimonials = [];
+    try {
+      platformTestimonials = await query(`
         SELECT t.testimonial_id as review_id, t.customer_id, t.rating, t.testimonial_text as review_text, t.created_at,
                u.full_name as customer_name, u.profile_photo as customer_photo,
                NULL as artisan_name
@@ -58,8 +61,10 @@ export default async function Home() {
         WHERE t.status = 'approved'
         ORDER BY t.created_at DESC
         LIMIT 3
-      `)
-    ]);
+      `);
+    } catch (testimonialErr) {
+      console.warn('Testimonials table unavailable in production DB, using reviews fallback.');
+    }
 
     stats = {
       total_artisans: artisansCountRes[0]?.count || 120,

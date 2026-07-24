@@ -66,8 +66,8 @@ export async function GET(req) {
 
     // 3. Setup pagination variables
     const parsedPage = parseInt(page, 10) || 1;
-    const parsedLimit = parseInt(limit, 10) || 9;
-    const offset = (parsedPage - 1) * parsedLimit;
+    const parsedLimit = Math.max(1, Math.min(parseInt(limit, 10) || 9, 100));
+    const offset = Math.max(0, (parsedPage - 1) * parsedLimit);
 
     let orderBy = 'ap.average_rating DESC';
     if (sort === 'newest') {
@@ -96,6 +96,9 @@ export async function GET(req) {
           AND ${distanceFormula} <= ?
       `;
 
+      const safeLimit = parsedLimit;
+      const safeOffset = offset;
+
       querySql = `
         SELECT
           u.user_id, u.full_name, u.email, u.phone, u.region, u.district, u.profile_photo,
@@ -109,7 +112,7 @@ export async function GET(req) {
         ${locationConditions}
           AND ${distanceFormula} <= ?
         ORDER BY weighted_score DESC, distance_km ASC
-        LIMIT ? OFFSET ?
+        LIMIT ${safeLimit} OFFSET ${safeOffset}
       `;
 
       countParams = [
@@ -132,9 +135,7 @@ export async function GET(req) {
         latitude,
         longitude,
         latitude,
-        radius,
-        parsedLimit,
-        offset
+        radius
       ];
     } else {
       countSql = `
@@ -159,7 +160,7 @@ export async function GET(req) {
       `;
 
       countParams = params;
-      queryParams = [...params, parsedLimit, offset];
+      queryParams = [...params];
     }
 
     // Execute count and data queries in parallel
