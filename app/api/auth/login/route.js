@@ -6,6 +6,35 @@ import { sendEmail, loginAlertEmail } from '@/lib/mailer';
 import { sanitizeObject, sanitizeText, RateLimiter } from '@/lib/security';
 import { validateEmail } from '@/lib/validators';
 
+const DEFAULT_ADMIN = {
+  full_name: 'SkillsConnect Admin',
+  email: 'admin@skillsconnect.gh',
+  phone: '+233302123456',
+  password: 'Admin@2026',
+  role: 'admin',
+  region: 'Greater Accra',
+  district: 'Accra Central'
+};
+
+async function ensureAdminExists() {
+  const existingAdmin = await query("SELECT user_id FROM users WHERE role = 'admin' LIMIT 1");
+  if (!existingAdmin || existingAdmin.length === 0) {
+    const password_hash = await bcrypt.hash(DEFAULT_ADMIN.password, 12);
+    await query(
+      'INSERT INTO users (full_name, email, phone, password_hash, role, region, district, is_verified, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, 1, 1)',
+      [
+        DEFAULT_ADMIN.full_name,
+        DEFAULT_ADMIN.email,
+        DEFAULT_ADMIN.phone,
+        password_hash,
+        DEFAULT_ADMIN.role,
+        DEFAULT_ADMIN.region,
+        DEFAULT_ADMIN.district
+      ]
+    );
+  }
+}
+
 const loginLimiter = new RateLimiter(8, 60000);
 
 export async function POST(req) {
@@ -42,6 +71,9 @@ export async function POST(req) {
     if (!validateEmail(cleanedEmail)) {
       return NextResponse.json({ success: false, error: 'Please provide a valid email address.' }, { status: 400 });
     }
+
+    // Ensure admin seed exists when the production database is empty or missing the account.
+    await ensureAdminExists();
 
     // 2. SELECT user by email
     const users = await query(
