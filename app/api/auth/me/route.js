@@ -12,20 +12,34 @@ export async function GET(req) {
       );
     }
 
-    const users = await query(
-      `SELECT user_id, full_name, email, phone, role, region, district, profile_photo, preferences, is_verified, is_active, last_login, created_at 
-       FROM users WHERE user_id = ?`,
-      [payload.user_id]
-    );
+    let user = null;
 
-    if (!users || users.length === 0) {
-      return NextResponse.json(
-        { success: false, error: 'User account not found' },
-        { status: 404 }
+    try {
+      const users = await query(
+        `SELECT user_id, full_name, email, phone, role, region, district, profile_photo, preferences, is_verified, is_active, last_login, created_at 
+         FROM users WHERE user_id = ?`,
+        [payload.user_id]
       );
-    }
 
-    const user = users[0];
+      if (!users || users.length === 0) {
+        return NextResponse.json(
+          { success: false, error: 'User account not found' },
+          { status: 404 }
+        );
+      }
+
+      user = users[0];
+    } catch (error) {
+      console.warn('Auth me user lookup failed, falling back to token payload:', error?.message || error);
+      user = {
+        user_id: payload.user_id,
+        full_name: payload.full_name || payload.email || 'User',
+        email: payload.email,
+        role: payload.role || 'customer',
+        is_verified: 1,
+        is_active: 1,
+      };
+    }
 
     if (user.is_active !== 1) {
       return NextResponse.json(
@@ -34,19 +48,19 @@ export async function GET(req) {
       );
     }
 
-    // If artisan, join with artisan_profiles and categories
     if (user.role === 'artisan') {
-      const profiles = await query(
-        `SELECT ap.profile_id, ap.category_id, ap.bio, ap.years_experience, ap.average_rating, ap.total_reviews, ap.profile_views, ap.is_approved, ap.is_featured, ap.service_areas, c.category_name, c.icon_class
-         FROM artisan_profiles ap
-         LEFT JOIN categories c ON ap.category_id = c.category_id
-         WHERE ap.user_id = ?`,
-        [user.user_id]
-      );
-      
-      if (profiles && profiles.length > 0) {
-        user.artisan_profile = profiles[0];
-      } else {
+      try {
+        const profiles = await query(
+          `SELECT ap.profile_id, ap.category_id, ap.bio, ap.years_experience, ap.average_rating, ap.total_reviews, ap.profile_views, ap.is_approved, ap.is_featured, ap.service_areas, c.category_name, c.icon_class
+           FROM artisan_profiles ap
+           LEFT JOIN categories c ON ap.category_id = c.category_id
+           WHERE ap.user_id = ?`,
+          [user.user_id]
+        );
+
+        user.artisan_profile = profiles && profiles.length > 0 ? profiles[0] : null;
+      } catch (error) {
+        console.warn('Auth me artisan profile lookup failed:', error?.message || error);
         user.artisan_profile = null;
       }
     }
@@ -55,7 +69,6 @@ export async function GET(req) {
       success: true,
       data: user
     });
-
   } catch (error) {
     console.error('Get Current User API Error:', error);
     return NextResponse.json(
