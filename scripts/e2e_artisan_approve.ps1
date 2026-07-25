@@ -1,5 +1,7 @@
 $ErrorActionPreference = 'Stop'
 try {
+  $baseUrl = $env:BASE_URL
+  if (-not $baseUrl) { $baseUrl = 'https://skillsconnect-ghana.vercel.app' }
   $artisanEmail = "artisan$(Get-Date -Format 'yyMMddHHmmss')@example.com"
   $artisanBody = @{
     full_name = 'E2E Artisan'
@@ -14,7 +16,7 @@ try {
     years_experience = 5
     bio = 'Test artisan profile.'
   }
-  $resArt = Invoke-WebRequest -Uri 'https://skillsconnect-ghana.vercel.app/api/auth/register' -Method POST -ContentType 'application/json' -Body ($artisanBody | ConvertTo-Json -Compress) -TimeoutSec 120
+  $resArt = Invoke-WebRequest -Uri "$baseUrl/api/auth/register" -Method POST -ContentType 'application/json' -Body ($artisanBody | ConvertTo-Json -Compress) -TimeoutSec 120
   Write-Host "ARTISAN REGISTER STATUS:" $resArt.StatusCode
   Write-Host $resArt.Content
   $artObj = $resArt.Content | ConvertFrom-Json
@@ -22,12 +24,12 @@ try {
 
   $sessionAdmin = New-Object Microsoft.PowerShell.Commands.WebRequestSession
   $adminBody = @{ email = 'admin@skillsconnect.gh'; password = 'Admin@2026'; remember_me = $true } | ConvertTo-Json -Compress
-  $resAdminLogin = Invoke-WebRequest -Uri 'https://skillsconnect-ghana.vercel.app/api/auth/login' -Method POST -ContentType 'application/json' -Body $adminBody -WebSession $sessionAdmin -TimeoutSec 120
+  $resAdminLogin = Invoke-WebRequest -Uri "$baseUrl/api/auth/login" -Method POST -ContentType 'application/json' -Body $adminBody -WebSession $sessionAdmin -TimeoutSec 120
   Write-Host "ADMIN LOGIN STATUS:" $resAdminLogin.StatusCode
   Write-Host $resAdminLogin.Content
 
   $approveBody = @{ action = 'approve' }
-  $resApprove = Invoke-WebRequest -Uri "https://skillsconnect-ghana.vercel.app/api/admin/artisans/$artisanId" -Method PUT -ContentType 'application/json' -Body ($approveBody | ConvertTo-Json -Compress) -WebSession $sessionAdmin -TimeoutSec 120
+  $resApprove = Invoke-WebRequest -Uri "$baseUrl/api/admin/artisans/$artisanId" -Method PUT -ContentType 'application/json' -Body ($approveBody | ConvertTo-Json -Compress) -WebSession $sessionAdmin -TimeoutSec 120
   Write-Host "APPROVE ARTISAN STATUS:" $resApprove.StatusCode
   Write-Host $resApprove.Content
 
