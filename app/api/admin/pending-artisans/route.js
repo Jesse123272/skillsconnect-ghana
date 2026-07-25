@@ -19,27 +19,34 @@ export async function GET(req) {
       );
     }
 
-    // Select pending artisan profiles along with core user account and trade category details
-    const pendingArtisans = await query(
-      `SELECT 
-        u.user_id, u.full_name, u.email, u.phone, u.region, u.district, u.profile_photo, u.created_at as registered_at,
-        ap.profile_id, ap.category_id, ap.bio, ap.years_experience, ap.service_areas, ap.created_at as profile_created_at,
-        c.category_name, c.icon_class
-       FROM users u
-       INNER JOIN artisan_profiles ap ON u.user_id = ap.user_id
-       INNER JOIN categories c ON ap.category_id = c.category_id
-       WHERE ap.is_approved = 0 AND u.is_active = 1
-       ORDER BY ap.created_at ASC`
-    );
+    let pendingArtisans = [];
 
-    const formattedArtisans = pendingArtisans.map(artisan => {
+    try {
+      pendingArtisans = await query(
+        `SELECT 
+          u.user_id, u.full_name, u.email, u.phone, u.region, u.district, u.profile_photo, u.created_at as registered_at,
+          ap.profile_id, ap.category_id, ap.bio, ap.years_experience, ap.service_areas, ap.created_at as profile_created_at,
+          c.category_name, c.icon_class
+         FROM users u
+         INNER JOIN artisan_profiles ap ON u.user_id = ap.user_id
+         LEFT JOIN categories c ON ap.category_id = c.category_id
+         WHERE ap.is_approved = 0 AND u.is_active = 1
+         ORDER BY ap.created_at ASC`
+      );
+    } catch (error) {
+      console.warn('Pending artisans lookup failed:', error?.message || error);
+      pendingArtisans = [];
+    }
+
+    const formattedArtisans = (Array.isArray(pendingArtisans) ? pendingArtisans : []).map((artisan) => {
       let areaArray = [];
-      if (artisan.service_areas) {
-        areaArray = artisan.service_areas.split(',').map(s => s.trim()).filter(Boolean);
+      if (artisan?.service_areas) {
+        areaArray = artisan.service_areas.split(',').map((s) => s.trim()).filter(Boolean);
       }
       return {
         ...artisan,
-        service_areas: areaArray
+        service_areas: areaArray,
+        category_name: artisan?.category_name || 'Uncategorized'
       };
     });
 
