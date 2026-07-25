@@ -60,7 +60,12 @@ export default function LoginForm({
     e.preventDefault();
     setApiError('');
 
-    if (!email.trim() || !password) {
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    const submittedEmail = formData.get('email')?.toString().trim() || email.trim();
+    const submittedPassword = formData.get('password')?.toString() || password;
+
+    if (!submittedEmail || !submittedPassword) {
       toast.error('Please fill in both email and password.');
       return;
     }
@@ -74,8 +79,8 @@ export default function LoginForm({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          email: email.trim(),
-          password,
+          email: submittedEmail,
+          password: submittedPassword,
           remember_me: rememberMe,
         }),
       });
@@ -138,6 +143,7 @@ export default function LoginForm({
               <div className="mb-3">
                 <label className="form-label text-secondary small fw-medium">Email Address</label>
                 <input
+                  name="email"
                   type="email"
                   className="form-control text-secondary small"
                   placeholder="name@example.com"
@@ -158,6 +164,7 @@ export default function LoginForm({
                 </div>
                 <div className="input-group">
                   <input
+                    name="password"
                     type={showPassword ? 'text' : 'password'}
                     className="form-control text-secondary small border-end-0"
                     placeholder="Enter your account password"
@@ -180,6 +187,7 @@ export default function LoginForm({
                   className="form-check-input"
                   type="checkbox"
                   id="rememberMe"
+                  name="remember_me"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
                 />

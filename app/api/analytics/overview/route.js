@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { query } from '@/lib/db';
+import { isSqliteFallbackEnabled, query } from '@/lib/db';
 import { getUserFromRequest } from '@/lib/auth';
 
 export async function GET(req) {
@@ -9,7 +9,7 @@ export async function GET(req) {
       return NextResponse.json({ success: false, error: 'Unauthorized.' }, { status: 401 });
     }
 
-    const useSqliteFallback = process.env.USE_SQLITE === 'true' || !process.env.DB_HOST || process.env.DB_HOST === '127.0.0.1';
+    const useSqliteFallback = isSqliteFallbackEnabled;
 
     const fetchCount = async (sql) => {
       try {

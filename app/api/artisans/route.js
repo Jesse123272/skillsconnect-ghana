@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { query } from '@/lib/db';
+import { isSqliteFallbackEnabled, query } from '@/lib/db';
 
 export async function GET(req) {
   try {
@@ -56,7 +56,7 @@ export async function GET(req) {
     const longitude = parseFloat(searchParams.get('longitude') || '');
     const radius = parseFloat(searchParams.get('radius') || '25');
     const useLocation = !Number.isNaN(latitude) && !Number.isNaN(longitude);
-    const useSqliteBackend = !process.env.DB_HOST || process.env.DB_HOST === '127.0.0.1' || process.env.USE_SQLITE === 'true';
+    const useSqliteBackend = isSqliteFallbackEnabled;
     const canUseLocation = useLocation && !useSqliteBackend;
     const locationWarning = useLocation && !canUseLocation
       ? 'Location filtering is unavailable in this environment. Showing default artisan listings instead.'

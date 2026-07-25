@@ -52,8 +52,9 @@ export async function POST(req) {
     }
 
     const body = sanitizeObject(parsedBody);
-    const { email, password } = body;
+    const { email, password, remember_me } = body;
     const cleanedEmail = sanitizeText((email || '').trim().toLowerCase());
+    const rememberMe = [true, 'true', '1', 1].includes(remember_me);
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || '127.0.0.1';
 
     if (!loginLimiter.allow(ip)) {
@@ -153,7 +154,9 @@ export async function POST(req) {
       data: safeUserData
     });
 
-    setAuthCookie(response, token);
+    setAuthCookie(response, token, {
+      maxAge: rememberMe ? 30 * 24 * 60 * 60 : undefined,
+    });
     return response;
 
   } catch (error) {

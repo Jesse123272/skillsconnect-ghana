@@ -27,7 +27,8 @@ export default function SystemSettings() {
   const [saving, setSaving] = useState(false);
   const [testingEmail, setTestingEmail] = useState(false);
   const [testEmailAddress, setTestEmailAddress] = useState('');
-  const [mailServerMock, setMailServerMock] = useState(true);
+  const [mailServerMock, setMailServerMock] = useState(null);
+  const [mailStatusError, setMailStatusError] = useState('');
   const [resettingDb, setResettingDb] = useState(false);
   const [seedingDb, setSeedingDb] = useState(false);
 
@@ -50,7 +51,7 @@ export default function SystemSettings() {
       try {
         const [settingsRes, mailRes] = await Promise.all([
           fetch('/api/admin/settings', { credentials: 'include' }),
-          fetch('/api/auth/verify-email')
+          fetch('/api/admin/settings/test-email', { credentials: 'include' })
         ]);
         
         const settingsData = await settingsRes.json();
@@ -72,10 +73,17 @@ export default function SystemSettings() {
 
         if (mailData.success && active) {
           setMailServerMock(mailData.mockMode);
+        } else if (active) {
+          setMailStatusError('Unable to determine SMTP status. Please refresh or check your network.');
+          setMailServerMock(true);
         }
       } catch (err) {
         console.error(err);
-        if (active) toast.error('Network error while fetching system parameters.');
+        if (active) {
+          toast.error('Network error while fetching system parameters.');
+          setMailStatusError('Unable to determine SMTP status due to a network error.');
+          setMailServerMock(true);
+        }
       } finally {
         if (active) setLoading(false);
       }
@@ -338,13 +346,37 @@ export default function SystemSettings() {
             
             <div className="row g-3">
               <div className="col-md-12">
-                <div className={`p-3 rounded-3 mb-3 d-flex align-items-start gap-2.5 ${mailServerMock ? 'bg-light border text-muted' : 'bg-success-subtle border-success-subtle text-success-emphasis'}`} style={{ fontSize: '13.5px' }}>
-                  {mailServerMock ? (
+                {mailStatusError && (
+                  <div className="alert alert-warning border-warning-subtle bg-warning-subtle text-warning-emphasis fs-7 py-3 px-3 mb-3" role="alert">
+                    <strong className="d-block mb-1">SMTP status unavailable</strong>
+                    {mailStatusError}
+                  </div>
+                )}
+                <div className={`p-3 rounded-3 mb-3 d-flex align-items-start gap-2.5 ${mailServerMock === null ? 'bg-info-subtle border-info-subtle text-info-emphasis' : mailServerMock ? 'bg-light border text-muted' : 'bg-success-subtle border-success-subtle text-success-emphasis'}`} style={{ fontSize: '13.5px' }}>
+                  {mailServerMock === null ? (
+                    <>
+                      <RefreshCw size={20} className="text-info flex-shrink-0 mt-0.5 animate-spin" />
+                      <div>
+                        <strong className="d-block mb-1 text-dark">Checking SMTP configuration...</strong>
+                        We are verifying whether your environment is configured for live email delivery. Please wait a moment.
+                      </div>
+                    </>
+                  ) : mailServerMock ? (
                     <>
                       <AlertCircle size={20} className="text-warning flex-shrink-0 mt-0.5" />
                       <div>
                         <strong className="d-block mb-1 text-dark">Currently in Sandbox / Mock Mode</strong>
                         Since your custom SMTP server details are not fully configured in the platform&apos;s Environment Settings, all account verification emails and system notifications are running in simulated mock mode (logged to server console). This prevents real email dispatching to actual user accounts.
+                        <div className="mt-3 small">
+                          <strong className="d-block mb-1">You must configure these environment variables in AI Studio / Vercel:</strong>
+                          <ul className="ps-3 mb-1">
+                            <li><code className="text-dark bg-white px-1 border rounded font-monospace small">EMAIL_HOST</code></li>
+                            <li><code className="text-dark bg-white px-1 border rounded font-monospace small">EMAIL_PORT</code></li>
+                            <li><code className="text-dark bg-white px-1 border rounded font-monospace small">EMAIL_USER</code></li>
+                            <li><code className="text-dark bg-white px-1 border rounded font-monospace small">EMAIL_PASS</code></li>
+                            <li><code className="text-dark bg-white px-1 border rounded font-monospace small">EMAIL_FROM</code></li>
+                          </ul>
+                        </div>
                       </div>
                     </>
                   ) : (
@@ -373,6 +405,16 @@ export default function SystemSettings() {
                     <li className="mb-1"><code className="text-dark bg-white px-1 border rounded font-monospace small">EMAIL_PASS</code>: Your authenticating password (for Gmail, use a secure 16-character **App Password**)</li>
                     <li><code className="text-dark bg-white px-1 border rounded font-monospace small">EMAIL_FROM</code>: Name & address to show as sender (e.g., <code className="font-monospace">&quot;SkillsConnect Ghana &lt;noreply@skillsconnect.gh&gt;&quot;</code>)</li>
                   </ul>
+                  <div className="mt-3 p-3 rounded-3 bg-white border" style={{ fontSize: '12px' }}>
+                    <strong className="d-block mb-2 text-dark">Example configuration:</strong>
+                    <pre className="bg-light p-3 rounded text-break mb-0" style={{ fontSize: '11.5px', lineHeight: '1.5' }}>
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=465
+EMAIL_USER=your-service@gmail.com
+EMAIL_PASS=&lt;app password&gt;
+EMAIL_FROM="SkillsConnect Ghana &lt;noreply@skillsconnect.gh&gt;"
+                    </pre>
+                  </div>
                 </div>
 
                 <form onSubmit={handleTestEmail} className="border rounded-3 p-3 bg-white">

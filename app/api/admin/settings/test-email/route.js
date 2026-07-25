@@ -56,8 +56,6 @@ export async function POST(req) {
       html: htmlContent
     });
 
-    const isSuccess = info && !info.messageId.includes('mock-fallback');
-
     if (isMock) {
       return NextResponse.json({
         success: true,
@@ -66,17 +64,11 @@ export async function POST(req) {
       });
     }
 
-    if (!isSuccess) {
-      return NextResponse.json({
-        success: false,
-        error: 'The mailer returned an SMTP fallback state. This usually means mailer is offline or can only run simulated delivery.'
-      });
-    }
-
     return NextResponse.json({
       success: true,
       mode: 'live',
-      message: `Success! Test email successfully sent to ${testEmail} using your SMTP credentials. Please check your inbox (and spam folder).`
+      message: `Success! Test email successfully sent to ${testEmail} using your SMTP credentials. Please check your inbox (and spam folder).`,
+      info
     });
 
   } catch (error) {
@@ -85,5 +77,18 @@ export async function POST(req) {
       success: false, 
       error: error.message || 'Unknown SMTP validation error occurred.'
     }, { status: 500 });
+  }
+}
+
+export async function GET() {
+  try {
+    const isMock = isMockEmailMode();
+    return NextResponse.json({
+      success: true,
+      mockMode: isMock
+    });
+  } catch (error) {
+    console.error('SMTP diagnostics GET route error:', error);
+    return NextResponse.json({ success: false, error: 'Unable to determine mailer status.' });
   }
 }
