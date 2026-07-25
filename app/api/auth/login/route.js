@@ -74,13 +74,26 @@ export async function POST(req) {
     }
 
     // Ensure admin seed exists when the production database is empty or missing the account.
-    await ensureAdminExists();
+    try {
+      await ensureAdminExists();
+    } catch (seedError) {
+      console.warn('Admin seed check failed:', seedError?.message || seedError);
+    }
 
     // 2. SELECT user by email
-    const users = await query(
-      'SELECT user_id, full_name, email, phone, password_hash, role, region, district, profile_photo, is_verified, is_active FROM users WHERE email = ?',
-      [cleanedEmail]
-    );
+    let users = [];
+    try {
+      users = await query(
+        'SELECT user_id, full_name, email, phone, password_hash, role, region, district, profile_photo, is_verified, is_active FROM users WHERE email = ?',
+        [cleanedEmail]
+      );
+    } catch (dbError) {
+      console.error('User lookup failed during login:', dbError);
+      return NextResponse.json(
+        { success: false, error: 'Database lookup failed while signing in. Please try again shortly.' },
+        { status: 500 }
+      );
+    }
 
     if (!users || users.length === 0) {
       return NextResponse.json(
@@ -133,7 +146,7 @@ export async function POST(req) {
       [user.user_id, 'USER_LOGIN', 'users', user.user_id, ip]
     );
 
-    // 7.5. Send security login alert email
+    // 7.5. Send security login alert email, but never fail login because of mail delivery.
     try {
       const alertHtml = loginAlertEmail(user.full_name, ip);
       await sendEmail({
@@ -142,7 +155,7 @@ export async function POST(req) {
         html: alertHtml
       });
     } catch (emailError) {
-      console.error('Login alert email sending failed:', emailError);
+      console.warn('Login alert email sending failed:', emailError?.message || emailError);
     }
 
     // 8. Prepare user data to return (exclude password_hash)
