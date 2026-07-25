@@ -7,7 +7,14 @@ import { validateEmail, validatePassword, validatePhone } from '@/lib/validators
 
 export async function POST(req) {
   try {
-    const body = sanitizeObject(await req.json());
+    let body = {};
+    try {
+      body = sanitizeObject(await req.json());
+    } catch (parseError) {
+      console.warn('Registration payload parse failed:', parseError?.message || parseError);
+      body = {};
+    }
+
     const {
       full_name,
       email,
@@ -97,7 +104,13 @@ export async function POST(req) {
       }
 
       // Check if category exists
-      const catCheck = await query('SELECT category_id FROM categories WHERE category_id = ? AND is_active = 1', [parsedCategoryId]);
+      let catCheck = [];
+      try {
+        catCheck = await query('SELECT category_id FROM categories WHERE category_id = ? AND is_active = 1', [parsedCategoryId]);
+      } catch (categoryError) {
+        console.warn('Category validation query failed:', categoryError?.message || categoryError);
+      }
+
       if (!catCheck || catCheck.length === 0) {
         return NextResponse.json(
           { success: false, error: 'Selected trade category is invalid or inactive' },
@@ -107,7 +120,13 @@ export async function POST(req) {
     }
 
     // 6. Check unique email
-    const emailCheck = await query('SELECT user_id FROM users WHERE email = ?', [cleanedEmail]);
+    let emailCheck = [];
+    try {
+      emailCheck = await query('SELECT user_id FROM users WHERE email = ?', [cleanedEmail]);
+    } catch (emailLookupError) {
+      console.warn('Email lookup failed during registration:', emailLookupError?.message || emailLookupError);
+    }
+
     if (emailCheck && emailCheck.length > 0) {
       return NextResponse.json(
         { success: false, error: 'An account with this email address already exists' },
@@ -180,9 +199,9 @@ export async function POST(req) {
     });
 
   } catch (error) {
-    console.error('Registration API Error:', error);
+    console.error('Registration API Error:', error?.message || error);
     return NextResponse.json(
-      { success: false, error: 'An unexpected internal server error occurred during registration' },
+      { success: false, error: 'We could not complete your registration right now. Please try again shortly.' },
       { status: 500 }
     );
   }
