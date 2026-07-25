@@ -121,32 +121,44 @@ export async function POST(req) {
     // Generate a 6-digit verification code
     const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
 
-    // 8. Insert into users table
-    const userResult = await query(
-      `INSERT INTO users (full_name, email, phone, password_hash, role, region, district, verification_token, is_verified, is_active) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, 1)`,
-      [cleanedName, cleanedEmail, cleanedPhone, passwordHash, cleanedRole, cleanedRegion, cleanedDistrict, verificationCode]
-    );
-
-    const userId = userResult.insertId;
-
-    // 9. If artisan, insert into artisan_profiles
-    if (cleanedRole === 'artisan') {
-      await query(
-        `INSERT INTO artisan_profiles (user_id, category_id, bio, years_experience, is_approved) 
-         VALUES (?, ?, ?, ?, 0)`,
-        [userId, parsedCategoryId, cleanedBio, parsedYearsExp]
+    let userId = null;
+    try {
+      const userResult = await query(
+        `INSERT INTO users (full_name, email, phone, password_hash, role, region, district, verification_token, is_verified, is_active) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, 1)`,
+        [cleanedName, cleanedEmail, cleanedPhone, passwordHash, cleanedRole, cleanedRegion, cleanedDistrict, verificationCode]
+      );
+      userId = userResult?.insertId || null;
+    } catch (dbError) {
+      console.error('User registration insert failed:', dbError);
+      return NextResponse.json(
+        { success: false, error: 'We could not create your account because the database rejected the registration request.' },
+        { status: 500 }
       );
     }
 
-    // 10. Log important actions to activity_logs table
-    const ip = req.headers.get('x-forwarded-for') || '127.0.0.1';
-    await query(
-      'INSERT INTO activity_logs (user_id, action, entity_type, entity_id, ip_address) VALUES (?, ?, ?, ?, ?)',
-      [userId, 'USER_REGISTER', 'users', userId, ip]
-    );
+    if (cleanedRole === 'artisan' && userId) {
+      try {
+        await query(
+          `INSERT INTO artisan_profiles (user_id, category_id, bio, years_experience, is_approved) 
+           VALUES (?, ?, ?, ?, 0)`,
+          [userId, parsedCategoryId, cleanedBio, parsedYearsExp]
+        );
+      } catch (profileError) {
+        console.warn('Artisan profile insert failed:', profileError?.message || profileError);
+      }
+    }
 
-    // 11. Send verification email via lib/mailer.js
+    const ip = req.headers.get('x-forwarded-for') || '127.0.0.1';
+    try {
+      await query(
+        'INSERT INTO activity_logs (user_id, action, entity_type, entity_id, ip_address) VALUES (?, ?, ?, ?, ?)',
+        [userId, 'USER_REGISTER', 'users', userId, ip]
+      );
+    } catch (logError) {
+      console.warn('Activity log insert failed:', logError?.message || logError);
+    }
+
     try {
       const emailHtml = verificationEmail(cleanedName, verificationCode);
       await sendEmail({
@@ -155,10 +167,9 @@ export async function POST(req) {
         html: emailHtml
       });
     } catch (emailError) {
-      console.error('Verification email sending failed:', emailError);
+      console.warn('Verification email sending failed:', emailError?.message || emailError);
     }
 
-    // 12. Return success
     return NextResponse.json({
       success: true,
       data: {
