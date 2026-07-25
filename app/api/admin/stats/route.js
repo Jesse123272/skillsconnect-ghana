@@ -19,69 +19,56 @@ export async function GET(req) {
       );
     }
 
-    // 1. Core counters
-    const totalUsersResult = await query("SELECT COUNT(*) as count FROM users");
-    const totalUsers = totalUsersResult[0]?.count || 0;
+    const safeCount = async (sql, fallback = 0) => {
+      try {
+        const result = await query(sql);
+        const value = result?.[0]?.count ?? result?.[0]?.total ?? result?.[0]?.sum ?? fallback;
+        return Number(value ?? fallback) || fallback;
+      } catch (error) {
+        console.warn('Admin stats count query failed:', error?.message || error);
+        return fallback;
+      }
+    };
 
-    const totalArtisansResult = await query("SELECT COUNT(*) as count FROM users WHERE role = 'artisan'");
-    const totalArtisans = totalArtisansResult[0]?.count || 0;
+    const safeRows = async (sql, fallback = []) => {
+      try {
+        const result = await query(sql);
+        return Array.isArray(result) ? result : fallback;
+      } catch (error) {
+        console.warn('Admin stats rows query failed:', error?.message || error);
+        return fallback;
+      }
+    };
 
-    const totalReviewsResult = await query("SELECT COUNT(*) as count FROM reviews");
-    const totalReviews = totalReviewsResult[0]?.count || 0;
+    const [
+      totalUsers,
+      totalArtisans,
+      totalReviews,
+      pendingApprovals,
+      recentRegistrations,
+      pendingArtisanApprovals,
+      categoryDistribution,
+      registrationsByMonth,
+      enquiriesByMonth
+    ] = await Promise.all([
+      safeCount("SELECT COUNT(*) as count FROM users"),
+      safeCount("SELECT COUNT(*) as count FROM users WHERE role = 'artisan'"),
+      safeCount("SELECT COUNT(*) as count FROM reviews"),
+      safeCount("SELECT COUNT(*) as count FROM artisan_profiles WHERE is_approved = 0"),
+      safeRows(`SELECT user_id, full_name, role, region, created_at, is_active FROM users ORDER BY created_at DESC LIMIT 5`),
+      safeRows(`SELECT u.user_id, u.full_name, u.region, ap.years_experience, c.category_name, ap.created_at FROM users u INNER JOIN artisan_profiles ap ON u.user_id = ap.user_id INNER JOIN categories c ON ap.category_id = c.category_id WHERE ap.is_approved = 0 AND u.is_active = 1 ORDER BY ap.created_at ASC LIMIT 5`),
+      safeRows(`SELECT c.category_name, COUNT(ap.profile_id) as count FROM categories c LEFT JOIN artisan_profiles ap ON c.category_id = ap.category_id GROUP BY c.category_id, c.category_name ORDER BY count DESC`),
+      safeRows(`SELECT DATE_FORMAT(created_at, '%b %Y') as month, COUNT(*) as count, created_at FROM users WHERE created_at >= DATE_SUB(NOW(), INTERVAL 6 MONTH) GROUP BY month ORDER BY MIN(created_at) ASC`),
+      safeRows(`SELECT DATE_FORMAT(created_at, '%b %Y') as month, COUNT(*) as count, created_at FROM enquiries WHERE created_at >= DATE_SUB(NOW(), INTERVAL 6 MONTH) GROUP BY month ORDER BY MIN(created_at) ASC`)
+    ]);
 
-    const pendingApprovalsResult = await query("SELECT COUNT(*) as count FROM artisan_profiles WHERE is_approved = 0");
-    const pendingApprovals = pendingApprovalsResult[0]?.count || 0;
+    const categoryLabels = categoryDistribution
+      .map((item) => item?.category_name)
+      .filter(Boolean);
+    const categoryData = categoryDistribution
+      .map((item) => Number(item?.count) || 0)
+      .filter((value) => value > 0);
 
-    // 2. Recent Registrations (last 5 users)
-    const recentRegistrations = await query(
-      `SELECT user_id, full_name, role, region, created_at, is_active 
-       FROM users 
-       ORDER BY created_at DESC 
-       LIMIT 5`
-    );
-
-    // 3. Pending Artisan Approvals
-    const pendingArtisanApprovals = await query(
-      `SELECT u.user_id, u.full_name, u.region, ap.years_experience, c.category_name, ap.created_at
-       FROM users u
-       INNER JOIN artisan_profiles ap ON u.user_id = ap.user_id
-       INNER JOIN categories c ON ap.category_id = c.category_id
-       WHERE ap.is_approved = 0 AND u.is_active = 1
-       ORDER BY ap.created_at ASC
-       LIMIT 5`
-    );
-
-    // 4. Artisans by Category (Doughnut Chart data)
-    const categoryDistribution = await query(
-      `SELECT c.category_name, COUNT(ap.profile_id) as count
-       FROM categories c
-       LEFT JOIN artisan_profiles ap ON c.category_id = ap.category_id
-       GROUP BY c.category_id, c.category_name
-       ORDER BY count DESC`
-    );
-
-    const categoryLabels = categoryDistribution.map(item => item.category_name);
-    const categoryData = categoryDistribution.map(item => item.count);
-
-    // 5. Monthly User Registrations (Last 6 Months)
-    const registrationsByMonth = await query(
-      `SELECT DATE_FORMAT(created_at, '%b %Y') as month, COUNT(*) as count, created_at
-       FROM users
-       WHERE created_at >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
-       GROUP BY month
-       ORDER BY MIN(created_at) ASC`
-    );
-
-    // 6. Platform Enquiries (Last 6 Months)
-    const enquiriesByMonth = await query(
-      `SELECT DATE_FORMAT(created_at, '%b %Y') as month, COUNT(*) as count, created_at
-       FROM enquiries
-       WHERE created_at >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
-       GROUP BY month
-       ORDER BY MIN(created_at) ASC`
-    );
-
-    // Generate month labels for last 6 months to ensure we have data
     const last6MonthsLabels = [];
     for (let i = 5; i >= 0; i--) {
       const d = new Date();
@@ -91,17 +78,21 @@ export async function GET(req) {
     }
 
     const regMap = {};
-    registrationsByMonth.forEach(item => {
-      regMap[item.month] = item.count;
+    registrationsByMonth.forEach((item) => {
+      if (item?.month) {
+        regMap[item.month] = Number(item.count) || 0;
+      }
     });
 
     const enqMap = {};
-    enquiriesByMonth.forEach(item => {
-      enqMap[item.month] = item.count;
+    enquiriesByMonth.forEach((item) => {
+      if (item?.month) {
+        enqMap[item.month] = Number(item.count) || 0;
+      }
     });
 
-    const regChartData = last6MonthsLabels.map(label => regMap[label] || 0);
-    const enqChartData = last6MonthsLabels.map(label => enqMap[label] || 0);
+    const regChartData = last6MonthsLabels.map((label) => regMap[label] || 0);
+    const enqChartData = last6MonthsLabels.map((label) => enqMap[label] || 0);
 
     return NextResponse.json({
       success: true,
@@ -126,10 +117,8 @@ export async function GET(req) {
         }
       }
     });
-
   } catch (error) {
     console.error('Fetch Admin Stats API Error:', error);
-    // Dynamic fallbacks
     const fallbackMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
     return NextResponse.json({
       success: true,

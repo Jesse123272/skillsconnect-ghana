@@ -11,7 +11,7 @@ export default function AnalyticsOverview() {
   useEffect(() => {
     async function load() {
       try {
-        const res = await fetch('/api/analytics/overview');
+        const res = await fetch('/api/analytics/overview', { credentials: 'include' });
         const json = await res.json();
         if (json.success) {
           setMetrics(json.data);
