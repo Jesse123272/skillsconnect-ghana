@@ -13,28 +13,36 @@ export default function NotificationPermissionPrompt() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    const hasNotifications = 'Notification' in window;
-    setIsSupported(hasNotifications);
-    if (!hasNotifications) return;
+    const timer = window.setTimeout(() => {
+      const hasNotifications = 'Notification' in window;
+      setIsSupported(hasNotifications);
+      if (!hasNotifications) return;
 
-    const savedDismissed = window.localStorage.getItem(STORAGE_KEY) === 'true';
-    setDismissed(savedDismissed);
-    setPermission(Notification.permission);
+      const savedDismissed = window.localStorage.getItem(STORAGE_KEY) === 'true';
+      setDismissed(savedDismissed);
+      setPermission(Notification.permission);
 
-    if (navigator.permissions && navigator.permissions.query) {
-      navigator.permissions.query({ name: 'notifications' }).then((status) => {
-        setPermission(status.state);
-        status.onchange = () => setPermission(status.state);
-      }).catch(() => {
-        // Ignore permission query failures.
-      });
-    }
+      if (navigator.permissions && navigator.permissions.query) {
+        navigator.permissions.query({ name: 'notifications' }).then((status) => {
+          setPermission(status.state);
+          status.onchange = () => setPermission(status.state);
+        }).catch(() => {
+          // Ignore permission query failures.
+        });
+      }
+    }, 0);
+
+    return () => window.clearTimeout(timer);
   }, []);
 
   useEffect(() => {
     if (permission === 'granted' && !dismissed) {
-      setDismissed(true);
-      window.localStorage.setItem(STORAGE_KEY, 'true');
+      const timer = window.setTimeout(() => {
+        setDismissed(true);
+        window.localStorage.setItem(STORAGE_KEY, 'true');
+      }, 0);
+
+      return () => window.clearTimeout(timer);
     }
   }, [permission, dismissed]);
 

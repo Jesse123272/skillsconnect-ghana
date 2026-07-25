@@ -47,13 +47,17 @@ export default function LoginForm({
   );
 
   useEffect(() => {
-    if (existingUser) {
+    if (!existingUser) return;
+
+    const timer = window.setTimeout(() => {
       if (requiredRole && existingUser.role !== requiredRole) {
         setApiError(`Please use the ${requiredRole} login page for this account.`);
         return;
       }
       navigateToDashboard(existingUser.role);
-    }
+    }, 0);
+
+    return () => window.clearTimeout(timer);
   }, [existingUser, navigateToDashboard, requiredRole]);
 
   const handleLoginSubmit = async (e) => {
@@ -220,7 +224,7 @@ export default function LoginForm({
                     </Link>
                   </div>
                   <div className="text-center mt-2">
-                    <span className="text-muted small">Don't have an account? </span>
+                    <span className="text-muted small">Don&apos;t have an account? </span>
                     <Link href="/register" className="text-primary fw-semibold small text-decoration-none">
                       Create Account
                     </Link>

@@ -33,7 +33,11 @@ export default function CustomerDashboardHome() {
   const [recommendedArtisans, setRecommendedArtisans] = useState([]);
 
   useEffect(() => {
-    setQuickActionsReady(true);
+    const timer = window.setTimeout(() => {
+      setQuickActionsReady(true);
+    }, 0);
+
+    return () => window.clearTimeout(timer);
   }, []);
 
   useEffect(() => {

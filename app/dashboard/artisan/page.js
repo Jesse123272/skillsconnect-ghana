@@ -37,7 +37,11 @@ export default function ArtisanDashboardHome() {
   };
 
   useEffect(() => {
-    setQuickActionsReady(true);
+    const timer = window.setTimeout(() => {
+      setQuickActionsReady(true);
+    }, 0);
+
+    return () => window.clearTimeout(timer);
   }, []);
 
   useEffect(() => {

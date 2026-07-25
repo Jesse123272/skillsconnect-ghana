@@ -148,7 +148,7 @@ function BrowseContent() {
       }
     }
     loadArtisans();
-  }, [searchParams, selectedCategory, selectedRegion, selectedDistrict, selectedRating, selectedSort, currentPage]);
+  }, [searchParams, selectedCategory, selectedRegion, selectedDistrict, selectedRating, selectedSort, currentPage, keyword]);
 
   // Handle updates to search and filter and push to URL
   const applyFilters = (newFilters = {}) => {

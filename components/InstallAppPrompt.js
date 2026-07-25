@@ -30,15 +30,18 @@ export default function InstallAppPrompt() {
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     window.addEventListener('appinstalled', handleAppInstalled);
 
-    if (ios) {
-      setDeviceHint('Tap the browser Share icon, then select Add to Home Screen to install SkillsConnect.');
-      setShowBanner(true);
-    } else if (android) {
-      setDeviceHint('Use the browser menu and choose Add to Home screen to install SkillsConnect.');
-      setShowBanner(true);
-    }
+    const timer = window.setTimeout(() => {
+      if (ios) {
+        setDeviceHint('Tap the browser Share icon, then select Add to Home Screen to install SkillsConnect.');
+        setShowBanner(true);
+      } else if (android) {
+        setDeviceHint('Use the browser menu and choose Add to Home screen to install SkillsConnect.');
+        setShowBanner(true);
+      }
+    }, 0);
 
     return () => {
+      window.clearTimeout(timer);
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
       window.removeEventListener('appinstalled', handleAppInstalled);
     };

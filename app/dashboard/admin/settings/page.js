@@ -403,7 +403,7 @@ export default function SystemSettings() {
                     <li className="mb-1"><code className="text-dark bg-white px-1 border rounded font-monospace small">EMAIL_PORT</code>: Port number (use <code className="font-monospace">465</code> for secure SSL/TLS, or <code className="font-monospace">587</code> for STARTTLS)</li>
                     <li className="mb-1"><code className="text-dark bg-white px-1 border rounded font-monospace small">EMAIL_USER</code>: Your authenticating email address (e.g., <code className="font-monospace">your-service@gmail.com</code>)</li>
                     <li className="mb-1"><code className="text-dark bg-white px-1 border rounded font-monospace small">EMAIL_PASS</code>: Your authenticating password (for Gmail, use a secure 16-character **App Password**)</li>
-                    <li><code className="text-dark bg-white px-1 border rounded font-monospace small">EMAIL_FROM</code>: Name & address to show as sender (e.g., <code className="font-monospace">&quot;SkillsConnect Ghana &lt;noreply@skillsconnect.gh&gt;&quot;</code>)</li>
+                    <li><code className="text-dark bg-white px-1 border rounded font-monospace small">EMAIL_FROM</code>: Name & address to show as sender (e.g., <code className="font-monospace">&#34;SkillsConnect Ghana &lt;noreply@skillsconnect.gh&gt;&#34;</code>)</li>
                   </ul>
                   <div className="mt-3 p-3 rounded-3 bg-white border" style={{ fontSize: '12px' }}>
                     <strong className="d-block mb-2 text-dark">Example configuration:</strong>
@@ -412,7 +412,7 @@ EMAIL_HOST=smtp.gmail.com
 EMAIL_PORT=465
 EMAIL_USER=your-service@gmail.com
 EMAIL_PASS=&lt;app password&gt;
-EMAIL_FROM="SkillsConnect Ghana &lt;noreply@skillsconnect.gh&gt;"
+EMAIL_FROM=&quot;SkillsConnect Ghana &lt;noreply@skillsconnect.gh&gt;&quot;
                     </pre>
                   </div>
                 </div>

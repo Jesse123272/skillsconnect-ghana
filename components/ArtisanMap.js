@@ -9,9 +9,15 @@ export default function ArtisanMap({ artisans = [], currentPosition }) {
   const [leafletLoaded, setLeafletLoaded] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && window.L) {
-      setLeafletLoaded(true);
-    }
+    if (typeof window === 'undefined') return;
+
+    const timer = window.setTimeout(() => {
+      if (window.L) {
+        setLeafletLoaded(true);
+      }
+    }, 0);
+
+    return () => window.clearTimeout(timer);
   }, []);
 
   useEffect(() => {
