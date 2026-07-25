@@ -11,6 +11,7 @@ import ReviewCard from '@/components/ReviewCard';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import EmptyState from '@/components/EmptyState';
 import AlertMessage from '@/components/AlertMessage';
+import NearbyArtisans from '@/components/NearbyArtisans';
 
 export default function CustomerDashboardHome() {
   const { user, loading: authLoading } = useAuth();
@@ -417,6 +418,20 @@ export default function CustomerDashboardHome() {
                 </div>
               </div>
 
+            </div>
+
+            {/* NEARBY ARTISANS MAP WIDGET */}
+            <div className="mb-5" id="dashboard-nearby-artisans-section">
+              <div className="d-flex justify-content-between align-items-center mb-4">
+                <h5 className="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+                  <i className="fa-solid fa-location-dot text-success"></i>
+                  <span>Nearby artisans</span>
+                </h5>
+                <Link href="/browse" className="btn btn-outline-success btn-sm px-3 rounded-pill fw-semibold">
+                  Explore All Artisans
+                </Link>
+              </div>
+              <NearbyArtisans />
             </div>
 
             {/* RECOMMENDED ARTISANS SECTION */}

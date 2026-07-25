@@ -19,7 +19,7 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     async function fetchMe() {
       try {
-        const response = await fetch('/api/auth/me');
+        const response = await fetch('/api/auth/me', { credentials: 'include' });
         if (response.ok) {
           const result = await response.json();
           if (result.success && result.data) {

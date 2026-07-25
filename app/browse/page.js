@@ -10,6 +10,7 @@ import EmptyState from '@/components/EmptyState';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import Pagination from '@/components/Pagination';
 import NearbyArtisans from '@/components/NearbyArtisans';
+import { useAuth } from '@/context/AuthContext';
 
 // List of all 16 regions in Ghana
 const REGIONS = [
@@ -64,6 +65,8 @@ function BrowseContent() {
   const [locationHint, setLocationHint] = useState('');
   const [usedLocationSearch, setUsedLocationSearch] = useState(false);
 
+  const { user: authUser } = useAuth();
+
   // Popular Ghanaian Cities/Districts
   const POPULAR_CITIES = [
     'Accra', 'Kumasi', 'Tema', 'Madina', 'East Legon', 'Spintex', 'Osu',
@@ -106,20 +109,39 @@ function BrowseContent() {
         params.append('page', currentPage.toString());
         params.append('limit', '9'); // 9 per page
 
-        if (useGeoSearch && navigator.geolocation) {
+        if (useGeoSearch) {
           setLocationHint('Searching for artisans closest to your current location...');
-          const position = await new Promise((resolve, reject) => {
-            navigator.geolocation.getCurrentPosition(resolve, reject, {
-              enableHighAccuracy: true,
-              maximumAge: 5 * 60 * 1000,
-              timeout: 10000
-            });
-          });
+          let coords = null;
 
-          params.append('latitude', position.coords.latitude.toString());
-          params.append('longitude', position.coords.longitude.toString());
-          params.append('radius', '25');
-          setUsedLocationSearch(true);
+          if (typeof navigator !== 'undefined' && navigator.geolocation) {
+            try {
+              const position = await new Promise((resolve, reject) => {
+                navigator.geolocation.getCurrentPosition(resolve, reject, {
+                  enableHighAccuracy: true,
+                  maximumAge: 5 * 60 * 1000,
+                  timeout: 10000
+                });
+              });
+              coords = [position.coords.latitude, position.coords.longitude];
+              setLocationHint('Showing artisans based on your current location.');
+            } catch (geoError) {
+              console.warn('Browser geolocation failed:', geoError);
+            }
+          }
+
+          if (!coords && authUser?.lat && authUser?.lng) {
+            coords = [authUser.lat, authUser.lng];
+            setLocationHint('Showing artisans based on your saved profile location.');
+          }
+
+          if (coords) {
+            params.append('latitude', coords[0].toString());
+            params.append('longitude', coords[1].toString());
+            params.append('radius', '25');
+            setUsedLocationSearch(true);
+          } else {
+            setLocationHint('Unable to use location. Showing default artisan listings.');
+          }
         }
 
         const res = await fetch(`/api/artisans?${params.toString()}`);
@@ -148,7 +170,7 @@ function BrowseContent() {
       }
     }
     loadArtisans();
-  }, [searchParams, selectedCategory, selectedRegion, selectedDistrict, selectedRating, selectedSort, currentPage, keyword]);
+  }, [searchParams, selectedCategory, selectedRegion, selectedDistrict, selectedRating, selectedSort, currentPage, keyword, authUser?.lat, authUser?.lng]);
 
   // Handle updates to search and filter and push to URL
   const applyFilters = (newFilters = {}) => {

@@ -57,8 +57,8 @@ export async function GET(req) {
     const radius = parseFloat(searchParams.get('radius') || '25');
     const useLocation = !Number.isNaN(latitude) && !Number.isNaN(longitude);
     const useSqliteBackend = isSqliteFallbackEnabled;
-    const canUseLocation = useLocation && !useSqliteBackend;
-    const locationWarning = useLocation && !canUseLocation
+    let canUseLocation = useLocation && !useSqliteBackend;
+    let locationWarning = useLocation && !canUseLocation
       ? 'Location filtering is unavailable in this environment. Showing default artisan listings instead.'
       : null;
 
@@ -82,6 +82,35 @@ export async function GET(req) {
     let querySql;
     let countParams;
     let queryParams;
+
+    const buildDefaultPagination = () => {
+      countSql = `
+        SELECT COUNT(*) as total 
+        FROM users u
+        INNER JOIN artisan_profiles ap ON u.user_id = ap.user_id
+        INNER JOIN categories c ON ap.category_id = c.category_id
+        ${whereClause}
+      `;
+
+      const safeLimit = parsedLimit;
+      const safeOffset = offset;
+
+      querySql = `
+        SELECT 
+          u.user_id, u.full_name, u.email, u.phone, u.region, u.district, u.profile_photo,
+          ap.profile_id, ap.category_id, ap.bio, ap.years_experience, ap.average_rating, ap.total_reviews, ap.profile_views, ap.is_approved, ap.is_featured, ap.service_areas, ap.created_at,
+          c.category_name, c.icon_class
+        FROM users u
+        INNER JOIN artisan_profiles ap ON u.user_id = ap.user_id
+        INNER JOIN categories c ON ap.category_id = c.category_id
+        ${whereClause}
+        ORDER BY ${orderBy}
+        LIMIT ${safeLimit} OFFSET ${safeOffset}
+      `;
+
+      countParams = params;
+      queryParams = [...params];
+    };
 
     if (canUseLocation) {
       const locationConditions = `${whereClause ? whereClause + ' AND ' : 'WHERE '}u.lat IS NOT NULL AND u.lng IS NOT NULL`;
@@ -124,6 +153,7 @@ export async function GET(req) {
       ];
 
       queryParams = [
+        ...params,
         latitude,
         longitude,
         latitude,
@@ -131,46 +161,37 @@ export async function GET(req) {
         longitude,
         latitude,
         radius,
-        ...params,
         latitude,
         longitude,
         latitude,
         radius
       ];
     } else {
-      countSql = `
-        SELECT COUNT(*) as total 
-        FROM users u
-        INNER JOIN artisan_profiles ap ON u.user_id = ap.user_id
-        INNER JOIN categories c ON ap.category_id = c.category_id
-        ${whereClause}
-      `;
-
-      const safeLimit = parsedLimit;
-      const safeOffset = offset;
-
-      querySql = `
-        SELECT 
-          u.user_id, u.full_name, u.email, u.phone, u.region, u.district, u.profile_photo,
-          ap.profile_id, ap.category_id, ap.bio, ap.years_experience, ap.average_rating, ap.total_reviews, ap.profile_views, ap.is_approved, ap.is_featured, ap.service_areas, ap.created_at,
-          c.category_name, c.icon_class
-        FROM users u
-        INNER JOIN artisan_profiles ap ON u.user_id = ap.user_id
-        INNER JOIN categories c ON ap.category_id = c.category_id
-        ${whereClause}
-        ORDER BY ${orderBy}
-        LIMIT ${safeLimit} OFFSET ${safeOffset}
-      `;
-
-      countParams = params;
-      queryParams = [...params];
+      buildDefaultPagination();
     }
 
-    // Execute count and data queries in parallel
-    const [countResults, artisans] = await Promise.all([
-      query(countSql, countParams),
-      query(querySql, queryParams)
-    ]);
+    let countResults;
+    let artisans;
+
+    try {
+      [countResults, artisans] = await Promise.all([
+        query(countSql, countParams),
+        query(querySql, queryParams)
+      ]);
+    } catch (error) {
+      if (canUseLocation) {
+        console.warn('Location artisan query failed, falling back to default query:', error.message || error);
+        canUseLocation = false;
+        locationWarning = 'Location filtering is unavailable for this database. Showing default artisan listings instead.';
+        buildDefaultPagination();
+        [countResults, artisans] = await Promise.all([
+          query(countSql, countParams),
+          query(querySql, queryParams)
+        ]);
+      } else {
+        throw error;
+      }
+    }
 
     const total = countResults[0]?.total || 0;
     const totalPages = Math.ceil(total / parsedLimit);

@@ -23,6 +23,8 @@ export default function LoginForm({
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [apiError, setApiError] = useState('');
+  const [locationInfo, setLocationInfo] = useState('');
+  const [locationSaving, setLocationSaving] = useState(false);
 
   const redirectPath =
     searchParams.get('redirect') || searchParams.get('callbackUrl') || '';
@@ -60,6 +62,53 @@ export default function LoginForm({
     return () => window.clearTimeout(timer);
   }, [existingUser, navigateToDashboard, requiredRole]);
 
+  const saveLocationToAccount = async (lat, lng) => {
+    try {
+      const response = await fetch('/api/artisans/update-location', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ latitude: lat, longitude: lng }),
+      });
+      const json = await response.json();
+      if (!response.ok) {
+        throw new Error(json.error || 'Unable to save location');
+      }
+      return json;
+    } catch (err) {
+      console.warn('Location update failed:', err);
+      throw err;
+    }
+  };
+
+  const requestLocationSave = async () => {
+    if (typeof window === 'undefined' || !navigator.geolocation) {
+      setLocationInfo('Geolocation is not available in this browser.');
+      return;
+    }
+
+    setLocationSaving(true);
+    setLocationInfo('Requesting location permission to improve nearby matches...');
+
+    try {
+      const position = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: true,
+          timeout: 10000,
+        });
+      });
+
+      await saveLocationToAccount(position.coords.latitude, position.coords.longitude);
+      setLocationInfo('Location saved successfully. We will show artisans nearest to you.');
+    } catch (err) {
+      setLocationInfo('Location permission was declined or saving failed. You can still browse artisans manually.');
+    } finally {
+      setLocationSaving(false);
+    }
+  };
+
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     setApiError('');
@@ -79,6 +128,7 @@ export default function LoginForm({
     try {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -103,6 +153,15 @@ export default function LoginForm({
 
         toast.success(`Welcome back, ${loggedInUser.full_name || 'User'}! 👋`);
         setUser(loggedInUser);
+
+        if (loggedInUser.role !== 'admin' && typeof window !== 'undefined' && navigator.geolocation) {
+          try {
+            await requestLocationSave();
+          } catch {
+            // Do not block navigation if location saving fails.
+          }
+        }
+
         navigateToDashboard(loggedInUser.role);
       } else {
         if (result.error === 'unverified') {
@@ -230,6 +289,12 @@ export default function LoginForm({
                     </Link>
                   </div>
                 </>
+              )}
+
+              {locationInfo && (
+                <div className="alert alert-info fs-8 py-2 px-3 mt-3 text-start" role="alert">
+                  {locationInfo}
+                </div>
               )}
 
               {showBackLink && (

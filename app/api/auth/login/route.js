@@ -131,7 +131,7 @@ export async function POST(req) {
     let users = [];
     try {
       users = await query(
-        'SELECT user_id, full_name, email, phone, password_hash, role, region, district, profile_photo, is_verified, is_active FROM users WHERE email = ?',
+        'SELECT user_id, full_name, email, phone, password_hash, role, region, district, profile_photo, lat, lng, is_verified, is_active FROM users WHERE email = ?',
         [cleanedEmail]
       );
     } catch (dbError) {
@@ -193,16 +193,18 @@ export async function POST(req) {
       [user.user_id, 'USER_LOGIN', 'users', user.user_id, ip]
     );
 
-    // 7.5. Send security login alert email, but never fail login because of mail delivery.
+    // 7.5. Send security login alert email in the background, but never delay login response.
     try {
       const alertHtml = loginAlertEmail(user.full_name, ip);
-      await sendEmail({
+      sendEmail({
         to: user.email,
         subject: 'Security Alert: New Sign-in Detected 🚨',
         html: alertHtml
+      }).catch((emailError) => {
+        console.warn('Login alert email sending failed:', emailError?.message || emailError);
       });
     } catch (emailError) {
-      console.warn('Login alert email sending failed:', emailError?.message || emailError);
+      console.warn('Login alert email dispatch failed:', emailError?.message || emailError);
     }
 
     // 8. Prepare user data to return (exclude password_hash)

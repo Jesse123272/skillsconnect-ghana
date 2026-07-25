@@ -57,7 +57,12 @@ export default function SecurityAuditLogs() {
           endDate
         });
 
-        const res = await fetch(`/api/admin/logs?${queryParams.toString()}`, { credentials: 'include' });
+        const res = await fetch(`/api/admin/logs?${queryParams.toString()}`, {
+          credentials: 'include',
+          headers: {
+            'Accept': 'application/json',
+          },
+        });
         const data = await res.json();
         if (data.success && active) {
           setLogs(data.data.logs);

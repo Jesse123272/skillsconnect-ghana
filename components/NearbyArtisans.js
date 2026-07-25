@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import ArtisanCard from '@/components/ArtisanCard';
+import { useAuth } from '@/context/AuthContext';
 
 const RADIUS_OPTIONS = [5, 10, 25, 50];
 const ArtisanMap = dynamic(() => import('@/components/ArtisanMap'), { ssr: false });
@@ -18,6 +19,7 @@ export default function NearbyArtisans() {
   const [permissionDenied, setPermissionDenied] = useState(false);
   const [locationSource, setLocationSource] = useState('fresh');
   const [retryKey, setRetryKey] = useState(0);
+  const { user: authUser } = useAuth();
 
   useEffect(() => {
     async function loadArtisansForPosition(lat, lng, source = 'fresh') {
@@ -66,12 +68,6 @@ export default function NearbyArtisans() {
       setStatus('Finding artisans near you...');
       setPermissionDenied(false);
 
-      if (typeof window === 'undefined' || !navigator.geolocation) {
-        setError('Geolocation is not supported in this browser.');
-        setIsLoading(false);
-        return;
-      }
-
       const stored = typeof window !== 'undefined' && window.sessionStorage.getItem('scg_geo_location');
       if (stored) {
         try {
@@ -85,22 +81,33 @@ export default function NearbyArtisans() {
         }
       }
 
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          await loadArtisansForPosition(position.coords.latitude, position.coords.longitude, 'fresh');
-        },
-        (geoError) => {
-          console.error(geoError);
-          setError('Enable location to see artisans near you.');
-          setPermissionDenied(true);
-          setIsLoading(false);
-        },
-        { enableHighAccuracy: true, timeout: 10000 }
-      );
+      if (typeof window !== 'undefined' && navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            await loadArtisansForPosition(position.coords.latitude, position.coords.longitude, 'fresh');
+          },
+          async (geoError) => {
+            console.error(geoError);
+            if (authUser?.lat && authUser?.lng) {
+              await loadArtisansForPosition(authUser.lat, authUser.lng, 'profile');
+              return;
+            }
+            setError('Enable location to see artisans near you.');
+            setPermissionDenied(true);
+            setIsLoading(false);
+          },
+          { enableHighAccuracy: true, timeout: 10000 }
+        );
+      } else if (authUser?.lat && authUser?.lng) {
+        await loadArtisansForPosition(authUser.lat, authUser.lng, 'profile');
+      } else {
+        setError('Geolocation is not supported in this browser.');
+        setIsLoading(false);
+      }
     }
 
     locateAndFetch();
-  }, [radius, retryKey]);
+  }, [radius, retryKey, authUser?.lat, authUser?.lng]);
 
   const sortedArtisans = useMemo(() => {
     return [...artisans].sort((a, b) => (b.weighted_score || 0) - (a.weighted_score || 0));

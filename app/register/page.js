@@ -41,6 +41,10 @@ export default function Register() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [region, setRegion] = useState('');
   const [district, setDistrict] = useState('');
+  const [locationCoords, setLocationCoords] = useState(null);
+  const [locationStatus, setLocationStatus] = useState('');
+  const [locationError, setLocationError] = useState('');
+  const [locationRequested, setLocationRequested] = useState(false);
 
   // Artisan-Only Fields State
   const [categoryId, setCategoryId] = useState('');
@@ -105,6 +109,32 @@ export default function Register() {
       value = '+233' + value.substring(1);
     }
     setPhone(value);
+  };
+
+  const requestLocation = () => {
+    if (typeof navigator === 'undefined' || !navigator.geolocation) {
+      setLocationError('Geolocation is not supported in your browser.');
+      return;
+    }
+
+    setLocationRequested(true);
+    setLocationError('');
+    setLocationStatus('Requesting location permission...');
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setLocationCoords([position.coords.latitude, position.coords.longitude]);
+        setLocationStatus('Location detected. It will be saved with your account.');
+        setLocationError('');
+      },
+      (err) => {
+        console.error('Location request failed:', err);
+        setLocationCoords(null);
+        setLocationError('Unable to detect location. Please allow location access or continue with manual address entry.');
+        setLocationStatus('Location access was denied or unavailable.');
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
   };
 
   const handleRegisterSubmit = async (e) => {
@@ -172,6 +202,10 @@ export default function Register() {
           category_id: categoryId,
           years_experience: yearsExperience,
           bio: bio.trim()
+        }),
+        ...(locationCoords && {
+          latitude: locationCoords[0],
+          longitude: locationCoords[1]
         })
       };
 
@@ -315,6 +349,27 @@ export default function Register() {
                     required
                   />
                 </div>
+              </div>
+
+              <div className="mb-3">
+                <div className="d-flex justify-content-between align-items-center mb-2">
+                  <label className="form-label text-secondary small fw-medium mb-0">Your current location</label>
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-outline-primary"
+                    onClick={requestLocation}
+                    disabled={locationRequested}
+                  >
+                    Use Current Location
+                  </button>
+                </div>
+                {locationStatus && <div className="text-muted fs-8 mb-1">{locationStatus}</div>}
+                {locationError && <div className="text-danger fs-8 mb-1">{locationError}</div>}
+                {locationCoords && (
+                  <div className="text-success fs-8">
+                    Detected coordinates: {locationCoords[0].toFixed(4)}, {locationCoords[1].toFixed(4)}
+                  </div>
+                )}
               </div>
 
               {/* PASSWORD FIELDS */}

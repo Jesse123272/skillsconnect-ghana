@@ -26,7 +26,9 @@ export async function POST(req) {
       district,
       category_id,
       years_experience,
-      bio
+      bio,
+      latitude: rawLatitude,
+      longitude: rawLongitude
     } = body;
 
     const cleanedName = sanitizeText(full_name || '').trim();
@@ -36,6 +38,9 @@ export async function POST(req) {
     const cleanedRegion = sanitizeText(region || '').trim();
     const cleanedDistrict = sanitizeText(district || '').trim();
     const cleanedBio = sanitizeText(bio || '').trim();
+    const latitude = parseFloat(rawLatitude);
+    const longitude = parseFloat(rawLongitude);
+    const hasValidLocation = !Number.isNaN(latitude) && !Number.isNaN(longitude) && latitude >= -90 && latitude <= 90 && longitude >= -180 && longitude <= 180;
 
     // 1. Basic inputs validation
     if (!cleanedName || !cleanedEmail || !cleanedPhone || !password || !confirm_password || !cleanedRole || !cleanedRegion || !cleanedDistrict) {
@@ -143,9 +148,20 @@ export async function POST(req) {
     let userId = null;
     try {
       const userResult = await query(
-        `INSERT INTO users (full_name, email, phone, password_hash, role, region, district, verification_token, is_verified, is_active) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, 1)`,
-        [cleanedName, cleanedEmail, cleanedPhone, passwordHash, cleanedRole, cleanedRegion, cleanedDistrict, verificationCode]
+        `INSERT INTO users (full_name, email, phone, password_hash, role, region, district, verification_token, is_verified, is_active, lat, lng) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, 1, ?, ?)`,
+        [
+          cleanedName,
+          cleanedEmail,
+          cleanedPhone,
+          passwordHash,
+          cleanedRole,
+          cleanedRegion,
+          cleanedDistrict,
+          verificationCode,
+          hasValidLocation ? latitude : null,
+          hasValidLocation ? longitude : null,
+        ]
       );
       userId = userResult?.insertId || null;
     } catch (dbError) {

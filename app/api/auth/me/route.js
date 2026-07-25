@@ -16,7 +16,7 @@ export async function GET(req) {
 
     try {
       const users = await query(
-        `SELECT user_id, full_name, email, phone, role, region, district, profile_photo, preferences, is_verified, is_active, last_login, created_at 
+        `SELECT user_id, full_name, email, phone, role, region, district, profile_photo, lat, lng, preferences, is_verified, is_active, last_login, created_at 
          FROM users WHERE user_id = ?`,
         [payload.user_id]
       );

@@ -9,8 +9,18 @@ export async function GET(req) {
     const radius = parseFloat(searchParams.get('radius') || '10');
     const categoryId = searchParams.get('category_id');
     const limit = parseInt(searchParams.get('limit') || '12', 10);
+    const hasLocation = !Number.isNaN(latitude) && !Number.isNaN(longitude);
+    const parsedCategoryId = categoryId ? parseInt(categoryId, 10) : null;
+    const useCategoryFilter = parsedCategoryId !== null && !Number.isNaN(parsedCategoryId);
 
-    if (latitude && longitude) {
+    if (hasLocation) {
+      if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
+        return NextResponse.json(
+          { success: false, error: 'Please provide valid latitude and longitude coordinates.' },
+          { status: 400 }
+        );
+      }
+
       const sql = `
         SELECT
           u.user_id, u.full_name, u.email, u.phone, u.region, u.district, u.profile_photo, u.lat, u.lng,
@@ -26,14 +36,31 @@ export async function GET(req) {
         INNER JOIN categories c ON ap.category_id = c.category_id
         WHERE u.is_active = 1 AND ap.is_approved = 1 AND u.lat IS NOT NULL AND u.lng IS NOT NULL
           AND (6371 * acos(cos(radians(?)) * cos(radians(u.lat)) * cos(radians(u.lng) - radians(?)) + sin(radians(?)) * sin(radians(u.lat)))) <= ?
-        ${categoryId ? 'AND ap.category_id = ?' : ''}
+        ${useCategoryFilter ? 'AND ap.category_id = ?' : ''}
         ORDER BY weighted_score DESC, distance_km ASC
         LIMIT ?
       `;
 
-      const params = [latitude, longitude, latitude, latitude, longitude, latitude, radius, latitude, longitude, latitude, radius, limit];
-      const finalParams = categoryId ? [...params, parseInt(categoryId, 10)] : params;
-      const artisans = await query(sql, finalParams);
+      const params = [
+        latitude,
+        longitude,
+        latitude,
+        latitude,
+        longitude,
+        latitude,
+        radius,
+        latitude,
+        longitude,
+        latitude,
+        radius,
+      ];
+
+      if (useCategoryFilter) {
+        params.push(parsedCategoryId);
+      }
+      params.push(limit);
+
+      const artisans = await query(sql, params);
       return NextResponse.json({ success: true, data: artisans || [] });
     }
 
