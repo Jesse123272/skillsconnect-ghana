@@ -20,6 +20,7 @@ export default async function Home() {
   let categories = [];
   let featuredArtisans = [];
   let testimonials = [];
+  const quickSearches = ['Plumbing', 'Electrical', 'Carpentry', 'Tailoring', 'Painting', 'Cleaning'];
 
   try {
     // Run queries in parallel for maximum performance
@@ -144,6 +145,18 @@ export default async function Home() {
               {/* SearchBar component client component */}
               <div className="mb-4 hero-search-container">
                 <HeroSearch />
+              </div>
+
+              <div className="d-flex flex-wrap gap-2 gap-sm-3 mb-4">
+                {quickSearches.map((term) => (
+                  <Link
+                    href={`/browse?keyword=${encodeURIComponent(term)}`}
+                    key={term}
+                    className="btn btn-sm btn-outline-light rounded-pill px-3 py-2 text-white-75 border-white-25 hero-pill"
+                  >
+                    {term}
+                  </Link>
+                ))}
               </div>
 
               {/* Stats badges */}

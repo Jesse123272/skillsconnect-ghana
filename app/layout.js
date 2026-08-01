@@ -173,6 +173,72 @@ export default function RootLayout({ children }) {
             border-radius: 18px;
             box-shadow: 0 14px 32px rgba(15, 23, 42, 0.08);
           }
+          .hero-pill {
+            transition: transform 0.2s ease, background-color 0.2s ease, opacity 0.2s ease;
+            opacity: 0.9;
+            backdrop-filter: blur(6px);
+          }
+          .hero-pill:hover, .hero-pill:focus {
+            opacity: 1;
+            transform: translateY(-1px);
+            background-color: rgba(255,255,255,0.18);
+          }
+          .hero-search-container {
+            max-width: 760px;
+          }
+          .hero-search-container .form-control {
+            min-height: 62px;
+          }
+          .btn-outline-light {
+            color: rgba(255,255,255,0.9) !important;
+            border-color: rgba(255,255,255,0.75) !important;
+          }
+          .btn-outline-light:hover, .btn-outline-light:focus {
+            color: #fff !important;
+            background-color: rgba(255,255,255,0.18) !important;
+            border-color: rgba(255,255,255,0.95) !important;
+          }
+          .navbar-brand {
+            font-weight: 700;
+            letter-spacing: -0.02em;
+          }
+          .navbar-nav .nav-link {
+            transition: color 0.2s ease;
+          }
+          .navbar-nav .nav-link:hover {
+            color: var(--primary) !important;
+          }
+          .feature-card {
+            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+            border: 1px solid rgba(0,0,0,0.06);
+            border-radius: 24px;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fbf7 100%);
+            box-shadow: 0 18px 38px rgba(15,23,42,0.06);
+          }
+          .testimonial-card {
+            border-radius: 28px;
+            background: linear-gradient(180deg, #ffffff 0%, #f4fbff 100%);
+            border: 1px solid rgba(18, 83, 72, 0.08);
+          }
+          .testimonial-card blockquote {
+            color: #495e6a;
+          }
+          .footer-link:hover {
+            color: #ffffff !important;
+          }
+          .hero-pill {
+            transition: transform 0.2s ease, background-color 0.2s ease, opacity 0.2s ease;
+            opacity: 0.9;
+            backdrop-filter: blur(6px);
+          }
+          .hero-pill:hover, .hero-pill:focus {
+            opacity: 1;
+            transform: translateY(-1px);
+            background-color: rgba(255,255,255,0.18);
+          }
+          .hero-search-container .form-control::placeholder {
+            color: rgba(33, 37, 41, 0.6);
+          }
 
           .section-heading {
             letter-spacing: -0.03em;
