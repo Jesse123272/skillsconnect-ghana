@@ -52,7 +52,7 @@ Ensure you have the following installed on your machine:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/skillsconnect-ghana.git
+git clone https://github.com/Jesse123272/skillsconnect-ghana.git
 cd skillsconnect-ghana
 ```
 
@@ -148,6 +148,28 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser to view the application.
+
+### 5. Deploy to Vercel
+
+This project is ready for deployment to Vercel.
+
+1. Install the Vercel CLI if you don't already have it:
+
+```bash
+npm install -g vercel
+```
+
+2. Run the deploy command in the project root:
+
+```bash
+vercel deploy --prod --confirm
+```
+
+3. If this is your first deployment, follow the Vercel prompts to link the project and configure environment variables.
+
+4. Add the same environment variables from `.env.local` into your Vercel project settings.
+
+Once deployed, your app will be available at the generated Vercel URL.
 
 ---
 
