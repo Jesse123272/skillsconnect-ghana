@@ -204,7 +204,7 @@ export async function POST(req, { params }) {
       // Artisan sent message
       await query(
         `UPDATE enquiries 
-         SET status = 'replied', replied_at = NOW(), is_read_customer = 0 
+         SET status = 'replied', replied_at = NOW(), is_read_customer = 0, is_read_artisan = 1 
          WHERE enquiry_id = ?`,
         [enquiryId]
       );
@@ -223,7 +223,7 @@ export async function POST(req, { params }) {
       // Customer sent message
       await query(
         `UPDATE enquiries 
-         SET status = 'pending', is_read_artisan = 0 
+         SET status = 'pending', is_read_artisan = 0, is_read_customer = 1 
          WHERE enquiry_id = ?`,
         [enquiryId]
       );

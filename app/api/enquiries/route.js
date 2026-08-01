@@ -220,7 +220,7 @@ export async function POST(req) {
     await query(
       `INSERT INTO notifications (user_id, type, title, message, link) 
        VALUES (?, 'enquiry', 'New Service Enquiry ✉️', ?, ?)`,
-      [parsedArtisanId, notificationMsg, `/dashboard/enquiries/${enquiryId}`]
+      [parsedArtisanId, notificationMsg, `/dashboard/artisan/enquiries/${enquiryId}`]
     );
 
     // Send email to artisan via mailer.js

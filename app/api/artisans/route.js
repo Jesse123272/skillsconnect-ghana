@@ -57,12 +57,22 @@ export async function GET(req) {
     const radius = parseFloat(searchParams.get('radius') || '25');
     const useLocation = !Number.isNaN(latitude) && !Number.isNaN(longitude);
     const useSqliteBackend = isSqliteFallbackEnabled;
-    let canUseLocation = useLocation && !useSqliteBackend;
-    let locationWarning = useLocation && !canUseLocation
-      ? 'Location filtering is unavailable in this environment. Showing default artisan listings instead.'
-      : null;
+    const useLocationSql = useLocation && !useSqliteBackend;
+    const useLocationJsFallback = useLocation && useSqliteBackend;
+    const canUseLocation = useLocationSql || useLocationJsFallback;
+    let locationWarning = null;
 
     const whereClause = conditions.length > 0 ? 'WHERE ' + conditions.join(' AND ') : '';
+
+    const getDistanceKm = (lat1, lng1, lat2, lng2) => {
+      const deg2rad = (deg) => deg * (Math.PI / 180);
+      const r = 6371;
+      const dLat = deg2rad(lat2 - lat1);
+      const dLng = deg2rad(lng2 - lng1);
+      const a = Math.sin(dLat / 2) ** 2 + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLng / 2) ** 2;
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return r * c;
+    };
 
     // 3. Setup pagination variables
     const parsedPage = parseInt(page, 10) || 1;
@@ -83,13 +93,15 @@ export async function GET(req) {
     let countParams;
     let queryParams;
 
-    const buildDefaultPagination = () => {
+    const buildDefaultPagination = (includeLocationOnly = false, noPagination = false) => {
+      const locationOnlyClause = includeLocationOnly ? (whereClause ? whereClause + ' AND u.lat IS NOT NULL AND u.lng IS NOT NULL' : 'WHERE u.lat IS NOT NULL AND u.lng IS NOT NULL') : whereClause;
+
       countSql = `
         SELECT COUNT(*) as total 
         FROM users u
         INNER JOIN artisan_profiles ap ON u.user_id = ap.user_id
         INNER JOIN categories c ON ap.category_id = c.category_id
-        ${whereClause}
+        ${locationOnlyClause}
       `;
 
       const safeLimit = parsedLimit;
@@ -97,22 +109,22 @@ export async function GET(req) {
 
       querySql = `
         SELECT 
-          u.user_id, u.full_name, u.email, u.phone, u.region, u.district, u.profile_photo,
+          u.user_id, u.full_name, u.email, u.phone, u.region, u.district, u.profile_photo, u.lat, u.lng,
           ap.profile_id, ap.category_id, ap.bio, ap.years_experience, ap.average_rating, ap.total_reviews, ap.profile_views, ap.is_approved, ap.is_featured, ap.service_areas, ap.created_at,
           c.category_name, c.icon_class
         FROM users u
         INNER JOIN artisan_profiles ap ON u.user_id = ap.user_id
         INNER JOIN categories c ON ap.category_id = c.category_id
-        ${whereClause}
+        ${locationOnlyClause}
         ORDER BY ${orderBy}
-        LIMIT ${safeLimit} OFFSET ${safeOffset}
+        ${noPagination ? '' : `LIMIT ${safeLimit} OFFSET ${safeOffset}`}
       `;
 
       countParams = params;
       queryParams = [...params];
     };
 
-    if (canUseLocation) {
+    if (useLocationSql) {
       const locationConditions = `${whereClause ? whereClause + ' AND ' : 'WHERE '}u.lat IS NOT NULL AND u.lng IS NOT NULL`;
       const distanceFormula = `(6371 * acos(cos(radians(?)) * cos(radians(u.lat)) * cos(radians(u.lng) - radians(?)) + sin(radians(?)) * sin(radians(u.lat))))`;
 
@@ -166,6 +178,8 @@ export async function GET(req) {
         latitude,
         radius
       ];
+    } else if (useLocationJsFallback) {
+      buildDefaultPagination(true, true);
     } else {
       buildDefaultPagination();
     }
@@ -173,24 +187,40 @@ export async function GET(req) {
     let countResults;
     let artisans;
 
-    try {
-      [countResults, artisans] = await Promise.all([
-        query(countSql, countParams),
-        query(querySql, queryParams)
-      ]);
-    } catch (error) {
-      if (canUseLocation) {
-        console.warn('Location artisan query failed, falling back to default query:', error.message || error);
-        canUseLocation = false;
-        locationWarning = 'Location filtering is unavailable for this database. Showing default artisan listings instead.';
-        buildDefaultPagination();
-        [countResults, artisans] = await Promise.all([
-          query(countSql, countParams),
-          query(querySql, queryParams)
-        ]);
-      } else {
-        throw error;
-      }
+    [countResults, artisans] = await Promise.all([
+      query(countSql, countParams),
+      query(querySql, queryParams)
+    ]);
+
+    if (useLocationJsFallback) {
+      const filtered = (artisans || [])
+        .map((artisan) => {
+          const distance_km = artisan.lat && artisan.lng
+            ? getDistanceKm(latitude, longitude, Number(artisan.lat), Number(artisan.lng))
+            : Infinity;
+          const weighted_score = ((1 - (distance_km / radius)) * 0.40) +
+            ((artisan.average_rating || 0) / 5) * 0.35 +
+            ((artisan.total_reviews || 0) === 0 ? 0 : Math.min((artisan.total_reviews || 0) / 50, 1) * 0.15) +
+            ((artisan.profile_views || 0) === 0 ? 0 : Math.min((artisan.profile_views || 0) / 200, 1) * 0.10);
+
+          return {
+            ...artisan,
+            distance_km,
+            weighted_score,
+          };
+        })
+        .filter((artisan) => artisan.distance_km <= radius)
+        .sort((a, b) => {
+          const scoreDiff = (b.weighted_score || 0) - (a.weighted_score || 0);
+          if (Math.abs(scoreDiff) > 1e-6) return scoreDiff;
+          return (a.distance_km || 0) - (b.distance_km || 0);
+        });
+
+      const total = filtered.length;
+      const paged = filtered.slice(offset, offset + parsedLimit);
+      countResults = [{ total }];
+      artisans = paged;
+      locationWarning = null;
     }
 
     const total = countResults[0]?.total || 0;
