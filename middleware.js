@@ -27,9 +27,9 @@ export async function middleware(request) {
   const isReviewsApi = pathname.startsWith('/api/reviews');
   const isSavedApi = pathname.startsWith('/api/saved');
   const isProfileApi = pathname.startsWith('/api/profile');
-  const isUploadApi = pathname.startsWith('/api/upload');
+  const isUploadApi = pathname.startsWith('/api/uploads');
   const isAdminApi = pathname.startsWith('/api/admin');
-  const isPaymentApi = pathname.startsWith('/api/payment');
+  const isPaymentApi = pathname.startsWith('/api/payments');
 
   let requiresAuth = false;
 
@@ -118,8 +118,8 @@ export const config = {
     '/api/reviews/:path*',
     '/api/saved/:path*',
     '/api/profile/:path*',
-    '/api/upload/:path*',
+    '/api/uploads/:path*',
     '/api/admin/:path*',
-    '/api/payment/:path*',
+    '/api/payments/:path*',
   ],
 };
