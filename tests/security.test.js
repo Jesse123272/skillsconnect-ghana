@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { sanitizeText, RateLimiter } = require('../lib/security');
+const { sanitizeText, RateLimiter, LoginLockoutManager } = require('../lib/security');
 
 test('sanitizeText trims and escapes unsafe input', () => {
   const result = sanitizeText('  <script>alert(1)</script>  ');
@@ -12,4 +12,23 @@ test('RateLimiter blocks requests after the configured threshold', () => {
   assert.equal(limiter.allow('user-1'), true);
   assert.equal(limiter.allow('user-1'), true);
   assert.equal(limiter.allow('user-1'), false);
+});
+
+test('LoginLockoutManager blocks after repeated failures and resets on success', () => {
+  const lockout = new LoginLockoutManager(3, 1000, 2000);
+  const key = '192.168.0.1';
+
+  assert.equal(lockout.isBlocked(key), false);
+  lockout.recordFailure(key);
+  assert.equal(lockout.isBlocked(key), false);
+  lockout.recordFailure(key);
+  assert.equal(lockout.isBlocked(key), false);
+  lockout.recordFailure(key);
+  assert.equal(lockout.isBlocked(key), true);
+
+  const remaining = lockout.getBlockTimeRemaining(key);
+  assert.ok(remaining > 0);
+
+  lockout.recordSuccess(key);
+  assert.equal(lockout.isBlocked(key), false);
 });

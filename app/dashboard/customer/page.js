@@ -349,7 +349,7 @@ export default function CustomerDashboardHome() {
                                 </td>
                                 <td className="text-end py-3">
                                   <Link 
-                                    href={`/dashboard/enquiries/${enq.enquiry_id}`} 
+                                    href={`/dashboard/customer/enquiries/${enq.enquiry_id}`} 
                                     className="btn btn-sm btn-outline-primary px-3 rounded-pill fw-medium fs-8"
                                   >
                                     View

@@ -3,7 +3,7 @@ import { query } from '@/lib/db';
 import { signToken, setAuthCookie } from '@/lib/auth';
 import bcrypt from 'bcryptjs';
 import { sendEmail, loginAlertEmail } from '@/lib/mailer';
-import { sanitizeObject, sanitizeText, RateLimiter } from '@/lib/security';
+import { sanitizeObject, sanitizeText, RateLimiter, LoginLockoutManager } from '@/lib/security';
 import { validateEmail } from '@/lib/validators';
 
 const DEFAULT_ADMIN = {
@@ -36,6 +36,7 @@ async function ensureAdminExists() {
 }
 
 const loginLimiter = new RateLimiter(8, 60000);
+const loginLockout = new LoginLockoutManager(5, 15 * 60 * 1000, 30 * 60 * 1000);
 
 function getFallbackAdminUser(email, password) {
   const normalizedEmail = (email || '').trim().toLowerCase();
@@ -93,6 +94,18 @@ export async function POST(req) {
     const rememberMe = [true, 'true', '1', 1].includes(remember_me);
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || '127.0.0.1';
 
+    if (loginLockout.isBlocked(ip)) {
+      const remainingMs = loginLockout.getBlockTimeRemaining(ip);
+      const remainingMinutes = Math.max(1, Math.ceil(remainingMs / 60000));
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Too many failed login attempts. Please wait ${remainingMinutes} minute(s) before trying again.`
+        },
+        { status: 429 }
+      );
+    }
+
     if (!loginLimiter.allow(ip)) {
       return NextResponse.json({ success: false, error: 'Too many login attempts. Please try again shortly.' }, { status: 429 });
     }
@@ -143,6 +156,7 @@ export async function POST(req) {
     }
 
     if (!users || users.length === 0) {
+      loginLockout.recordFailure(ip);
       return NextResponse.json(
         { success: false, error: 'Invalid email or password' },
         { status: 401 }
@@ -162,6 +176,7 @@ export async function POST(req) {
     // 4. bcrypt.compare password
     const match = await bcrypt.compare(password, user.password_hash);
     if (!match) {
+      loginLockout.recordFailure(ip);
       return NextResponse.json(
         { success: false, error: 'Invalid email or password' },
         { status: 401 }
@@ -177,6 +192,7 @@ export async function POST(req) {
     }
 
     // 5. On success: signToken({user_id, email, role, full_name})
+    loginLockout.recordSuccess(ip);
     const token = await signToken({
       user_id: user.user_id,
       email: user.email,

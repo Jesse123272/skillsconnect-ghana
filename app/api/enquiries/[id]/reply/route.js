@@ -91,7 +91,7 @@ export async function PUT(req, { params }) {
     await query(
       `INSERT INTO notifications (user_id, type, title, message, link) 
        VALUES (?, 'enquiry_reply', ?, ?, ?)`,
-      [enquiry.customer_id, notificationTitle, notificationMsg, `/dashboard/enquiries/${enquiryId}`]
+      [enquiry.customer_id, notificationTitle, notificationMsg, `/dashboard/customer/enquiries/${enquiryId}`]
     );
 
     // Send email to customer via mailer.js
@@ -122,7 +122,7 @@ export async function PUT(req, { params }) {
           </div>
 
           <p style="text-align: center;">
-            <a href="${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/dashboard/enquiries/${enquiryId}" class="button">View & Reply in Dashboard</a>
+            <a href="${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/dashboard/customer/enquiries/${enquiryId}" class="button">View & Reply in Dashboard</a>
           </p>
 
           <p>Prompt communication helps speed up project coordination!</p>
