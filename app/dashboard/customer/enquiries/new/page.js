@@ -4,14 +4,14 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
-import DashboardLayout from '@/components/DashboardLayout';
+// DashboardLayout provided by app/dashboard/layout.js; per-page wrapper removed
 import ProfileAvatar from '@/components/ProfileAvatar';
 import StarRating from '@/components/StarRating';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import AlertMessage from '@/components/AlertMessage';
 
 function NewEnquiryFormContent() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, authFetch } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const paramArtisanId = searchParams.get('artisan_id');
@@ -37,7 +37,7 @@ function NewEnquiryFormContent() {
     if (paramArtisanId) {
       async function fetchSelectedArtisan() {
         try {
-          const res = await fetch(`/api/artisans/${paramArtisanId}`);
+          const res = await authFetch(`/api/artisans/${paramArtisanId}`);
           if (res.ok) {
             const result = await res.json();
             if (result.success && result.data) {
@@ -50,7 +50,7 @@ function NewEnquiryFormContent() {
       }
       fetchSelectedArtisan();
     }
-  }, [paramArtisanId]);
+  }, [paramArtisanId, authFetch]);
 
   // 2. Fetch all artisans for search autocomplete
   useEffect(() => {
@@ -58,7 +58,7 @@ function NewEnquiryFormContent() {
       try {
         setLoadingArtisans(true);
         // Fetch up to 100 artisans to power local search auto-complete
-        const res = await fetch('/api/artisans?limit=100');
+        const res = await authFetch('/api/artisans?limit=100');
         if (res.ok) {
           const result = await res.json();
           if (result.success && result.data) {
@@ -73,7 +73,7 @@ function NewEnquiryFormContent() {
       }
     }
     fetchAllArtisans();
-  }, []);
+  }, [authFetch]);
 
   // Filter artisans list for autocomplete
   const filteredArtisans = artisans.filter((artisan) => {
@@ -121,7 +121,7 @@ function NewEnquiryFormContent() {
     try {
       setSubmitting(true);
       
-      const response = await fetch('/api/enquiries', {
+      const response = await authFetch('/api/enquiries', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -164,7 +164,7 @@ function NewEnquiryFormContent() {
   }
 
   return (
-    <DashboardLayout role="customer" pageTitle="Send Enquiry">
+    <>
       <div className="container-fluid px-0" id="send-enquiry-root">
         
         {/* Back navigation */}
@@ -399,7 +399,7 @@ function NewEnquiryFormContent() {
         </div>
 
       </div>
-    </DashboardLayout>
+    </>
   );
 }
 

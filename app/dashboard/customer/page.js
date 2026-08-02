@@ -2,19 +2,23 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
-import DashboardLayout from '@/components/DashboardLayout';
+// DashboardLayout provided by app/dashboard/layout.js; per-page wrapper removed
 import StatCard from '@/components/StatCard';
 import ArtisanCard from '@/components/ArtisanCard';
 import ReviewCard from '@/components/ReviewCard';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import EmptyState from '@/components/EmptyState';
 import AlertMessage from '@/components/AlertMessage';
-import NearbyArtisans from '@/components/NearbyArtisans';
+const NearbyArtisans = dynamic(
+  () => import('@/components/NearbyArtisans'),
+  { ssr: false, loading: () => <LoadingSpinner message="Loading nearby artisans..." /> }
+);
 
 export default function CustomerDashboardHome() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, authFetch } = useAuth();
   
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -22,7 +26,6 @@ export default function CustomerDashboardHome() {
   const [quickActionsReady, setQuickActionsReady] = useState(false);
   
   // Dashboard Live Data State
-  const [platformStats, setPlatformStats] = useState(null);
   const [recentEnquiries, setRecentEnquiries] = useState([]);
   const [enquiriesTotal, setEnquiriesTotal] = useState(0);
   const [artisansContacted, setArtisansContacted] = useState(0);
@@ -51,25 +54,20 @@ export default function CustomerDashboardHome() {
 
         // Run all required endpoints in Promise.all
         const [
-          statsRes,
           enquiriesRes,
           reviewsRes,
           savedRes,
           notificationsRes,
           recommendedRes,
         ] = await Promise.all([
-          fetch('/api/admin/stats'),
-          fetch('/api/enquiries?limit=5'),
-          fetch('/api/reviews?user_id=me&limit=2'),
-          fetch('/api/saved?limit=3'),
-          fetch('/api/notifications?unread=true'),
-          fetch('/api/artisans?sort=rating&limit=3'),
+          authFetch('/api/enquiries?limit=5'),
+          authFetch('/api/reviews?user_id=me&limit=2'),
+          authFetch('/api/saved?limit=3'),
+          authFetch('/api/notifications?unread=true'),
+          authFetch('/api/artisans?sort=rating&limit=3'),
         ]);
 
         // Process response data
-        let statsData = { data: {} };
-        if (statsRes.ok) statsData = await statsRes.json();
-
         let enquiriesData = { data: { enquiries: [], total: 0 } };
         if (enquiriesRes.ok) enquiriesData = await enquiriesRes.json();
 
@@ -85,9 +83,6 @@ export default function CustomerDashboardHome() {
         let recommendedData = { data: { artisans: [] } };
         if (recommendedRes.ok) recommendedData = await recommendedRes.json();
 
-        // Map state from API results
-        setPlatformStats(statsData.success ? statsData.data : null);
-        
         const enqList = enquiriesData.success ? (enquiriesData.data?.enquiries || enquiriesData.data || []) : [];
         const enqTotal = enquiriesData.success ? (enquiriesData.data?.total || enqList.length) : 0;
         setRecentEnquiries(enqList.slice(0, 5));
@@ -128,11 +123,11 @@ export default function CustomerDashboardHome() {
     }
 
     fetchDashboardData();
-  }, [user, authLoading]);
+  }, [user, authLoading, authFetch]);
 
   // Render Auth and loading placeholders
-  if (authLoading) {
-    return <LoadingSpinner message="Verifying authentication..." fullPage />;
+  if (authLoading || !user) {
+    return <LoadingSpinner message="Verifying credentials..." fullPage />;
   }
 
   if (!user) {
@@ -144,20 +139,20 @@ export default function CustomerDashboardHome() {
   }
 
   return (
-    <DashboardLayout role="customer" pageTitle="Customer Dashboard">
+    <>
       <div className="container-fluid px-0" id="customer-dashboard-home">
-        
-        {/* Error Alert */}
-        {error && <AlertMessage type="danger" message={error} onClose={() => setError(null)} />}
+      
+      {/* Error Alert */}
+      {error && <AlertMessage type="danger" message={error} onClose={() => setError(null)} />}
 
-        {/* WELCOME BANNER */}
-        <div 
-          className="card border-0 rounded-3 mb-4 p-4 text-white shadow-sm" 
-          style={{ 
-            background: 'linear-gradient(135deg, #1A6B3C 0%, #2E7D32 100%)' 
-          }}
-          id="dashboard-welcome-banner"
-        >
+      {/* WELCOME BANNER */}
+      <div 
+        className="card border-0 rounded-3 mb-4 p-4 text-white shadow-sm" 
+        style={{ 
+          background: 'linear-gradient(135deg, #1A6B3C 0%, #2E7D32 100%)' 
+        }}
+        id="dashboard-welcome-banner"
+      >
           <div className="row align-items-center">
             <div className="col-12 col-md-8">
               <h2 className="fw-bold mb-1">Welcome back, {user.full_name}!</h2>
@@ -334,7 +329,7 @@ export default function CustomerDashboardHome() {
                               <tr key={enq.enquiry_id || index}>
                                 <td className="fw-semibold text-dark fs-7 py-3">#{enq.enquiry_id || index + 1}</td>
                                 <td className="py-3">
-                                  <Link href={`/artisans/${enq.artisan_id}`} className="text-decoration-none fw-semibold text-dark hover-text-primary">
+                                  <Link href={`/artisan/${enq.artisan_id}`} className="text-decoration-none fw-semibold text-dark hover-text-primary">
                                     {enq.artisan_name || 'Skilled Artisan'}
                                   </Link>
                                 </td>
@@ -401,14 +396,14 @@ export default function CustomerDashboardHome() {
                             )}
                           </div>
                           <div className="flex-grow-1 overflow-hidden">
-                            <Link href={`/artisans/${artisan.user_id}`} className="text-decoration-none text-dark d-block fw-bold fs-7 text-truncate mb-0">
+                            <Link href={`/artisan/${artisan.user_id}`} className="text-decoration-none text-dark d-block fw-bold fs-7 text-truncate mb-0">
                               {artisan.full_name}
                             </Link>
                             <span className="badge bg-primary-subtle text-primary text-capitalize rounded-pill px-2.5 py-0.5 fs-8">
                               {artisan.category_name}
                             </span>
                           </div>
-                          <Link href={`/artisans/${artisan.user_id}`} className="btn btn-sm btn-outline-secondary rounded-circle p-2 flex-shrink-0 border-0">
+                          <Link href={`/artisan/${artisan.user_id}`} className="btn btn-sm btn-outline-secondary rounded-circle p-2 flex-shrink-0 border-0">
                             <i className="fa-solid fa-chevron-right fs-7 text-muted"></i>
                           </Link>
                         </div>
@@ -512,6 +507,6 @@ export default function CustomerDashboardHome() {
           </>
         )}
       </div>
-    </DashboardLayout>
+    </>
   );
 }

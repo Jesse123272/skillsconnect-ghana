@@ -2,13 +2,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import DashboardLayout from '@/components/DashboardLayout';
+// DashboardLayout provided by app/dashboard/layout.js; per-page wrapper removed
 import LoadingSpinner from '@/components/LoadingSpinner';
 import AlertMessage from '@/components/AlertMessage';
 import ArtisanProfileClient from '@/components/ArtisanProfileClient';
 
 export default function ArtisanProfilePreview() {
-  const { user, loading: authLoading } = useAuth();
+  const {  user, loading: authLoading , authFetch } = useAuth();
   const [profile, setProfile] = useState(null);
   const [loadingData, setLoadingData] = useState(true);
   const [error, setError] = useState(null);
@@ -23,7 +23,7 @@ export default function ArtisanProfilePreview() {
           setError(null);
 
           // Retrieve the live public-facing artisan data
-          const response = await fetch(`/api/artisans/${user.user_id}`);
+          const response = await authFetch(`/api/artisans/${user.user_id}`);
           const result = await response.json();
 
           if (response.ok && result.success && result.data) {
@@ -43,9 +43,9 @@ export default function ArtisanProfilePreview() {
     }, 0);
 
     return () => clearTimeout(timer);
-  }, [user, authLoading]);
+  }, [user, authLoading, authFetch]);
 
-  if (authLoading) {
+  if (authLoading || !user) {
     return <LoadingSpinner message="Verifying credentials..." fullPage />;
   }
 
@@ -67,7 +67,7 @@ export default function ArtisanProfilePreview() {
     : (profile?.gallery || []);
 
   return (
-    <DashboardLayout role="artisan" pageTitle="Public Profile Preview">
+    <>
       <div className="container-fluid px-0" id="artisan-preview-view">
         
         {/* Banner Alert informing about Preview Mode */}
@@ -118,6 +118,6 @@ export default function ArtisanProfilePreview() {
         )}
 
       </div>
-    </DashboardLayout>
+    </>
   );
 }

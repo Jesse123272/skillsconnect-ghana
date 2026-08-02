@@ -1,16 +1,15 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
-import DashboardLayout from '@/components/DashboardLayout';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import AlertMessage from '@/components/AlertMessage';
 import EmptyState from '@/components/EmptyState';
 import Pagination from '@/components/Pagination';
 
 export default function ArtisanNotifications() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, authFetch } = useAuth();
 
   const [notifications, setNotifications] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -24,12 +23,11 @@ export default function ArtisanNotifications() {
   const [successMsg, setSuccessMsg] = useState(null);
 
   // FETCH NOTIFICATIONS
-  const fetchNotifications = async (page) => {
+  const fetchNotifications = useCallback(async (page) => {
     try {
       setLoadingData(true);
       setErrorMsg(null);
-
-      const response = await fetch(`/api/notifications?page=${page}&limit=10`);
+      const response = await authFetch(`/api/notifications?page=${page || 1}`);
       const result = await response.json();
 
       if (response.ok && result.success && result.data) {
@@ -46,7 +44,7 @@ export default function ArtisanNotifications() {
     } finally {
       setLoadingData(false);
     }
-  };
+  }, [authFetch]);
 
   useEffect(() => {
     if (!authLoading && user) {
@@ -55,7 +53,7 @@ export default function ArtisanNotifications() {
       }, 0);
       return () => clearTimeout(timer);
     }
-  }, [user, authLoading, currentPage]);
+  }, [user, authLoading, currentPage, fetchNotifications]);
 
   const handlePageChange = (pageNum) => {
     setCurrentPage(pageNum);
@@ -68,7 +66,7 @@ export default function ArtisanNotifications() {
       setErrorMsg(null);
       setSuccessMsg(null);
 
-      const response = await fetch('/api/notifications', {
+      const response = await authFetch('/api/notifications', {
         method: 'PUT'
       });
 
@@ -97,7 +95,7 @@ export default function ArtisanNotifications() {
       setErrorMsg(null);
       setSuccessMsg(null);
 
-      const response = await fetch(`/api/notifications/${notifId}`, {
+      const response = await authFetch(`/api/notifications/${notifId}`, {
         method: 'PUT'
       });
 
@@ -126,7 +124,7 @@ export default function ArtisanNotifications() {
       setErrorMsg(null);
       setSuccessMsg(null);
 
-      const response = await fetch(`/api/notifications/${notifId}`, {
+      const response = await authFetch(`/api/notifications/${notifId}`, {
         method: 'DELETE'
       });
 
@@ -161,7 +159,7 @@ export default function ArtisanNotifications() {
   const unreadCount = notifications.filter((n) => n.is_read === 0).length;
 
   return (
-    <DashboardLayout role="artisan" pageTitle="Alert Notifications">
+    <>
       <div className="container-fluid px-0" id="artisan-notifications-view">
         
         {/* Title Block */}
@@ -322,6 +320,6 @@ export default function ArtisanNotifications() {
         )}
 
       </div>
-    </DashboardLayout>
+    </>
   );
 }

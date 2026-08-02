@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs';
 import { sendEmail, welcomeEmail, verificationEmail } from '@/lib/mailer';
 import { sanitizeObject, sanitizeText } from '@/lib/security';
 import { validateEmail, validatePassword, validatePhone } from '@/lib/validators';
+import { resolveCategorySelection } from '@/lib/category-utils';
 
 export async function POST(req) {
   try {
@@ -25,6 +26,7 @@ export async function POST(req) {
       region,
       district,
       category_id,
+      custom_category,
       years_experience,
       bio,
       latitude: rawLatitude,
@@ -38,6 +40,7 @@ export async function POST(req) {
     const cleanedRegion = sanitizeText(region || '').trim();
     const cleanedDistrict = sanitizeText(district || '').trim();
     const cleanedBio = sanitizeText(bio || '').trim();
+    const cleanedCustomCategory = sanitizeText(custom_category || '').trim();
     const latitude = parseFloat(rawLatitude);
     const longitude = parseFloat(rawLongitude);
     const hasValidLocation = !Number.isNaN(latitude) && !Number.isNaN(longitude) && latitude >= -90 && latitude <= 90 && longitude >= -180 && longitude <= 180;
@@ -87,15 +90,21 @@ export async function POST(req) {
     let parsedCategoryId = null;
     let parsedYearsExp = 0;
     if (cleanedRole === 'artisan') {
-      if (!category_id || !cleanedBio) {
+      if (!cleanedBio) {
         return NextResponse.json(
-          { success: false, error: 'Artisans must provide a trade category and profile biography' },
+          { success: false, error: 'Artisans must provide a profile biography' },
+          { status: 400 }
+        );
+      }
+      if (!cleanedCustomCategory && !category_id) {
+        return NextResponse.json(
+          { success: false, error: 'Artisans must provide a trade category or custom specialty' },
           { status: 400 }
         );
       }
       parsedCategoryId = parseInt(category_id, 10);
       parsedYearsExp = parseInt(years_experience, 10);
-      if (isNaN(parsedCategoryId)) {
+      if (category_id && isNaN(parsedCategoryId)) {
         return NextResponse.json(
           { success: false, error: 'Invalid category selection' },
           { status: 400 }
@@ -108,19 +117,21 @@ export async function POST(req) {
         );
       }
 
-      // Check if category exists
-      let catCheck = [];
-      try {
-        catCheck = await query('SELECT category_id FROM categories WHERE category_id = ? AND is_active = 1', [parsedCategoryId]);
-      } catch (categoryError) {
-        console.warn('Category validation query failed:', categoryError?.message || categoryError);
-      }
+      if (category_id) {
+        // Check if category exists
+        let catCheck = [];
+        try {
+          catCheck = await query('SELECT category_id FROM categories WHERE category_id = ? AND is_active = 1', [parsedCategoryId]);
+        } catch (categoryError) {
+          console.warn('Category validation query failed:', categoryError?.message || categoryError);
+        }
 
-      if (!catCheck || catCheck.length === 0) {
-        return NextResponse.json(
-          { success: false, error: 'Selected trade category is invalid or inactive' },
-          { status: 400 }
-        );
+        if (!catCheck || catCheck.length === 0) {
+          return NextResponse.json(
+            { success: false, error: 'Selected trade category is invalid or inactive' },
+            { status: 400 }
+          );
+        }
       }
     }
 
@@ -174,10 +185,11 @@ export async function POST(req) {
 
     if (cleanedRole === 'artisan' && userId) {
       try {
+        const resolvedCategory = await resolveCategorySelection(query, parsedCategoryId, cleanedCustomCategory);
         await query(
           `INSERT INTO artisan_profiles (user_id, category_id, bio, years_experience, is_approved) 
            VALUES (?, ?, ?, ?, 0)`,
-          [userId, parsedCategoryId, cleanedBio, parsedYearsExp]
+          [userId, resolvedCategory.categoryId, cleanedBio, parsedYearsExp]
         );
       } catch (profileError) {
         console.warn('Artisan profile insert failed:', profileError?.message || profileError);

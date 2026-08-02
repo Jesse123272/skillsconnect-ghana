@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import DashboardLayout from '@/components/DashboardLayout';
+
+import { useAuth } from '@/context/AuthContext';import Link from 'next/link';
+// DashboardLayout provided by app/dashboard/layout.js; per-page wrapper removed
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { 
   MessageSquare, 
@@ -47,7 +48,7 @@ export default function ManageEnquiries() {
           status
         });
 
-        const res = await fetch(`/api/admin/enquiries?${queryParams.toString()}`, { credentials: 'include' });
+        const res = await authFetch(`/api/admin/enquiries?${queryParams.toString()}`, { credentials: 'include' });
         const data = await res.json();
         if (data.success && active) {
           setEnquiries(data.data.enquiries);
@@ -76,7 +77,7 @@ export default function ManageEnquiries() {
   const handleUpdateStatus = async (id, newStatus, notes = '') => {
     setProcessingId(id);
     try {
-      const res = await fetch(`/api/admin/enquiries/${id}`, {
+      const res = await authFetch(`/api/admin/enquiries/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus, admin_notes: notes }),
@@ -102,7 +103,7 @@ export default function ManageEnquiries() {
     if (!confirm('Permanently delete this enquiry record? This cannot be undone.')) return;
     setProcessingId(id);
     try {
-      const res = await fetch(`/api/admin/enquiries/${id}`, {
+      const res = await authFetch(`/api/admin/enquiries/${id}`, {
         method: 'DELETE',
         credentials: 'include'
       });
@@ -128,7 +129,7 @@ export default function ManageEnquiries() {
   };
 
   return (
-    <DashboardLayout pageTitle="Platform Enquiries Management">
+    <>
       {/* Search and Filters panel */}
       <div className="card p-3 mb-4 border bg-white" id="enquiries-filters-card">
         <form onSubmit={handleSearchSubmit} className="row g-3 align-items-center">
@@ -399,6 +400,6 @@ export default function ManageEnquiries() {
           </div>
         </div>
       )}
-    </DashboardLayout>
+    </>
   );
 }

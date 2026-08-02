@@ -4,13 +4,13 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import DashboardLayout from '@/components/DashboardLayout';
+// DashboardLayout provided by app/dashboard/layout.js; per-page wrapper removed
 import ProfileAvatar from '@/components/ProfileAvatar';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import AlertMessage from '@/components/AlertMessage';
 
 export default function ArtisanEnquiryDetail() {
-  const { user, loading: authLoading } = useAuth();
+  const {  user, loading: authLoading , authFetch } = useAuth();
   const router = useRouter();
   const params = useParams();
   const enquiryId = params.id;
@@ -31,7 +31,7 @@ export default function ArtisanEnquiryDetail() {
     try {
       setUpdatingStatus(true);
       setError(null);
-      const res = await fetch(`/api/enquiries/${enquiryId}`, {
+      const res = await authFetch(`/api/enquiries/${enquiryId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus })
@@ -57,7 +57,7 @@ export default function ArtisanEnquiryDetail() {
       setLoadingData(true);
       setError(null);
 
-      const response = await fetch(`/api/enquiries/${enquiryId}`);
+      const response = await authFetch(`/api/enquiries/${enquiryId}`);
       const result = await response.json();
 
       if (response.ok && result.success && result.data) {
@@ -71,12 +71,12 @@ export default function ArtisanEnquiryDetail() {
     } finally {
       setLoadingData(false);
     }
-  }, [enquiryId]);
+  }, [enquiryId, authFetch]);
 
   // FETCH CHAT MESSAGES
   const fetchMessages = useCallback(async () => {
     try {
-      const res = await fetch(`/api/enquiries/${enquiryId}/messages`);
+      const res = await authFetch(`/api/enquiries/${enquiryId}/messages`);
       if (res.ok) {
         const result = await res.json();
         if (result.success && Array.isArray(result.data)) {
@@ -96,7 +96,7 @@ export default function ArtisanEnquiryDetail() {
     } catch (err) {
       console.error('Error fetching chat messages:', err);
     }
-  }, [enquiryId]);
+  }, [enquiryId, authFetch]);
 
   // Initial loads
   useEffect(() => {
@@ -150,7 +150,7 @@ export default function ArtisanEnquiryDetail() {
     setMessages((prev) => [...prev, optimisticMessage]);
 
     try {
-      const response = await fetch(`/api/enquiries/${enquiryId}/messages`, {
+      const response = await authFetch(`/api/enquiries/${enquiryId}/messages`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -197,7 +197,7 @@ export default function ArtisanEnquiryDetail() {
   const waUrl = `https://wa.me/${cleanPhone}`;
 
   return (
-    <DashboardLayout role="artisan" pageTitle="Enquiry Details">
+    <>
       <div className="container-fluid px-0" id="artisan-enquiry-detail-view">
         
         {/* Navigation Breadcrumb & Back */}
@@ -454,6 +454,6 @@ export default function ArtisanEnquiryDetail() {
         )}
 
       </div>
-    </DashboardLayout>
+    </>
   );
 }

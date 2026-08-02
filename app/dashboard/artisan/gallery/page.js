@@ -1,15 +1,15 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import DashboardLayout from '@/components/DashboardLayout';
+// DashboardLayout provided by app/dashboard/layout.js; per-page wrapper removed
 import LoadingSpinner from '@/components/LoadingSpinner';
 import AlertMessage from '@/components/AlertMessage';
 import EmptyState from '@/components/EmptyState';
 
 export default function ArtisanGalleryManagement() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, authFetch } = useAuth();
 
   const [portfolio, setPortfolio] = useState([]);
   const [loadingData, setLoadingData] = useState(true);
@@ -29,10 +29,10 @@ export default function ArtisanGalleryManagement() {
   const [formSuccess, setFormSuccess] = useState(null);
 
   // FETCH PORTFOLIO
-  const fetchPortfolioItems = async () => {
+  const fetchPortfolioItems = useCallback(async () => {
     try {
       setLoadingData(true);
-      const response = await fetch('/api/portfolio');
+      const response = await authFetch('/api/portfolio');
       const result = await response.json();
 
       if (response.ok && result.success && Array.isArray(result.data)) {
@@ -46,7 +46,7 @@ export default function ArtisanGalleryManagement() {
     } finally {
       setLoadingData(false);
     }
-  };
+  }, [authFetch]);
 
   useEffect(() => {
     if (!authLoading && user) {
@@ -56,7 +56,7 @@ export default function ArtisanGalleryManagement() {
       }, 0);
       return () => clearTimeout(timer);
     }
-  }, [user, authLoading]);
+  }, [user, authLoading, fetchPortfolioItems]);
 
   // CHOOSE IMAGE FILE
   const handleFileChange = (e) => {
@@ -97,7 +97,7 @@ export default function ArtisanGalleryManagement() {
       formData.append('file', selectedFile);
       formData.append('type', 'portfolio');
 
-      const uploadRes = await fetch('/api/uploads', {
+      const uploadRes = await authFetch('/api/uploads', {
         method: 'POST',
         body: formData
       });
@@ -111,7 +111,7 @@ export default function ArtisanGalleryManagement() {
       const filePath = uploadResult.data.file_path;
 
       // STEP 2: Create Portfolio record via /api/portfolio
-      const portfolioRes = await fetch('/api/portfolio', {
+      const portfolioRes = await authFetch('/api/portfolio', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -154,7 +154,7 @@ export default function ArtisanGalleryManagement() {
       setFormError(null);
       setFormSuccess(null);
 
-      const response = await fetch(`/api/portfolio/${itemId}`, {
+      const response = await authFetch(`/api/portfolio/${itemId}`, {
         method: 'DELETE'
       });
 
@@ -188,8 +188,8 @@ export default function ArtisanGalleryManagement() {
   }
 
   return (
-    <DashboardLayout role="artisan" pageTitle="Work Showcase Gallery">
-      <div className="container-fluid px-0" id="artisan-gallery-view">
+        <>
+          <div className="container-fluid px-0" id="artisan-gallery-view">
         
         {/* Header Intro */}
         <div className="mb-4">
@@ -359,6 +359,6 @@ export default function ArtisanGalleryManagement() {
         </div>
 
       </div>
-    </DashboardLayout>
+    </>
   );
 }

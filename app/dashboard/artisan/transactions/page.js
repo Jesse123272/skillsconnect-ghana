@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import DashboardLayout from '@/components/DashboardLayout';
+
+import { useAuth } from '@/context/AuthContext';// DashboardLayout provided by app/dashboard/layout.js; per-page wrapper removed
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { CreditCard, CheckCircle, Clock, DollarSign, Calendar } from 'lucide-react';
 import { toast } from 'react-hot-toast';
@@ -16,7 +17,7 @@ export default function ArtisanTransactionsPage() {
     async function loadTransactions() {
       setLoading(true);
       try {
-        const res = await fetch(`/api/payments?status=${filterStatus}`, { credentials: 'include' });
+        const res = await authFetch(`/api/payments?status=${filterStatus}`, { credentials: 'include' });
         const data = await res.json();
         if (data.success && isMounted) {
           setTransactions(data.data.transactions || []);
@@ -41,7 +42,7 @@ export default function ArtisanTransactionsPage() {
   const successCount = transactions.filter(t => t.status === 'success').length;
 
   return (
-    <DashboardLayout pageTitle="Earnings & Payments Received">
+    <>
       {/* Metrics Row */}
       <div className="row g-3 mb-4 text-dark" id="artisan-earnings-stats">
         <div className="col-md-6">
@@ -161,6 +162,6 @@ export default function ArtisanTransactionsPage() {
           </div>
         </div>
       )}
-    </DashboardLayout>
+    </>
   );
 }

@@ -10,8 +10,10 @@ import StarRating from './StarRating';
 import SaveButton from './SaveButton';
 import ReviewCard from './ReviewCard';
 import EmptyState from './EmptyState';
-import ServiceCostEstimator from './ServiceCostEstimator';
-import ReferralShareHub from './ReferralShareHub';
+import dynamic from 'next/dynamic';
+
+const ServiceCostEstimator = dynamic(() => import('./ServiceCostEstimator'), { ssr: false, loading: () => null });
+const ReferralShareHub = dynamic(() => import('./ReferralShareHub'), { ssr: false, loading: () => null });
 
 export default function ArtisanProfileClient({ 
   artisan, 

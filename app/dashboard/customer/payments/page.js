@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import DashboardLayout from '@/components/DashboardLayout';
+
+import { useAuth } from '@/context/AuthContext';// DashboardLayout provided by app/dashboard/layout.js; per-page wrapper removed
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { CreditCard, CheckCircle, Clock, XCircle, DollarSign, Calendar, ExternalLink, Printer } from 'lucide-react';
 import { toast } from 'react-hot-toast';
@@ -17,7 +18,7 @@ export default function CustomerPaymentsPage() {
     async function loadPayments() {
       setLoading(true);
       try {
-        const res = await fetch(`/api/payments?status=${filterStatus}`, { credentials: 'include' });
+        const res = await authFetch(`/api/payments?status=${filterStatus}`, { credentials: 'include' });
         const data = await res.json();
         if (data.success && isMounted) {
           setTransactions(data.data.transactions || []);
@@ -47,7 +48,7 @@ export default function CustomerPaymentsPage() {
   };
 
   return (
-    <DashboardLayout pageTitle="My Payment History & Receipts">
+    <>
       {/* Metrics Row */}
       <div className="row g-3 mb-4 text-dark" id="customer-payments-stats">
         <div className="col-md-4">
@@ -56,7 +57,7 @@ export default function CustomerPaymentsPage() {
               <DollarSign size={24} />
             </div>
             <div>
-              <span className="text-muted small d-block fw-semibold">Total Verified Payments</span>
+              <span className="text-muted small d-block fw-semibold">Total Spent</span>
               <h4 className="fw-black text-dark mb-0">GHS {totalSpentGhs.toFixed(2)}</h4>
             </div>
           </div>
@@ -243,6 +244,6 @@ export default function CustomerPaymentsPage() {
           </div>
         </div>
       )}
-    </DashboardLayout>
+    </>
   );
 }

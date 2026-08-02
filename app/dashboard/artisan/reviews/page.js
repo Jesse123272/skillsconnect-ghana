@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import DashboardLayout from '@/components/DashboardLayout';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import AlertMessage from '@/components/AlertMessage';
 import EmptyState from '@/components/EmptyState';
@@ -10,8 +9,9 @@ import StarRating from '@/components/StarRating';
 import ReviewCard from '@/components/ReviewCard';
 
 export default function ArtisanReviewsManagement() {
-  const { user, loading: authLoading } = useAuth();
+  const {  user, loading: authLoading , authFetch } = useAuth();
 
+  // DashboardLayout provided by app/dashboard/layout.js; per-page wrapper removed
   const [reviews, setReviews] = useState([]);
   const [loadingData, setLoadingData] = useState(true);
   const [error, setError] = useState(null);
@@ -27,7 +27,7 @@ export default function ArtisanReviewsManagement() {
           setError(null);
 
           // Get reviews received about this artisan
-          const response = await fetch('/api/reviews?mine=true');
+          const response = await authFetch('/api/reviews?mine=true');
           const result = await response.json();
 
           if (response.ok && result.success) {
@@ -54,9 +54,9 @@ export default function ArtisanReviewsManagement() {
     }, 0);
 
     return () => clearTimeout(timer);
-  }, [user, authLoading]);
+  }, [user, authLoading, authFetch]);
 
-  if (authLoading) {
+  if (authLoading || !user) {
     return <LoadingSpinner message="Verifying credentials..." fullPage />;
   }
 
@@ -89,7 +89,7 @@ export default function ArtisanReviewsManagement() {
   };
 
   return (
-    <DashboardLayout role="artisan" pageTitle="Client Reviews">
+    <>
       <div className="container-fluid px-0" id="artisan-reviews-view">
         
         {/* Title and Intro */}
@@ -211,6 +211,6 @@ export default function ArtisanReviewsManagement() {
         )}
 
       </div>
-    </DashboardLayout>
+    </>
   );
 }

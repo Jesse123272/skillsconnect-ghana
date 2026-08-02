@@ -1,11 +1,16 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import DashboardLayout from '@/components/DashboardLayout';
+import { useAuth } from '@/context/AuthContext';
+// DashboardLayout provided by app/dashboard/layout.js; per-page wrapper removed
 import LoadingSpinner from '@/components/LoadingSpinner';
-import AnalyticsOverview from '@/components/AnalyticsOverview';
+const AnalyticsOverview = dynamic(
+  () => import('@/components/AnalyticsOverview'),
+  { ssr: false, loading: () => <LoadingSpinner message="Loading analytics..." /> }
+);
 import { 
   Users, 
   Briefcase, 
@@ -46,6 +51,7 @@ ChartJS.register(
 
 export default function AdminDashboard() {
   const router = useRouter();
+  const { authFetch } = useAuth();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState(null);
@@ -56,7 +62,7 @@ export default function AdminDashboard() {
   const fetchStats = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/admin/stats', { credentials: 'include' });
+      const res = await authFetch('/api/admin/stats');
       const data = await res.json();
       if (data.success) {
         setStats(data.data);
@@ -69,7 +75,7 @@ export default function AdminDashboard() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [authFetch]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -83,11 +89,10 @@ export default function AdminDashboard() {
     if (!confirm(`Are you sure you want to approve ${name} as a professional artisan?`)) return;
     setProcessingId(id);
     try {
-      const res = await fetch(`/api/admin/artisans/${id}`, {
+      const res = await authFetch(`/api/admin/artisans/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'approve' }),
-        credentials: 'include'
       });
       const data = await res.json();
       if (data.success) {
@@ -122,11 +127,10 @@ export default function AdminDashboard() {
     setShowRejectModal(false);
 
     try {
-      const res = await fetch(`/api/admin/reject-artisan`, {
+      const res = await authFetch(`/api/admin/reject-artisan`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ artisan_id: id, reason: rejectReason }),
-        credentials: 'include'
       });
       const data = await res.json();
       if (data.success) {
@@ -146,9 +150,9 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <DashboardLayout pageTitle="Admin Dashboard">
+      <div className="d-flex align-items-center justify-content-center min-vh-50 py-5">
         <LoadingSpinner message="Gathering latest system statistics..." />
-      </DashboardLayout>
+      </div>
     );
   }
 
@@ -194,7 +198,7 @@ export default function AdminDashboard() {
   };
 
   return (
-    <DashboardLayout pageTitle="Admin Dashboard Home">
+    <>
       <div className="mb-4">
         <AnalyticsOverview />
       </div>
@@ -563,6 +567,6 @@ export default function AdminDashboard() {
           </div>
         </div>
       )}
-    </DashboardLayout>
+    </>
   );
 }

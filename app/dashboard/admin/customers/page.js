@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import DashboardLayout from '@/components/DashboardLayout';
+
+import { useAuth } from '@/context/AuthContext';import Link from 'next/link';
+// DashboardLayout provided by app/dashboard/layout.js; per-page wrapper removed
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { 
   Search, 
@@ -45,7 +46,7 @@ export default function ManageCustomers() {
           search: searchQuery.trim()
         });
 
-        const res = await fetch(`/api/admin/users?${queryParams.toString()}`, { credentials: 'include' });
+        const res = await authFetch(`/api/admin/users?${queryParams.toString()}`, { credentials: 'include' });
         const data = await res.json();
         if (data.success && active) {
           setUsers(data.data.users);
@@ -74,7 +75,7 @@ export default function ManageCustomers() {
   const handleToggleActive = async (id, name, currentActive) => {
     setProcessingId(id);
     try {
-      const res = await fetch(`/api/admin/users/${id}`, {
+      const res = await authFetch(`/api/admin/users/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ is_active: !currentActive }),
@@ -105,7 +106,7 @@ export default function ManageCustomers() {
     setShowDeleteModal(false);
     setProcessingId(deleteId);
     try {
-      const res = await fetch(`/api/admin/users/${deleteId}`, {
+      const res = await authFetch(`/api/admin/users/${deleteId}`, {
         method: 'DELETE',
         credentials: 'include'
       });
@@ -127,7 +128,7 @@ export default function ManageCustomers() {
   };
 
   return (
-    <DashboardLayout pageTitle="Manage Registered Users">
+    <>
       {/* Search Bar section */}
       <div className="card p-3 mb-4 border bg-white" id="users-filters-card">
         <form onSubmit={handleSearchSubmit} className="row g-3">
@@ -335,6 +336,6 @@ export default function ManageCustomers() {
           </div>
         </div>
       )}
-    </DashboardLayout>
+    </>
   );
 }

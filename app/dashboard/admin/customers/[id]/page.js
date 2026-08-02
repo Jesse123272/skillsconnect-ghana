@@ -3,7 +3,8 @@
 import React, { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import DashboardLayout from '@/components/DashboardLayout';
+
+import { useAuth } from '@/context/AuthContext';// DashboardLayout provided by app/dashboard/layout.js; per-page wrapper removed
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { 
   ArrowLeft, 
@@ -37,7 +38,7 @@ export default function UserDetail({ params }) {
     let active = true;
     async function loadUserDetail() {
       try {
-        const res = await fetch(`/api/admin/users/${id}`, { credentials: 'include' });
+        const res = await authFetch(`/api/admin/users/${id}`, { credentials: 'include' });
         const data = await res.json();
         if (data.success && active) {
           setDetail(data.data);
@@ -60,7 +61,7 @@ export default function UserDetail({ params }) {
     setProcessing(true);
     const newStatus = !detail.user.is_active;
     try {
-      const res = await fetch(`/api/admin/users/${id}`, {
+      const res = await authFetch(`/api/admin/users/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ is_active: newStatus }),
@@ -85,7 +86,7 @@ export default function UserDetail({ params }) {
     if (!confirm(`Are you absolutely sure you want to permanently delete the account for ${detail?.user?.full_name}? This will remove all their system associations, which is irreversible.`)) return;
     setProcessing(true);
     try {
-      const res = await fetch(`/api/admin/users/${id}`, {
+      const res = await authFetch(`/api/admin/users/${id}`, {
         method: 'DELETE',
         credentials: 'include'
       });
@@ -106,9 +107,9 @@ export default function UserDetail({ params }) {
 
   if (loading) {
     return (
-      <DashboardLayout pageTitle="User Detail">
+      <div className="d-flex align-items-center justify-content-center min-vh-50 py-5">
         <LoadingSpinner message="Retrieving citizen records..." />
-      </DashboardLayout>
+      </div>
     );
   }
 
@@ -118,7 +119,7 @@ export default function UserDetail({ params }) {
   const enquiries = detail?.enquiries || [];
 
   return (
-    <DashboardLayout pageTitle={`User Workspace - SCG-${user?.user_id}`}>
+    <>
       {/* Header Panel */}
       <div className="d-flex align-items-center justify-content-between mb-4 pb-2 border-bottom text-dark">
         <Link href="/dashboard/admin/customers" className="btn btn-outline-secondary d-flex align-items-center gap-1">
@@ -352,6 +353,6 @@ export default function UserDetail({ params }) {
           </div>
         </div>
       </div>
-    </DashboardLayout>
+    </>
   );
 }

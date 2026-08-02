@@ -2,13 +2,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import DashboardLayout from '@/components/DashboardLayout';
+// DashboardLayout provided by app/dashboard/layout.js; per-page wrapper removed
 import LoadingSpinner from '@/components/LoadingSpinner';
 import AlertMessage from '@/components/AlertMessage';
 import { validatePassword } from '@/lib/validators';
 
 export default function ArtisanSettings() {
-  const { user, setUser, loading: authLoading } = useAuth();
+  const {  user, setUser, loading: authLoading , authFetch } = useAuth();
 
   // Active Tab State
   const [activeTab, setActiveTab] = useState('account'); // 'account', 'password', 'notifications'
@@ -95,7 +95,7 @@ export default function ArtisanSettings() {
     try {
       setSavingSettings(true);
 
-      const response = await fetch('/api/profile/password', {
+      const response = await authFetch('/api/profile/password', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
@@ -142,7 +142,7 @@ export default function ArtisanSettings() {
     try {
       setSavingSettings(true);
 
-      const response = await fetch('/api/profile', {
+      const response = await authFetch('/api/profile', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
@@ -184,7 +184,7 @@ export default function ArtisanSettings() {
   }
 
   return (
-    <DashboardLayout role="artisan" pageTitle="Account Settings">
+    <>
       <div className="container-fluid px-0" id="artisan-settings-view">
         
         {/* Title and Intro */}
@@ -581,6 +581,6 @@ export default function ArtisanSettings() {
         </div>
 
       </div>
-    </DashboardLayout>
+    </>
   );
 }

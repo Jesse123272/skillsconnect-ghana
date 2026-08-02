@@ -3,14 +3,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import DashboardLayout from '@/components/DashboardLayout';
+// DashboardLayout provided by app/dashboard/layout.js; per-page wrapper removed
 import ProfileAvatar from '@/components/ProfileAvatar';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import AlertMessage from '@/components/AlertMessage';
 import { validateEmail, validatePassword, validatePhone } from '@/lib/validators';
 
 export default function CustomerSettings() {
-  const { user, setUser, loading: authLoading, logout } = useAuth();
+  const {  user, setUser, loading: authLoading, logout , authFetch } = useAuth();
   const router = useRouter();
 
   // Dynamic Geographic data states
@@ -58,7 +58,7 @@ export default function CustomerSettings() {
   useEffect(() => {
     async function loadRegions() {
       try {
-        const response = await fetch('/api/regions');
+        const response = await authFetch('/api/regions');
         if (response.ok) {
           const result = await response.json();
           if (result.success && Array.isArray(result.data)) {
@@ -70,7 +70,7 @@ export default function CustomerSettings() {
       }
     }
     loadRegions();
-  }, []);
+  }, [authFetch]);
 
   // Pre-fill profile fields once user context is loaded
   useEffect(() => {
@@ -150,7 +150,7 @@ export default function CustomerSettings() {
       formData.append('file', file);
       formData.append('type', 'profile');
 
-      const response = await fetch('/api/uploads', {
+      const response = await authFetch('/api/uploads', {
         method: 'POST',
         body: formData,
       });
@@ -201,7 +201,7 @@ export default function CustomerSettings() {
     try {
       setSavingProfile(true);
 
-      const response = await fetch('/api/profile/update', {
+      const response = await authFetch('/api/profile/update', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -267,7 +267,7 @@ export default function CustomerSettings() {
     try {
       setSavingPassword(true);
 
-      const response = await fetch('/api/profile/password', {
+      const response = await authFetch('/api/profile/password', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -304,7 +304,7 @@ export default function CustomerSettings() {
       setDeactivatingAccount(true);
       setAccountError(null);
 
-      const response = await fetch('/api/profile/update', {
+      const response = await authFetch('/api/profile/update', {
         method: 'DELETE',
       });
 
@@ -339,7 +339,7 @@ export default function CustomerSettings() {
   }
 
   return (
-    <DashboardLayout role="customer" pageTitle="Account Settings">
+    <>
       <div className="container-fluid px-0" id="account-settings-container">
         
         {/* Header Block */}
@@ -815,6 +815,6 @@ export default function CustomerSettings() {
         )}
 
       </div>
-    </DashboardLayout>
+    </>
   );
 }

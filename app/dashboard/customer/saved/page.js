@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
-import DashboardLayout from '@/components/DashboardLayout';
+// DashboardLayout provided by app/dashboard/layout.js; per-page wrapper removed
 import ArtisanCard from '@/components/ArtisanCard';
 import Pagination from '@/components/Pagination';
 import LoadingSpinner from '@/components/LoadingSpinner';
@@ -11,7 +11,7 @@ import EmptyState from '@/components/EmptyState';
 import AlertMessage from '@/components/AlertMessage';
 
 export default function SavedArtisans() {
-  const { user, loading: authLoading } = useAuth();
+  const {  user, loading: authLoading , authFetch } = useAuth();
   
   const [saved, setSaved] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -25,7 +25,7 @@ export default function SavedArtisans() {
       setLoading(true);
       setError(null);
       
-      const response = await fetch(`/api/saved?page=${page}&limit=6`);
+      const response = await authFetch(`/api/saved?page=${page}&limit=6`);
       if (response.ok) {
         const result = await response.json();
         if (result.success && result.data) {
@@ -44,7 +44,7 @@ export default function SavedArtisans() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [authFetch]);
 
   useEffect(() => {
     if (authLoading || !user) return;
@@ -64,7 +64,7 @@ export default function SavedArtisans() {
     e.stopPropagation();
     
     try {
-      const response = await fetch('/api/saved', {
+      const response = await authFetch('/api/saved', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -114,7 +114,7 @@ export default function SavedArtisans() {
   }
 
   return (
-    <DashboardLayout role="customer" pageTitle="Saved Artisans">
+    <>
       <div className="container-fluid px-0" id="customer-saved-artisans-view">
         
         {/* Title Header Row */}
@@ -197,6 +197,6 @@ export default function SavedArtisans() {
         )}
 
       </div>
-    </DashboardLayout>
+    </>
   );
 }

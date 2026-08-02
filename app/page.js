@@ -112,7 +112,21 @@ export default async function Home() {
       { category_id: 3, category_name: 'Carpentry', icon_class: 'fa-hammer' },
       { category_id: 4, category_name: 'Masonry', icon_class: 'fa-trowel-bricks' },
       { category_id: 5, category_name: 'Tailoring', icon_class: 'fa-scissors' },
-      { category_id: 6, category_name: 'Hairdressing', icon_class: 'fa-spray-can-sparkles' }
+      { category_id: 6, category_name: 'Hairdressing', icon_class: 'fa-spray-can-sparkles' },
+      { category_id: 7, category_name: 'Painting', icon_class: 'fa-paint-roller' },
+      { category_id: 8, category_name: 'Welding', icon_class: 'fa-fire' },
+      { category_id: 9, category_name: 'Mechanics', icon_class: 'fa-car' },
+      { category_id: 10, category_name: 'Fashion Design', icon_class: 'fa-shirt' },
+      { category_id: 11, category_name: 'Cleaning Services', icon_class: 'fa-broom' },
+      { category_id: 12, category_name: 'Pest Control', icon_class: 'fa-bug' },
+      { category_id: 13, category_name: 'Gardening & Landscaping', icon_class: 'fa-seedling' },
+      { category_id: 14, category_name: 'Appliance Repair', icon_class: 'fa-tv' },
+      { category_id: 15, category_name: 'ICT & Device Repair', icon_class: 'fa-laptop' },
+      { category_id: 16, category_name: 'Event Decoration', icon_class: 'fa-ribbon' },
+      { category_id: 17, category_name: 'Catering', icon_class: 'fa-utensils' },
+      { category_id: 18, category_name: 'Beauty Services', icon_class: 'fa-spa' },
+      { category_id: 19, category_name: 'Photography', icon_class: 'fa-camera' },
+      { category_id: 20, category_name: 'Security Services', icon_class: 'fa-shield-halved' }
     ];
   }
 

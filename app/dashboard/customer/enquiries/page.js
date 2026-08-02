@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
-import DashboardLayout from '@/components/DashboardLayout';
+// DashboardLayout provided by app/dashboard/layout.js; per-page wrapper removed
 import EnquiryCard from '@/components/EnquiryCard';
 import Pagination from '@/components/Pagination';
 import LoadingSpinner from '@/components/LoadingSpinner';
@@ -11,7 +11,7 @@ import EmptyState from '@/components/EmptyState';
 import AlertMessage from '@/components/AlertMessage';
 
 export default function CustomerEnquiries() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, authFetch } = useAuth();
   
   const [enquiries, setEnquiries] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -25,7 +25,7 @@ export default function CustomerEnquiries() {
       setLoading(true);
       setError(null);
       
-      const response = await fetch(`/api/enquiries?status=${currentFilter}&page=${page}&limit=5`);
+      const response = await authFetch(`/api/enquiries?status=${currentFilter}&page=${page}&limit=5`);
       if (response.ok) {
         const result = await response.json();
         if (result.success && result.data) {
@@ -44,7 +44,7 @@ export default function CustomerEnquiries() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [authFetch]);
 
   useEffect(() => {
     if (authLoading || !user) return;
@@ -63,20 +63,12 @@ export default function CustomerEnquiries() {
     setCurrentPage(newPage);
   };
 
-  if (authLoading) {
-    return <LoadingSpinner message="Verifying authentication..." fullPage />;
-  }
-
-  if (!user) {
-    return (
-      <div className="container py-5 text-center" id="unauthorized-placeholder">
-        <AlertMessage type="danger" message="Access Denied. Redirecting to login..." />
-      </div>
-    );
+  if (authLoading || !user) {
+    return <LoadingSpinner message="Verifying credentials..." fullPage />;
   }
 
   return (
-    <DashboardLayout role="customer" pageTitle="My Enquiries">
+    <>
       <div className="container-fluid px-0" id="customer-enquiries-view">
         
         {/* Header Block with CTA */}
@@ -171,6 +163,6 @@ export default function CustomerEnquiries() {
         )}
 
       </div>
-    </DashboardLayout>
+    </>
   );
 }

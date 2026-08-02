@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import DashboardLayout from '@/components/DashboardLayout';
+
+import { useAuth } from '@/context/AuthContext';// DashboardLayout provided by app/dashboard/layout.js; per-page wrapper removed
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { 
   Settings, 
@@ -50,8 +51,8 @@ export default function SystemSettings() {
     async function loadSettings() {
       try {
         const [settingsRes, mailRes] = await Promise.all([
-          fetch('/api/admin/settings', { credentials: 'include' }),
-          fetch('/api/admin/settings/test-email', { credentials: 'include' })
+          authFetch('/api/admin/settings', { credentials: 'include' }),
+          authFetch('/api/admin/settings/test-email', { credentials: 'include' })
         ]);
         
         const settingsData = await settingsRes.json();
@@ -100,7 +101,7 @@ export default function SystemSettings() {
     }
     setSaving(true);
     try {
-      const res = await fetch('/api/admin/settings', {
+      const res = await authFetch('/api/admin/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -142,7 +143,7 @@ export default function SystemSettings() {
     setTestingEmail(true);
     const toastId = toast.loading('Initiating SMTP connection & sending test email...');
     try {
-      const res = await fetch('/api/admin/settings/test-email', {
+      const res = await authFetch('/api/admin/settings/test-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ testEmail: testEmailAddress.trim() }),
@@ -171,7 +172,7 @@ export default function SystemSettings() {
     setResettingDb(true);
     const toastId = toast.loading('Wiping and resetting system database...');
     try {
-      const res = await fetch('/api/admin/database-reset', {
+      const res = await authFetch('/api/admin/database-reset', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'clear' }),
@@ -200,7 +201,7 @@ export default function SystemSettings() {
     setSeedingDb(true);
     const toastId = toast.loading('Re-seeding system database (this takes a few seconds)...');
     try {
-      const res = await fetch('/api/admin/database-reset', {
+      const res = await authFetch('/api/admin/database-reset', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'seed' }),
@@ -221,15 +222,11 @@ export default function SystemSettings() {
   };
 
   if (loading) {
-    return (
-      <DashboardLayout pageTitle="System Variables">
-        <LoadingSpinner message="Reading current variables configurations..." />
-      </DashboardLayout>
-    );
+    return <LoadingSpinner message="Reading current variables configurations..." />;
   }
 
   return (
-    <DashboardLayout pageTitle="System Configuration & variables">
+    <>
       <div className="row g-4 text-dark" id="settings-workspace-row">
         {/* LEFT COLUMN: Main variables form */}
         <div className="col-lg-8">
@@ -573,6 +570,6 @@ EMAIL_FROM=&quot;SkillsConnect Ghana &lt;noreply@skillsconnect.gh&gt;&quot;
           </div>
         </div>
       </div>
-    </DashboardLayout>
+    </>
   );
 }

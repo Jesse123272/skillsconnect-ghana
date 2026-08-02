@@ -3,6 +3,7 @@ import { query } from '@/lib/db';
 import { getUserFromRequest, clearAuthCookie } from '@/lib/auth';
 import { sanitizeObject, sanitizeText } from '@/lib/security';
 import { validateEmail, validatePhone } from '@/lib/validators';
+import { resolveCategorySelection } from '@/lib/category-utils';
 
 export async function PUT(req) {
   try {
@@ -23,6 +24,7 @@ export async function PUT(req) {
       district,
       profile_photo,
       category_id,
+      custom_category,
       years_experience,
       bio,
       service_areas
@@ -34,6 +36,7 @@ export async function PUT(req) {
     const cleanedRegion = sanitizeText(region || '').trim();
     const cleanedDistrict = sanitizeText(district || '').trim();
     const cleanedBio = sanitizeText(bio || '').trim();
+    const cleanedCustomCategory = sanitizeText(custom_category || '').trim();
 
     // 1. Validate primary fields
     if (!cleanedName || !cleanedEmail || !cleanedPhone || !cleanedRegion || !cleanedDistrict) {
@@ -77,33 +80,49 @@ export async function PUT(req) {
 
     // 5. If artisan, handle optional artisan_profiles updates
     if (payload.role === 'artisan') {
-      if (!category_id || !cleanedBio) {
+      if (!cleanedBio) {
         return NextResponse.json(
-          { success: false, error: 'Trade category and biography are required for artisans' },
+          { success: false, error: 'Biography is required for artisans' },
           { status: 400 }
         );
       }
 
-      const parsedCatId = parseInt(category_id, 10);
+      if (!cleanedCustomCategory && !category_id) {
+        return NextResponse.json(
+          { success: false, error: 'Trade category or custom specialty is required for artisans' },
+          { status: 400 }
+        );
+      }
+
       const parsedYearsExp = parseInt(years_experience, 10);
-
-      if (isNaN(parsedCatId) || isNaN(parsedYearsExp) || parsedYearsExp < 0) {
+      if (isNaN(parsedYearsExp) || parsedYearsExp < 0) {
         return NextResponse.json(
-          { success: false, error: 'Invalid trade category or years of experience' },
+          { success: false, error: 'Invalid years of experience' },
           { status: 400 }
         );
       }
 
-      // Verify category exists
-      const categoryCheck = await query(
-        'SELECT category_id FROM categories WHERE category_id = ? AND is_active = 1',
-        [parsedCatId]
-      );
-      if (!categoryCheck || categoryCheck.length === 0) {
-        return NextResponse.json(
-          { success: false, error: 'Selected category is invalid or inactive' },
-          { status: 400 }
+      let parsedCatId = null;
+      if (category_id) {
+        parsedCatId = parseInt(category_id, 10);
+        if (isNaN(parsedCatId)) {
+          return NextResponse.json(
+            { success: false, error: 'Invalid trade category' },
+            { status: 400 }
+          );
+        }
+
+        // Verify category exists
+        const categoryCheck = await query(
+          'SELECT category_id FROM categories WHERE category_id = ? AND is_active = 1',
+          [parsedCatId]
         );
+        if (!categoryCheck || categoryCheck.length === 0) {
+          return NextResponse.json(
+            { success: false, error: 'Selected category is invalid or inactive' },
+            { status: 400 }
+          );
+        }
       }
 
       // Format service coverage areas (either array or comma-delimited string)
@@ -120,18 +139,20 @@ export async function PUT(req) {
         [payload.user_id]
       );
 
+      const resolvedCategory = await resolveCategorySelection(query, parsedCatId, cleanedCustomCategory);
+
       if (profileCheck && profileCheck.length > 0) {
         await query(
           `UPDATE artisan_profiles 
            SET category_id = ?, bio = ?, years_experience = ?, service_areas = ? 
            WHERE user_id = ?`,
-          [parsedCatId, cleanedBio, parsedYearsExp, flattenedAreas.trim(), payload.user_id]
+          [resolvedCategory.categoryId, cleanedBio, parsedYearsExp, flattenedAreas.trim(), payload.user_id]
         );
       } else {
         await query(
           `INSERT INTO artisan_profiles (user_id, category_id, bio, years_experience, service_areas, is_approved) 
            VALUES (?, ?, ?, ?, ?, 0)`,
-          [payload.user_id, parsedCatId, cleanedBio, parsedYearsExp, flattenedAreas.trim()]
+          [payload.user_id, resolvedCategory.categoryId, cleanedBio, parsedYearsExp, flattenedAreas.trim()]
         );
       }
     }

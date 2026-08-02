@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import DashboardLayout from '@/components/DashboardLayout';
+
+import { useAuth } from '@/context/AuthContext';// DashboardLayout provided by app/dashboard/layout.js; per-page wrapper removed
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { 
   ShieldCheck, 
@@ -57,7 +58,7 @@ export default function SecurityAuditLogs() {
           endDate
         });
 
-        const res = await fetch(`/api/admin/logs?${queryParams.toString()}`, {
+        const res = await authFetch(`/api/admin/logs?${queryParams.toString()}`, {
           credentials: 'include',
           headers: {
             'Accept': 'application/json',
@@ -98,7 +99,7 @@ export default function SecurityAuditLogs() {
   };
 
   return (
-    <DashboardLayout pageTitle="System Audit & Security Logs">
+    <>
       {/* Filtering panel */}
       <div className="card p-3 mb-4 border bg-white text-dark" id="logs-filters-panel">
         <form onSubmit={handleSearchSubmit} className="row g-3 align-items-end">
@@ -260,6 +261,6 @@ export default function SecurityAuditLogs() {
           )}
         </div>
       )}
-    </DashboardLayout>
+    </>
   );
 }

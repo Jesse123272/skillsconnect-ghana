@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import DashboardLayout from '@/components/DashboardLayout';
+
+import { useAuth } from '@/context/AuthContext';import Link from 'next/link';
+// DashboardLayout provided by app/dashboard/layout.js; per-page wrapper removed
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { 
   Star, 
@@ -39,7 +40,7 @@ export default function ManageReviews() {
           status
         });
 
-        const res = await fetch(`/api/admin/reviews?${queryParams.toString()}`, { credentials: 'include' });
+        const res = await authFetch(`/api/admin/reviews?${queryParams.toString()}`, { credentials: 'include' });
         const data = await res.json();
         if (data.success && active) {
           setReviews(data.data.reviews);
@@ -68,7 +69,7 @@ export default function ManageReviews() {
   const handleModeration = async (id, action) => {
     setProcessingId(id);
     try {
-      const res = await fetch(`/api/admin/reviews/${id}`, {
+      const res = await authFetch(`/api/admin/reviews/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action }),
@@ -93,7 +94,7 @@ export default function ManageReviews() {
     if (!confirm('Are you sure you want to permanently delete this review? This updates the artisan average rating and cannot be undone.')) return;
     setProcessingId(id);
     try {
-      const res = await fetch(`/api/admin/reviews/${id}`, {
+      const res = await authFetch(`/api/admin/reviews/${id}`, {
         method: 'DELETE',
         credentials: 'include'
       });
@@ -113,7 +114,7 @@ export default function ManageReviews() {
   };
 
   return (
-    <DashboardLayout pageTitle="Reviews Moderation Center">
+    <>
       {/* Search and filter header */}
       <div className="card p-3 mb-4 border bg-white" id="reviews-filters-card">
         <form onSubmit={handleSearchSubmit} className="row g-3 align-items-center">
@@ -281,6 +282,6 @@ export default function ManageReviews() {
           )}
         </div>
       )}
-    </DashboardLayout>
+    </>
   );
 }

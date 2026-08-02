@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import DashboardLayout from '@/components/DashboardLayout';
+
+import { useAuth } from '@/context/AuthContext';// DashboardLayout provided by app/dashboard/layout.js; per-page wrapper removed
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { 
   CreditCard, 
@@ -37,7 +38,7 @@ export default function TransactionsLedger() {
           status
         });
 
-        const res = await fetch(`/api/payments?${queryParams.toString()}`, { credentials: 'include' });
+        const res = await authFetch(`/api/payments?${queryParams.toString()}`, { credentials: 'include' });
         const data = await res.json();
         if (data.success && active) {
           setTransactions(data.data.transactions);
@@ -67,7 +68,7 @@ export default function TransactionsLedger() {
   const failedCount = transactions.filter(t => t.status === 'failed' || t.status === 'cancelled').length;
 
   return (
-    <DashboardLayout pageTitle="Payments & Escrow Ledger">
+    <>
       {/* Metric Cards Row */}
       <div className="row g-3 mb-4 text-dark" id="transactions-metric-cards">
         <div className="col-md-3">
@@ -245,6 +246,6 @@ export default function TransactionsLedger() {
           )}
         </div>
       )}
-    </DashboardLayout>
+    </>
   );
 }

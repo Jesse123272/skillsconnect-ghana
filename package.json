@@ -10,6 +10,7 @@
     "clean": "next clean"
   },
   "dependencies": {
+    "@babel/parser": "^7.29.8",
     "@google/genai": "^2.4.0",
     "@google/generative-ai": "^0.24.1",
     "@hookform/resolvers": "^5.2.1",

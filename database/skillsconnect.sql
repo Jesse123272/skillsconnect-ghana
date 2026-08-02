@@ -200,7 +200,7 @@ CREATE TABLE IF NOT EXISTS testimonials (
 -- SEED DATA INSERTION
 -- ==========================================================
 
--- 1. SEED CATEGORIES (10 rows)
+-- 1. SEED CATEGORIES (20 rows)
 INSERT INTO categories (category_id, category_name, icon_class, description) VALUES
 (1, 'Plumbing', 'fa-wrench', 'Installation, repair, and maintenance of pipes, valves, fittings, and drainage systems.'),
 (2, 'Electrical Work', 'fa-bolt', 'Professional wiring, installations, diagnostics, and repairs of electrical systems.'),
@@ -211,7 +211,17 @@ INSERT INTO categories (category_id, category_name, icon_class, description) VAL
 (7, 'Painting', 'fa-paint-roller', 'Professional interior and exterior painting, wall finishing, and wallpaper installation.'),
 (8, 'Welding', 'fa-fire', 'Metal fabrication, gate construction, burglar-proof structures, and repairs.'),
 (9, 'Mechanics', 'fa-car', 'Automotive servicing, engine repair, wheel alignment, and auto-electrical repairs.'),
-(10, 'Fashion Design', 'fa-shirt', 'Creative clothing design, styling, and modern Ghanaian apparel production.');
+(10, 'Fashion Design', 'fa-shirt', 'Creative clothing design, styling, and modern Ghanaian apparel production.'),
+(11, 'Cleaning Services', 'fa-broom', 'Professional house cleaning, office cleaning, fumigation, and sanitation services.'),
+(12, 'Pest Control', 'fa-bug', 'Termite treatment, rodent control, fumigation, and general pest management.'),
+(13, 'Gardening & Landscaping', 'fa-seedling', 'Lawn care, planting, garden maintenance, and outdoor beautification.'),
+(14, 'Appliance Repair', 'fa-tv', 'Repair and servicing of refrigerators, washing machines, microwaves, and other household appliances.'),
+(15, 'ICT & Device Repair', 'fa-laptop', 'Computer repairs, phone repairs, printer setup, and troubleshooting services.'),
+(16, 'Event Decoration', 'fa-ribbon', 'Decoration, venue styling, balloon work, and event setup services.'),
+(17, 'Catering', 'fa-utensils', 'Food preparation, event catering, and home kitchen support services.'),
+(18, 'Beauty Services', 'fa-spa', 'Makeup, nails, skincare, and beauty treatment services.'),
+(19, 'Photography', 'fa-camera', 'Event photography, portrait shoots, and professional camera services.'),
+(20, 'Security Services', 'fa-shield-halved', 'Private security, guarding, gatekeeping, and protective services.');
 
 -- 2. SEED ADMIN USER (1 row, Password is 'Admin@2026')
 INSERT INTO users (user_id, full_name, email, phone, password_hash, role, region, district, is_verified, is_active) VALUES

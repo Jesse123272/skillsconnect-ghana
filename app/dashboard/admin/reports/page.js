@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import DashboardLayout from '@/components/DashboardLayout';
+
+import { useAuth } from '@/context/AuthContext';// DashboardLayout provided by app/dashboard/layout.js; per-page wrapper removed
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { 
   Bar, 
@@ -56,7 +57,7 @@ export default function AnalyticalReports() {
     let active = true;
     async function loadReports() {
       try {
-        const res = await fetch('/api/admin/reports', { credentials: 'include' });
+        const res = await authFetch('/api/admin/reports', { credentials: 'include' });
         const resData = await res.json();
         if (resData.success && active) {
           setData(resData.data);
@@ -80,9 +81,9 @@ export default function AnalyticalReports() {
 
   if (loading) {
     return (
-      <DashboardLayout pageTitle="System Reports">
+      <>
         <LoadingSpinner message="Assembling platform database metrics..." />
-      </DashboardLayout>
+      </>
     );
   }
 
@@ -159,7 +160,7 @@ export default function AnalyticalReports() {
   };
 
   return (
-    <DashboardLayout pageTitle="Analytics & Business Intelligence">
+    <>
       {/* Action header Row */}
       <div className="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom text-dark d-print-none">
         <span className="text-muted small">Comprehensive platform performance metrics aggregated as of today.</span>
@@ -319,6 +320,6 @@ export default function AnalyticalReports() {
           </div>
         </div>
       </div>
-    </DashboardLayout>
+    </>
   );
 }

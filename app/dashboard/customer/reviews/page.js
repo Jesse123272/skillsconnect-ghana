@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
-import DashboardLayout from '@/components/DashboardLayout';
+// DashboardLayout provided by app/dashboard/layout.js; per-page wrapper removed
 import ReviewCard from '@/components/ReviewCard';
 import StarRating from '@/components/StarRating';
 import LoadingSpinner from '@/components/LoadingSpinner';
@@ -11,7 +11,7 @@ import EmptyState from '@/components/EmptyState';
 import AlertMessage from '@/components/AlertMessage';
 
 export default function CustomerReviews() {
-  const { user, loading: authLoading } = useAuth();
+  const {  user, loading: authLoading , authFetch } = useAuth();
   
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -30,7 +30,7 @@ export default function CustomerReviews() {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch('/api/reviews?mine=true');
+      const response = await authFetch('/api/reviews?mine=true');
       if (response.ok) {
         const result = await response.json();
         if (result.success && Array.isArray(result.data)) {
@@ -47,7 +47,7 @@ export default function CustomerReviews() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [authFetch]);
 
   useEffect(() => {
     if (authLoading || !user) return;
@@ -87,7 +87,7 @@ export default function CustomerReviews() {
       setSubmittingEdit(true);
       setError(null);
       
-      const response = await fetch(`/api/reviews/${editingReview.review_id}`, {
+      const response = await authFetch(`/api/reviews/${editingReview.review_id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -132,7 +132,7 @@ export default function CustomerReviews() {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(`/api/reviews/${reviewId}`, {
+      const response = await authFetch(`/api/reviews/${reviewId}`, {
         method: 'DELETE',
       });
 
@@ -159,8 +159,8 @@ export default function CustomerReviews() {
     }
   };
 
-  if (authLoading) {
-    return <LoadingSpinner message="Verifying authentication..." fullPage />;
+  if (authLoading || !user) {
+    return <LoadingSpinner message="Verifying credentials..." fullPage />;
   }
 
   if (!user) {
@@ -172,7 +172,7 @@ export default function CustomerReviews() {
   }
 
   return (
-    <DashboardLayout role="customer" pageTitle="My Reviews">
+    <>
       <div className="container-fluid px-0" id="customer-reviews-view">
         
         {/* Header Title Grid */}
@@ -218,7 +218,7 @@ export default function CustomerReviews() {
                       </div>
                       <div>
                         <span className="text-muted fs-8 text-uppercase tracking-wider d-block fw-semibold" style={{ fontSize: '10px' }}>Reviewed Artisan</span>
-                        <Link href={`/artisans/${review.artisan_id}`} className="text-decoration-none fw-bold text-dark hover-text-primary fs-6">
+                        <Link href={`/artisan/${review.artisan_id}`} className="text-decoration-none fw-bold text-dark hover-text-primary fs-6">
                           {review.artisan_name}
                         </Link>
                       </div>
@@ -382,6 +382,6 @@ export default function CustomerReviews() {
         )}
 
       </div>
-    </DashboardLayout>
+    </>
   );
 }

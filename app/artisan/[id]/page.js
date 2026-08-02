@@ -10,16 +10,19 @@ import { verifyToken } from '@/lib/auth';
 export const revalidate = 0; // Always serve fresh dynamic content
 
 export default async function ArtisanProfilePage({ params }) {
-  const artisanId = parseInt(params.id, 10);
-  
+  const { id } = await params;
+  const artisanId = parseInt(id, 10);
+
   if (isNaN(artisanId) || artisanId <= 0) {
     notFound();
   }
 
   // 1. Fetch current logged-in user if available
   let currentUser = null;
+  let cookieStore = null;
+
   try {
-    const cookieStore = cookies();
+    cookieStore = await cookies();
     const tokenObj = cookieStore.get('skillsconnect_auth');
     const token = tokenObj ? tokenObj.value : null;
     if (token) {
@@ -105,7 +108,7 @@ export default async function ArtisanProfilePage({ params }) {
     `, [artisanId]);
 
     const viewerId = currentUser?.user_id || null;
-    const forwarded = (await cookies()).get('skillsconnect_auth')?.value || null;
+    const forwarded = cookieStore?.get('skillsconnect_auth')?.value || null;
     await query(`
       INSERT INTO profile_view_logs (artisan_id, viewer_id, ip_address) VALUES (?, ?, ?)
     `, [artisanId, viewerId, forwarded ? 'server' : null]);

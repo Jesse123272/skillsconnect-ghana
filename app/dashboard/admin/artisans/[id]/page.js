@@ -3,7 +3,8 @@
 import React, { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import DashboardLayout from '@/components/DashboardLayout';
+
+import { useAuth } from '@/context/AuthContext';// DashboardLayout is provided by app/dashboard/layout.js; avoid per-page wrapper
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { 
   ArrowLeft, 
@@ -40,7 +41,7 @@ export default function ArtisanDetail({ params }) {
     async function loadProfileDetail() {
       setLoading(true);
       try {
-        const res = await fetch(`/api/admin/artisans/${id}`, { credentials: 'include' });
+        const res = await authFetch(`/api/admin/artisans/${id}`, { credentials: 'include' });
         const data = await res.json();
         if (data.success && active) {
           setProfile(data.data);
@@ -63,7 +64,7 @@ export default function ArtisanDetail({ params }) {
     if (!confirm('Approve this artisan application?')) return;
     setProcessing(true);
     try {
-      const res = await fetch(`/api/admin/artisans/${id}`, {
+      const res = await authFetch(`/api/admin/artisans/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'approve' }),
@@ -93,7 +94,7 @@ export default function ArtisanDetail({ params }) {
     setProcessing(true);
     setShowRejectModal(false);
     try {
-      const res = await fetch(`/api/admin/reject-artisan`, {
+      const res = await authFetch(`/api/admin/reject-artisan`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ artisan_id: id, reason: rejectReason }),
@@ -117,7 +118,7 @@ export default function ArtisanDetail({ params }) {
   const handleToggleActive = async (action) => {
     setProcessing(true);
     try {
-      const res = await fetch(`/api/admin/artisans/${id}`, {
+      const res = await authFetch(`/api/admin/artisans/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action }),
@@ -141,7 +142,7 @@ export default function ArtisanDetail({ params }) {
   const handleToggleVerified = async () => {
     setProcessing(true);
     try {
-      const res = await fetch(`/api/admin/artisans/${id}`, {
+      const res = await authFetch(`/api/admin/artisans/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ is_verified: !profile.is_verified }),
@@ -165,7 +166,7 @@ export default function ArtisanDetail({ params }) {
   const handleToggleFeatured = async () => {
     setProcessing(true);
     try {
-      const res = await fetch(`/api/admin/artisans/${id}`, {
+      const res = await authFetch(`/api/admin/artisans/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ is_featured: !profile.is_featured }),
@@ -189,7 +190,7 @@ export default function ArtisanDetail({ params }) {
   const handleReviewModeration = async (reviewId, action) => {
     setProcessing(true);
     try {
-      const res = await fetch(`/api/admin/reviews/${reviewId}`, {
+      const res = await authFetch(`/api/admin/reviews/${reviewId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action }),
@@ -214,7 +215,7 @@ export default function ArtisanDetail({ params }) {
     if (!confirm('Permanently delete this review? This is irreversible.')) return;
     setProcessing(true);
     try {
-      const res = await fetch(`/api/admin/reviews/${reviewId}`, {
+      const res = await authFetch(`/api/admin/reviews/${reviewId}`, {
         method: 'DELETE',
         credentials: 'include'
       });
@@ -237,7 +238,7 @@ export default function ArtisanDetail({ params }) {
     if (!confirm(`Are you absolutely sure you want to permanently delete ${profile?.full_name}'s profile? All associated reviews, portfolio files, and gallery items will be purged.`)) return;
     setProcessing(true);
     try {
-      const res = await fetch(`/api/admin/artisans/${id}`, {
+      const res = await authFetch(`/api/admin/artisans/${id}`, {
         method: 'DELETE',
         credentials: 'include'
       });
@@ -258,16 +259,16 @@ export default function ArtisanDetail({ params }) {
 
   if (loading) {
     return (
-      <DashboardLayout pageTitle="Artisan Detail">
+      <div className="d-flex align-items-center justify-content-center min-vh-50 py-5">
         <LoadingSpinner message="Loading profile workspace..." />
-      </DashboardLayout>
+      </div>
     );
   }
 
   const isPending = profile?.is_approved === 0;
 
   return (
-    <DashboardLayout pageTitle={`Profile Workspace - ${profile?.full_name}`}>
+    <>
       {/* Header section with back button */}
       <div className="d-flex align-items-center justify-content-between mb-4 pb-2 border-bottom text-dark">
         <Link href="/dashboard/admin/artisans" className="btn btn-outline-secondary d-flex align-items-center gap-1">
@@ -605,6 +606,6 @@ export default function ArtisanDetail({ params }) {
           </div>
         </div>
       )}
-    </DashboardLayout>
+    </>
   );
 }

@@ -3,14 +3,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
-import DashboardLayout from '@/components/DashboardLayout';
+// DashboardLayout provided by app/dashboard/layout.js; per-page wrapper removed
 import Pagination from '@/components/Pagination';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import EmptyState from '@/components/EmptyState';
 import AlertMessage from '@/components/AlertMessage';
 
 export default function CustomerNotifications() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, authFetch } = useAuth();
   
   const [notifications, setNotifications] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -25,7 +25,7 @@ export default function CustomerNotifications() {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch(`/api/notifications?page=${page}&limit=10`);
+      const response = await authFetch(`/api/notifications?page=${page}&limit=10`);
       if (response.ok) {
         const result = await response.json();
         if (result.success && result.data) {
@@ -44,7 +44,7 @@ export default function CustomerNotifications() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [authFetch]);
 
   useEffect(() => {
     if (authLoading || !user) return;
@@ -67,7 +67,7 @@ export default function CustomerNotifications() {
       setError(null);
 
       // Call live PUT /api/notifications API
-      const response = await fetch('/api/notifications', {
+      const response = await authFetch('/api/notifications', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -97,20 +97,12 @@ export default function CustomerNotifications() {
     }
   };
 
-  if (authLoading) {
-    return <LoadingSpinner message="Verifying authentication..." fullPage />;
-  }
-
-  if (!user) {
-    return (
-      <div className="container py-5 text-center" id="unauthorized-placeholder">
-        <AlertMessage type="danger" message="Access Denied. Redirecting to login..." />
-      </div>
-    );
+  if (authLoading || !user) {
+    return <LoadingSpinner message="Verifying credentials..." fullPage />;
   }
 
   return (
-    <DashboardLayout role="customer" pageTitle="Notifications Log">
+    <>
       <div className="container-fluid px-0" id="customer-notifications-view">
         
         {/* Header Title Grid with Actions */}
@@ -263,6 +255,6 @@ export default function CustomerNotifications() {
         )}
 
       </div>
-    </DashboardLayout>
+    </>
   );
 }

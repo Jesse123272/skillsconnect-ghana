@@ -7,6 +7,7 @@ import { toast } from 'react-hot-toast';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { validatePassword, generateStrongPassword } from '@/lib/validators';
+import { filterCategoriesBySearch, getCategorySubmissionPayload } from '@/lib/category-utils';
 
 const REGIONS = [
   'Greater Accra',
@@ -57,6 +58,9 @@ export default function Register() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [categories, setCategories] = useState([]);
+  const [categorySearch, setCategorySearch] = useState('');
+  const [customCategory, setCustomCategory] = useState('');
+  const [showCustomCategory, setShowCustomCategory] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [apiError, setApiError] = useState('');
 
@@ -137,6 +141,8 @@ export default function Register() {
     );
   };
 
+  const filteredCategories = filterCategoriesBySearch(categories, categorySearch);
+
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
     setApiError('');
@@ -167,7 +173,8 @@ export default function Register() {
 
     // Artisan fields validation
     if (role === 'artisan') {
-      if (!categoryId) {
+      const selectedCategory = showCustomCategory ? customCategory.trim() : categoryId;
+      if (!selectedCategory) {
         toast.error('Please select your trade specialty.');
         return;
       }
@@ -199,7 +206,7 @@ export default function Register() {
         region,
         district: district.trim(),
         ...(role === 'artisan' && {
-          category_id: categoryId,
+          ...getCategorySubmissionPayload(categoryId, customCategory, showCustomCategory),
           years_experience: yearsExperience,
           bio: bio.trim()
         }),
@@ -459,19 +466,60 @@ export default function Register() {
 
                   <div className="mb-3">
                     <label className="form-label text-secondary small fw-medium">Trade Specialty</label>
+                    <input
+                      type="text"
+                      className="form-control text-secondary small"
+                      placeholder="Search specialties"
+                      value={categorySearch}
+                      onChange={(e) => setCategorySearch(e.target.value)}
+                    />
                     <select
-                      className="form-select text-secondary small"
+                      className="form-select text-secondary small mt-2"
                       value={categoryId}
-                      onChange={(e) => setCategoryId(e.target.value)}
-                      required
+                      onChange={(e) => {
+                        setCategoryId(e.target.value);
+                        setShowCustomCategory(false);
+                      }}
+                      required={!showCustomCategory}
                     >
                       <option value="">Select your specialty</option>
-                      {categories.map((cat) => (
+                      {filteredCategories.map((cat) => (
                         <option key={cat.category_id} value={cat.category_id}>
                           {cat.category_name}
                         </option>
                       ))}
                     </select>
+                    <div className="form-text fs-8 text-muted mt-2">
+                      Search for a trade and choose it. If yours is missing, use the custom option below.
+                    </div>
+                    <div className="form-check mt-2">
+                      <input
+                        className="form-check-input"
+                        type="checkbox"
+                        id="custom-specialty"
+                        checked={showCustomCategory}
+                        onChange={(e) => {
+                          const checked = e.target.checked;
+                          setShowCustomCategory(checked);
+                          if (!checked) {
+                            setCustomCategory('');
+                          }
+                        }}
+                      />
+                      <label className="form-check-label text-secondary small" htmlFor="custom-specialty">
+                        My specialty is not listed
+                      </label>
+                    </div>
+                    {showCustomCategory && (
+                      <input
+                        type="text"
+                        className="form-control text-secondary small mt-2"
+                        placeholder="Enter your specialty"
+                        value={customCategory}
+                        onChange={(e) => setCustomCategory(e.target.value)}
+                        required
+                      />
+                    )}
                   </div>
 
                   <div className="mb-3">

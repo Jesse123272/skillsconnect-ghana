@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import DashboardLayout from '@/components/DashboardLayout';
+
+import { useAuth } from '@/context/AuthContext';// DashboardLayout provided by app/dashboard/layout.js; per-page wrapper removed
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { 
   FolderPlus, 
@@ -41,7 +42,7 @@ export default function ManageCategories() {
     async function loadCategories() {
       setLoading(true);
       try {
-        const res = await fetch('/api/admin/categories', { credentials: 'include' });
+        const res = await authFetch('/api/admin/categories', { credentials: 'include' });
         const data = await res.json();
         if (data.success && active) {
           setCategories(data.data);
@@ -69,7 +70,7 @@ export default function ManageCategories() {
     setShowAddModal(false);
 
     try {
-      const res = await fetch('/api/admin/categories', {
+      const res = await authFetch('/api/admin/categories', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -115,7 +116,7 @@ export default function ManageCategories() {
     setShowEditModal(false);
 
     try {
-      const res = await fetch(`/api/admin/categories/${editingCatId}`, {
+      const res = await authFetch(`/api/admin/categories/${editingCatId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -143,7 +144,7 @@ export default function ManageCategories() {
   const handleToggleActive = async (id, name, currentActive) => {
     setProcessingId(id);
     try {
-      const res = await fetch(`/api/admin/categories/${id}`, {
+      const res = await authFetch(`/api/admin/categories/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ is_active: !currentActive }),
@@ -168,7 +169,7 @@ export default function ManageCategories() {
     if (!confirm(`Are you sure you want to permanently delete the category "${name}"?`)) return;
     setProcessingId(id);
     try {
-      const res = await fetch(`/api/admin/categories/${id}`, {
+      const res = await authFetch(`/api/admin/categories/${id}`, {
         method: 'DELETE',
         credentials: 'include'
       });
@@ -194,7 +195,7 @@ export default function ManageCategories() {
   );
 
   return (
-    <DashboardLayout pageTitle="Artisan Category Center">
+    <>
       {/* Search and Add Header */}
       <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4 text-dark">
         <div className="input-group" style={{ maxWidth: '350px' }} id="categories-search-group">
@@ -423,6 +424,6 @@ export default function ManageCategories() {
           </div>
         </div>
       )}
-    </DashboardLayout>
+    </>
   );
 }

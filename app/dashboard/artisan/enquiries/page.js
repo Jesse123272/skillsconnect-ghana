@@ -3,14 +3,14 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
-import DashboardLayout from '@/components/DashboardLayout';
+// DashboardLayout provided by app/dashboard/layout.js; per-page wrapper removed
 import LoadingSpinner from '@/components/LoadingSpinner';
 import AlertMessage from '@/components/AlertMessage';
 import EmptyState from '@/components/EmptyState';
 import Pagination from '@/components/Pagination';
 
 export default function ArtisanEnquiriesList() {
-  const { user, loading: authLoading } = useAuth();
+  const {  user, loading: authLoading , authFetch } = useAuth();
 
   const [enquiries, setEnquiries] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -22,12 +22,12 @@ export default function ArtisanEnquiriesList() {
   const [error, setError] = useState(null);
 
   // FETCH ENQUIRIES
-  const fetchEnquiries = async (tab, page) => {
+  const fetchEnquiries = useCallback(async (tab, page) => {
     try {
       setLoadingData(true);
       setError(null);
 
-      const response = await fetch(`/api/enquiries?status=${tab}&page=${page}&limit=10`);
+      const response = await authFetch(`/api/enquiries?status=${tab}&page=${page}&limit=10`);
       const result = await response.json();
 
       if (response.ok && result.success) {
@@ -43,7 +43,7 @@ export default function ArtisanEnquiriesList() {
     } finally {
       setLoadingData(false);
     }
-  };
+  }, [authFetch]);
 
   useEffect(() => {
     if (!authLoading && user) {
@@ -53,7 +53,7 @@ export default function ArtisanEnquiriesList() {
       }, 0);
       return () => clearTimeout(timer);
     }
-  }, [user, authLoading, statusTab, currentPage]);
+  }, [user, authLoading, statusTab, currentPage, fetchEnquiries]);
 
   const handleTabChange = (tab) => {
     setStatusTab(tab);
@@ -89,7 +89,7 @@ export default function ArtisanEnquiriesList() {
   }
 
   return (
-    <DashboardLayout role="artisan" pageTitle="Received Enquiries">
+    <>
       <div className="container-fluid px-0" id="artisan-enquiries-index-view">
         
         {/* Title Block */}
@@ -239,6 +239,6 @@ export default function ArtisanEnquiriesList() {
         )}
 
       </div>
-    </DashboardLayout>
+    </>
   );
 }

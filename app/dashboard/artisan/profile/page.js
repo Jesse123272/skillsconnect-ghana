@@ -2,13 +2,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import DashboardLayout from '@/components/DashboardLayout';
 import ProfileAvatar from '@/components/ProfileAvatar';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import AlertMessage from '@/components/AlertMessage';
+import { filterCategoriesBySearch, getCategorySubmissionPayload } from '@/lib/category-utils';
 
 export default function ArtisanProfileEdit() {
-  const { user, setUser, loading: authLoading } = useAuth();
+  const { user, setUser, loading: authLoading, authFetch } = useAuth();
 
   // Geographical lists
   const [regionsList, setRegionsList] = useState([]);
@@ -36,6 +36,9 @@ export default function ArtisanProfileEdit() {
   const [loadingData, setLoadingData] = useState(true);
   const [submittingForm, setSubmittingForm] = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [categorySearch, setCategorySearch] = useState('');
+  const [customCategory, setCustomCategory] = useState('');
+  const [showCustomCategory, setShowCustomCategory] = useState(false);
 
   const [formError, setFormError] = useState(null);
   const [formSuccess, setFormSuccess] = useState(null);
@@ -46,9 +49,9 @@ export default function ArtisanProfileEdit() {
       try {
         setLoadingData(true);
         const [categoriesRes, regionsRes, meRes] = await Promise.all([
-          fetch('/api/categories'),
-          fetch('/api/regions'),
-          fetch('/api/auth/me')
+          authFetch('/api/categories'),
+          authFetch('/api/regions'),
+          authFetch('/api/auth/me')
         ]);
 
         if (categoriesRes.ok) {
@@ -94,7 +97,7 @@ export default function ArtisanProfileEdit() {
     if (!authLoading && user) {
       loadFormData();
     }
-  }, [user, authLoading]);
+  }, [authFetch, user, authLoading]);
 
   // 2. Sync Districts selection list when Region changes
   useEffect(() => {
@@ -148,7 +151,7 @@ export default function ArtisanProfileEdit() {
       formData.append('file', photoFile);
       formData.append('type', 'profile');
 
-      const response = await fetch('/api/uploads', {
+      const response = await authFetch('/api/uploads', {
         method: 'POST',
         body: formData,
       });
@@ -179,13 +182,17 @@ export default function ArtisanProfileEdit() {
   };
 
   // Save All Changes Submit
+  const filteredCategories = filterCategoriesBySearch(categoriesList, categorySearch);
+
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     setFormError(null);
     setFormSuccess(null);
 
+    const selectedCategory = showCustomCategory ? customCategory.trim() : categoryId;
+
     // Validation
-    if (!fullName.trim() || !phone.trim() || !region || !district || !categoryId || !bio.trim()) {
+    if (!fullName.trim() || !phone.trim() || !region || !district || !selectedCategory || !bio.trim()) {
       setFormError('All fields in Sections 1 & 2 are required.');
       return;
     }
@@ -204,7 +211,9 @@ export default function ArtisanProfileEdit() {
     try {
       setSubmittingForm(true);
 
-      const response = await fetch('/api/profile/update', {
+      const categoryPayload = getCategorySubmissionPayload(categoryId, customCategory, showCustomCategory);
+
+      const response = await authFetch('/api/profile/update', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -216,7 +225,7 @@ export default function ArtisanProfileEdit() {
           region: region,
           district: district,
           profile_photo: profilePhoto || null,
-          category_id: parseInt(categoryId, 10),
+          ...categoryPayload,
           years_experience: parseInt(yearsExperience, 10) || 0,
           bio: bio.trim(),
           service_areas: serviceAreas.trim() || district,
@@ -238,7 +247,7 @@ export default function ArtisanProfileEdit() {
           profile_photo: profilePhoto,
           artisan_profile: {
             ...prev?.artisan_profile,
-            category_id: parseInt(categoryId, 10),
+            category_id: categoryPayload.category_id,
             years_experience: parseInt(yearsExperience, 10) || 0,
             bio: bio.trim(),
             service_areas: serviceAreas.trim(),
@@ -271,7 +280,7 @@ export default function ArtisanProfileEdit() {
   }
 
   return (
-    <DashboardLayout role="artisan" pageTitle="Manage Profile">
+    <>
       <div className="container-fluid px-0" id="artisan-profile-edit-view">
         
         {/* Header Title */}
@@ -395,20 +404,61 @@ export default function ArtisanProfileEdit() {
                       <label htmlFor="profile-category" className="form-label fw-semibold text-dark fs-7 mb-1.5">
                         Trade Category / Specialization
                       </label>
+                      <input
+                        type="text"
+                        className="form-control py-2 shadow-none mb-2"
+                        placeholder="Search trade specialties"
+                        value={categorySearch}
+                        onChange={(e) => setCategorySearch(e.target.value)}
+                      />
                       <select
                         id="profile-category"
                         value={categoryId}
-                        onChange={(e) => setCategoryId(e.target.value)}
+                        onChange={(e) => {
+                          setCategoryId(e.target.value);
+                          setShowCustomCategory(false);
+                        }}
                         className="form-select py-2 shadow-none"
-                        required
+                        required={!showCustomCategory}
                       >
                         <option value="">Select Category</option>
-                        {categoriesList.map((c) => (
+                        {filteredCategories.map((c) => (
                           <option key={c.category_id} value={c.category_id}>
                             {c.category_name}
                           </option>
                         ))}
                       </select>
+                      <div className="form-text fs-8 text-muted mt-2">
+                        Search for your specialty or choose the custom option if it is not listed.
+                      </div>
+                      <div className="form-check mt-2">
+                        <input
+                          className="form-check-input"
+                          type="checkbox"
+                          id="profile-custom-specialty"
+                          checked={showCustomCategory}
+                          onChange={(e) => {
+                            const checked = e.target.checked;
+                            setShowCustomCategory(checked);
+                            if (!checked) {
+                              setCustomCategory('');
+                            }
+                          }}
+                        />
+                        <label className="form-check-label text-secondary small" htmlFor="profile-custom-specialty">
+                          My specialty is not listed
+                        </label>
+                      </div>
+                      {showCustomCategory && (
+                        <input
+                          type="text"
+                          className="form-control py-2 shadow-none mt-2"
+                          placeholder="Enter your specialty"
+                          value={customCategory}
+                          onChange={(e) => setCustomCategory(e.target.value)}
+                          required
+                        />
+                      )}
                     </div>
 
                     <div className="col-12 col-md-6">
@@ -561,6 +611,6 @@ export default function ArtisanProfileEdit() {
         )}
 
       </div>
-    </DashboardLayout>
+    </>
   );
 }

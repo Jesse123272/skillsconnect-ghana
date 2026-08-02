@@ -3,13 +3,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
-import DashboardLayout from '@/components/DashboardLayout';
+// DashboardLayout provided by app/dashboard/layout.js; per-page wrapper removed
 import LoadingSpinner from '@/components/LoadingSpinner';
 import EmptyState from '@/components/EmptyState';
 import AlertMessage from '@/components/AlertMessage';
 
 export default function CustomerTestimonials() {
-  const { user, loading: authLoading } = useAuth();
+  const {  user, loading: authLoading , authFetch } = useAuth();
 
   const [testimonials, setTestimonials] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -33,7 +33,7 @@ export default function CustomerTestimonials() {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch('/api/testimonials?mine=true');
+      const response = await authFetch('/api/testimonials?mine=true');
       if (response.ok) {
         const result = await response.json();
         if (result.success && Array.isArray(result.data)) {
@@ -50,7 +50,7 @@ export default function CustomerTestimonials() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [authFetch]);
 
   useEffect(() => {
     if (authLoading || !user) return;
@@ -73,7 +73,7 @@ export default function CustomerTestimonials() {
 
     try {
       setSubmitting(true);
-      const response = await fetch('/api/testimonials', {
+      const response = await authFetch('/api/testimonials', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -135,7 +135,7 @@ export default function CustomerTestimonials() {
       setSubmittingEdit(true);
       setError(null);
 
-      const response = await fetch(`/api/testimonials/${editingTestimonial.testimonial_id}`, {
+      const response = await authFetch(`/api/testimonials/${editingTestimonial.testimonial_id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -180,7 +180,7 @@ export default function CustomerTestimonials() {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(`/api/testimonials/${testimonialId}`, {
+      const response = await authFetch(`/api/testimonials/${testimonialId}`, {
         method: 'DELETE',
       });
 
@@ -219,7 +219,7 @@ export default function CustomerTestimonials() {
   }
 
   return (
-    <DashboardLayout role="customer" pageTitle="Platform Testimonials">
+    <>
       <div className="container-fluid px-0" id="testimonials-view">
         {/* Header Title Grid */}
         <div className="mb-4">
@@ -522,6 +522,6 @@ export default function CustomerTestimonials() {
           </>
         )}
       </div>
-    </DashboardLayout>
+    </>
   );
 }

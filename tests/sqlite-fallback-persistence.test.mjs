@@ -61,3 +61,14 @@ test('creates missing profile_view_logs table and writes rows in SQLite fallback
 
   assert.ok(rows.some((row) => row.artisan_id === 9 && row.ip_address === '127.0.0.1'), 'profile_view_logs should be created and the row should be inserted');
 });
+
+test('seeded SQLite fallback categories include a broad set of trade specialties', async () => {
+  const { querySqliteFallback } = await import('../lib/sqlite-fallback.js');
+
+  const rows = await querySqliteFallback('SELECT category_name FROM categories WHERE is_active = 1 ORDER BY category_name ASC');
+  const names = rows.map((row) => row.category_name.toLowerCase());
+
+  assert.ok(names.includes('plumbing'), 'categories should include plumbing');
+  assert.ok(names.includes('pest control'), 'categories should include pest control');
+  assert.ok(names.includes('cleaning services'), 'categories should include cleaning services');
+});

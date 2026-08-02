@@ -3,7 +3,8 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
-import DashboardLayout from '@/components/DashboardLayout';
+
+import { useAuth } from '@/context/AuthContext';// DashboardLayout provided by app/dashboard/layout.js; per-page wrapper removed
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { 
   Search, 
@@ -22,7 +23,7 @@ import { toast } from 'react-hot-toast';
 
 export default function ManageArtisans() {
   return (
-    <Suspense fallback={<DashboardLayout role="admin"><div className="p-5 text-center"><LoadingSpinner /></div></DashboardLayout>}>
+    <Suspense fallback={<div className="p-5 text-center"><LoadingSpinner /></div>}>
       <ManageArtisansContent />
     </Suspense>
   );
@@ -68,7 +69,7 @@ function ManageArtisansContent() {
   useEffect(() => {
     async function loadCategories() {
       try {
-        const res = await fetch('/api/admin/categories');
+        const res = await authFetch('/api/admin/categories');
         const data = await res.json();
         if (data.success) {
           setCategories(data.data);
@@ -94,7 +95,7 @@ function ManageArtisansContent() {
           region
         });
 
-        const res = await fetch(`/api/admin/artisans?${queryParams.toString()}`, { credentials: 'include' });
+        const res = await authFetch(`/api/admin/artisans?${queryParams.toString()}`, { credentials: 'include' });
         const data = await res.json();
         if (data.success && active) {
           setArtisans(data.data.artisans);
@@ -125,7 +126,7 @@ function ManageArtisansContent() {
   const handleToggleFeature = async (id, name, currentValue) => {
     setProcessingId(id);
     try {
-      const res = await fetch(`/api/admin/artisans/${id}`, {
+      const res = await authFetch(`/api/admin/artisans/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ is_featured: !currentValue }),
@@ -150,7 +151,7 @@ function ManageArtisansContent() {
   const handleToggleVerify = async (id, name, currentValue) => {
     setProcessingId(id);
     try {
-      const res = await fetch(`/api/admin/artisans/${id}`, {
+      const res = await authFetch(`/api/admin/artisans/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ is_verified: !currentValue }),
@@ -174,7 +175,7 @@ function ManageArtisansContent() {
   const handleStatusChange = async (id, name, action) => {
     setProcessingId(id);
     try {
-      const res = await fetch(`/api/admin/artisans/${id}`, {
+      const res = await authFetch(`/api/admin/artisans/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action }),
@@ -199,7 +200,7 @@ function ManageArtisansContent() {
   const handleApprove = async (id, name) => {
     setProcessingId(id);
     try {
-      const res = await fetch(`/api/admin/artisans/${id}`, {
+      const res = await authFetch(`/api/admin/artisans/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'approve' }),
@@ -239,7 +240,7 @@ function ManageArtisansContent() {
     setShowRejectModal(false);
 
     try {
-      const res = await fetch('/api/admin/reject-artisan', {
+      const res = await authFetch('/api/admin/reject-artisan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ artisan_id: id, reason: rejectReason }),
@@ -272,7 +273,7 @@ function ManageArtisansContent() {
     setShowDeleteModal(false);
     setProcessingId(deleteId);
     try {
-      const res = await fetch(`/api/admin/artisans/${deleteId}`, {
+      const res = await authFetch(`/api/admin/artisans/${deleteId}`, {
         method: 'DELETE',
         credentials: 'include'
       });
@@ -294,7 +295,7 @@ function ManageArtisansContent() {
   };
 
   return (
-    <DashboardLayout pageTitle="Manage Artisan Listings">
+    <>
       {/* Search and Filters panel */}
       <div className="card p-3 mb-4 border bg-white" id="artisans-filters-card">
         <form onSubmit={handleSearchSubmit} className="row g-3">
@@ -619,6 +620,6 @@ function ManageArtisansContent() {
           </div>
         </div>
       )}
-    </DashboardLayout>
+    </>
   );
 }

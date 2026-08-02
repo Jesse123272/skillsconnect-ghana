@@ -28,86 +28,11 @@ import {
 } from 'lucide-react';
 
 export default function DashboardLayout({ children, pageTitle = 'Dashboard' }) {
-  const { user, logout, loading } = useAuth();
+  const { user, logout, loading, unreadNotifications, unreadEnquiries, pendingArtisansCount, refreshBadges } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
+  const [isNested, setIsNested] = React.useState(false);
   
-  const [unreadNotifications, setUnreadNotifications] = useState(0);
-  const [pendingArtisansCount, setPendingArtisansCount] = useState(0);
-  const [unreadEnquiries, setUnreadEnquiries] = useState(0);
-  const prevUnreadNotificationsRef = useRef(0);
-  const hasFetchedNotificationsRef = useRef(false);
-
-  // Fetch badges/counts on mount
-  useEffect(() => {
-    if (!user) return;
-
-    async function fetchBadges() {
-      try {
-        // Fetch Notifications
-        const notifRes = await fetch('/api/notifications?limit=100');
-        if (notifRes.ok) {
-          const notifData = await notifRes.json();
-          if (notifData.success && notifData.data && notifData.data.notifications) {
-            const unread = notifData.data.notifications.filter(n => !n.is_read).length;
-            if (
-              hasFetchedNotificationsRef.current &&
-              unread > prevUnreadNotificationsRef.current &&
-              typeof window !== 'undefined' &&
-              'Notification' in window &&
-              Notification.permission === 'granted'
-            ) {
-              try {
-                new Notification('SkillsConnect Ghana Alert', {
-                  body: `You have ${unread} unread notification${unread === 1 ? '' : 's'}.`,
-                  icon: '/icons/icon-192.svg',
-                });
-              } catch (notifErr) {
-                console.error('Browser notification delivery failed:', notifErr);
-              }
-            }
-            prevUnreadNotificationsRef.current = unread;
-            hasFetchedNotificationsRef.current = true;
-            setUnreadNotifications(unread);
-          }
-        }
-
-        // Fetch unread enquiries
-        const enquiryRes = await fetch('/api/enquiries');
-        if (enquiryRes.ok) {
-          const enquiryData = await enquiryRes.json();
-          const items = Array.isArray(enquiryData?.data)
-            ? enquiryData.data
-            : Array.isArray(enquiryData?.data?.enquiries)
-              ? enquiryData.data.enquiries
-              : [];
-
-          if (enquiryData.success) {
-            const unread = items.filter(e => e?.status === 'pending').length;
-            setUnreadEnquiries(unread);
-          }
-        }
-
-        // Fetch pending artisans for Admin
-        if (user.role === 'admin') {
-          const pendingRes = await fetch('/api/admin/pending-artisans');
-          if (pendingRes.ok) {
-            const pendingData = await pendingRes.json();
-            if (pendingData.success && pendingData.data) {
-              setPendingArtisansCount(pendingData.data.length);
-            }
-          }
-        }
-      } catch (err) {
-        console.error('Error fetching dashboard layout badges:', err);
-      }
-    }
-
-    fetchBadges();
-    // Poll notifications every 45 seconds
-    const interval = setInterval(fetchBadges, 45000);
-    return () => clearInterval(interval);
-  }, [user]);
 
   // Handle redirect if not authenticated
   useEffect(() => {
@@ -115,6 +40,22 @@ export default function DashboardLayout({ children, pageTitle = 'Dashboard' }) {
       router.push('/login');
     }
   }, [user, loading, router]);
+
+  // If a persistent dashboard layout has already mounted (has #dashboard-root),
+  // treat this instance as nested and render only children to avoid duplicate chrome.
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      try {
+        if (typeof document !== 'undefined' && document.getElementById('dashboard-root')) {
+          setIsNested(true);
+        }
+      } catch (e) {
+        // ignore in SSR or restricted environments
+      }
+    }, 0);
+
+    return () => window.clearTimeout(timer);
+  }, []);
 
   if (loading) {
     return (
@@ -129,6 +70,10 @@ export default function DashboardLayout({ children, pageTitle = 'Dashboard' }) {
 
   if (!user) {
     return null; // Will redirect in useEffect
+  }
+
+  if (isNested) {
+    return <>{children}</>;
   }
 
   // Define sidebar menu configurations
@@ -158,7 +103,7 @@ export default function DashboardLayout({ children, pageTitle = 'Dashboard' }) {
           { icon: Bell, label: 'Notifications', href: '/dashboard/artisan/notifications', badge: unreadNotifications },
           { icon: HelpCircle, label: 'Support', href: '/contact' },
           { icon: Settings, label: 'Account Settings', href: '/dashboard/artisan/settings' },
-          { icon: User, label: 'Preview Profile', href: `/artisans/${user.user_id}` },
+          { icon: User, label: 'Preview Profile', href: `/artisan/${user.user_id}` },
         ];
       case 'admin':
         return [

@@ -4,14 +4,14 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
-import DashboardLayout from '@/components/DashboardLayout';
+// DashboardLayout provided by app/dashboard/layout.js; per-page wrapper removed
 import ProfileAvatar from '@/components/ProfileAvatar';
 import StarRating from '@/components/StarRating';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import AlertMessage from '@/components/AlertMessage';
 
 function NewReviewFormContent() {
-  const { user, loading: authLoading } = useAuth();
+  const {  user, loading: authLoading , authFetch } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const artisanId = searchParams.get('artisan_id');
@@ -44,7 +44,7 @@ function NewReviewFormContent() {
         setLoadingArtisan(true);
         setArtisanError(null);
         
-        const res = await fetch(`/api/artisans/${artisanId}`);
+        const res = await authFetch(`/api/artisans/${artisanId}`);
         if (res.ok) {
           const result = await res.json();
           if (result.success && result.data) {
@@ -64,7 +64,7 @@ function NewReviewFormContent() {
     }
 
     fetchArtisanDetails();
-  }, [artisanId]);
+  }, [artisanId, authFetch]);
 
   // Submit Handler
   const handleSubmit = async (e) => {
@@ -90,7 +90,7 @@ function NewReviewFormContent() {
     try {
       setSubmitting(true);
       
-      const response = await fetch('/api/reviews', {
+      const response = await authFetch('/api/reviews', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -133,7 +133,7 @@ function NewReviewFormContent() {
   }
 
   return (
-    <DashboardLayout role="customer" pageTitle="Write a Review">
+    <>
       <div className="container-fluid px-0" id="new-review-form-page">
         
         {/* Cancel / Back Link */}
@@ -300,7 +300,7 @@ function NewReviewFormContent() {
         )}
 
       </div>
-    </DashboardLayout>
+    </>
   );
 }
 

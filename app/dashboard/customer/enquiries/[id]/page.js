@@ -4,14 +4,14 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import DashboardLayout from '@/components/DashboardLayout';
+// DashboardLayout provided by app/dashboard/layout.js; per-page wrapper removed
 import StarRating from '@/components/StarRating';
 import ProfileAvatar from '@/components/ProfileAvatar';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import AlertMessage from '@/components/AlertMessage';
 
 export default function CustomerEnquiryDetail() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, authFetch } = useAuth();
   const router = useRouter();
   const params = useParams();
   const { id } = params;
@@ -47,7 +47,7 @@ export default function CustomerEnquiryDetail() {
     try {
       setInitializingPay(true);
       setPayError('');
-      const res = await fetch('/api/payments/initialize', {
+      const res = await authFetch('/api/payments/initialize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -75,7 +75,7 @@ export default function CustomerEnquiryDetail() {
   const handleUpdateStatus = async (newStatus) => {
     try {
       setUpdatingStatus(true);
-      const res = await fetch(`/api/enquiries/${id}`, {
+      const res = await authFetch(`/api/enquiries/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus })
@@ -98,7 +98,7 @@ export default function CustomerEnquiryDetail() {
   const fetchEnquiryDetails = useCallback(async () => {
     try {
       // Fetch Enquiry Detail
-      const enqRes = await fetch(`/api/enquiries/${id}`);
+      const enqRes = await authFetch(`/api/enquiries/${id}`);
       if (!enqRes.ok) {
         throw new Error('Failed to retrieve enquiry thread details.');
       }
@@ -112,7 +112,7 @@ export default function CustomerEnquiryDetail() {
       setEnquiry(enquiryObj);
 
       // Fetch Artisan Full Profile to get rating, category etc.
-      const artisanRes = await fetch(`/api/artisans/${enquiryObj.artisan_id}`);
+      const artisanRes = await authFetch(`/api/artisans/${enquiryObj.artisan_id}`);
       if (artisanRes.ok) {
         const artisanData = await artisanRes.json();
         if (artisanData.success && artisanData.data) {
@@ -121,7 +121,7 @@ export default function CustomerEnquiryDetail() {
       }
 
       // Fetch My Reviews to check if I have already reviewed this artisan
-      const reviewCheckRes = await fetch('/api/reviews?user_id=me');
+      const reviewCheckRes = await authFetch('/api/reviews?user_id=me');
       if (reviewCheckRes.ok) {
         const reviewData = await reviewCheckRes.json();
         if (reviewData.success && Array.isArray(reviewData.data)) {
@@ -138,12 +138,12 @@ export default function CustomerEnquiryDetail() {
     } finally {
       setLoading(false);
     }
-  }, [id]);
+  }, [id, authFetch]);
 
   // Fetch thread messages
   const fetchMessages = useCallback(async (showLoading = false) => {
     try {
-      const res = await fetch(`/api/enquiries/${id}/messages`);
+      const res = await authFetch(`/api/enquiries/${id}/messages`);
       if (res.ok) {
         const result = await res.json();
         if (result.success && Array.isArray(result.data)) {
@@ -164,7 +164,7 @@ export default function CustomerEnquiryDetail() {
     } catch (err) {
       console.error('Error fetching thread messages:', err);
     }
-  }, [id]);
+  }, [id, authFetch]);
 
   // Initial loads
   useEffect(() => {
@@ -218,7 +218,7 @@ export default function CustomerEnquiryDetail() {
     setMessages((prev) => [...prev, optimisticMessage]);
 
     try {
-      const response = await fetch(`/api/enquiries/${id}/messages`, {
+      const response = await authFetch(`/api/enquiries/${id}/messages`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -269,15 +269,13 @@ export default function CustomerEnquiryDetail() {
 
   if (error || !enquiry) {
     return (
-      <DashboardLayout role="customer" pageTitle="Enquiry Details">
-        <div className="p-4" id="enquiry-error-view">
-          <AlertMessage type="danger" message={error || 'Enquiry details could not be loaded.'} />
-          <Link href="/dashboard/customer/enquiries" className="btn btn-primary rounded-pill">
-            <i className="fa-solid fa-arrow-left me-2"></i>
-            <span>Back to My Enquiries</span>
-          </Link>
-        </div>
-      </DashboardLayout>
+      <div className="p-4" id="enquiry-error-view">
+        <AlertMessage type="danger" message={error || 'Enquiry details could not be loaded.'} />
+        <Link href="/dashboard/customer/enquiries" className="btn btn-primary rounded-pill">
+          <i className="fa-solid fa-arrow-left me-2"></i>
+          <span>Back to My Enquiries</span>
+        </Link>
+      </div>
     );
   }
 
@@ -286,19 +284,19 @@ export default function CustomerEnquiryDetail() {
   const status = (enquiry.status || 'pending').toLowerCase();
 
   return (
-    <DashboardLayout role="customer" pageTitle={`Enquiry Ref: #SC-${enquiry.enquiry_id}`}>
+    <>
       <div className="container-fluid px-0" id="customer-enquiry-thread">
-        
-        {/* Back navigation Row */}
-        <div className="mb-4">
-          <Link 
-            href="/dashboard/customer/enquiries" 
-            className="btn btn-outline-secondary px-3 py-2 rounded-pill d-inline-flex align-items-center gap-1.5 hover-bg-light"
-          >
-            <i className="fa-solid fa-arrow-left fs-7"></i>
-            <span>Back to Enquiries</span>
-          </Link>
-        </div>
+      
+      {/* Back navigation Row */}
+      <div className="mb-4">
+        <Link 
+          href="/dashboard/customer/enquiries" 
+          className="btn btn-outline-secondary px-3 py-2 rounded-pill d-inline-flex align-items-center gap-1.5 hover-bg-light"
+        >
+          <i className="fa-solid fa-arrow-left fs-7"></i>
+          <span>Back to Enquiries</span>
+        </Link>
+      </div>
 
         {/* 1. ARTISAN INFO HEADER CARD */}
         <div className="card border rounded-3 p-4 bg-light mb-4 shadow-xs" id="enquiry-artisan-header-card">
@@ -335,7 +333,7 @@ export default function CustomerEnquiryDetail() {
             </div>
             <div className="col-12 col-md-auto text-md-end">
               <Link 
-                href={`/artisans/${enquiry.artisan_id}`} 
+                href={`/artisan/${enquiry.artisan_id}`} 
                 className="btn btn-sm btn-outline-primary px-4 py-2 rounded-pill fw-semibold"
               >
                 View Profile Page
@@ -608,6 +606,6 @@ export default function CustomerEnquiryDetail() {
         )}
 
       </div>
-    </DashboardLayout>
+    </>
   );
 }

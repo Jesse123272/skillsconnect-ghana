@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
-import DashboardLayout from '@/components/DashboardLayout';
+// DashboardLayout provided by app/dashboard/layout.js; per-page wrapper removed
 import ProfileAvatar from '@/components/ProfileAvatar';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import AlertMessage from '@/components/AlertMessage';
@@ -13,7 +13,7 @@ import StarRating from '@/components/StarRating';
 import { toast } from 'react-hot-toast';
 
 export default function ArtisanDashboardHome() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, authFetch } = useAuth();
   const [profile, setProfile] = useState(null);
   const [enquiries, setEnquiries] = useState([]);
   const [reviews, setReviews] = useState([]);
@@ -56,11 +56,11 @@ export default function ArtisanDashboardHome() {
 
           // Run fetches simultaneously
           const [meRes, enqRes, revRes, portRes] = await Promise.all([
-            fetch('/api/auth/me'),
-            fetch('/api/enquiries?limit=5'),
-            fetch('/api/reviews?mine=true&limit=3'),
+            authFetch('/api/auth/me'),
+            authFetch('/api/enquiries?limit=5'),
+            authFetch('/api/reviews?mine=true&limit=3'),
             // Portfolio to compute completion score
-            fetch('/api/portfolio')
+            authFetch('/api/portfolio')
           ]);
 
           let profileData = user;
@@ -113,9 +113,9 @@ export default function ArtisanDashboardHome() {
     }, 0);
 
     return () => clearTimeout(timer);
-  }, [user, authLoading]);
+  }, [user, authLoading, authFetch]);
 
-  if (authLoading) {
+  if (authLoading || !user) {
     return <LoadingSpinner message="Verifying credentials..." fullPage />;
   }
 
@@ -155,7 +155,7 @@ export default function ArtisanDashboardHome() {
   const statReviewsCount = artisanProfile.total_reviews || 0;
 
   return (
-    <DashboardLayout role="artisan" pageTitle="Artisan Dashboard">
+    <>
       <div className="container-fluid px-0" id="artisan-dashboard-home">
         
         {/* 1. APPROVAL BANNER */}
@@ -534,6 +534,6 @@ export default function ArtisanDashboardHome() {
         )}
 
       </div>
-    </DashboardLayout>
+    </>
   );
 }

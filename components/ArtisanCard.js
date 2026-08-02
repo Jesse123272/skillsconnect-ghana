@@ -85,7 +85,7 @@ export default function ArtisanCard({ artisan }) {
       {/* Card Footer Actions */}
       <div className="p-3 bg-light border-top mt-auto">
         <Link 
-          href={`/artisans/${artisanId}`} 
+          href={`/artisan/${artisanId}`} 
           className="btn btn-outline-primary w-100 py-2 rounded-3 text-decoration-none d-flex align-items-center justify-content-center gap-1.5"
           style={{ width: '100%' }}
         >
