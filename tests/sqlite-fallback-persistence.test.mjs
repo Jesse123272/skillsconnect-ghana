@@ -32,3 +32,32 @@ test('writes SQLite fallback inserts to disk so later reads see the new rows', a
 
   assert.ok(rows.some((row) => row.value === 'persisted-row'), 'inserted value should be visible in the SQLite file on disk');
 });
+
+test('creates missing profile_view_logs table and writes rows in SQLite fallback mode', async () => {
+  const tempDir2 = fs.mkdtempSync(path.join(os.tmpdir(), 'skillsconnect-sqlite-'));
+  const fallbackPath = path.join(tempDir2, 'profile-view-logs.db');
+  process.env.SQLITE_DB_PATH = fallbackPath;
+
+  const sqliteFallback = await import('../lib/sqlite-fallback.js');
+  sqliteFallback.closeSqliteFallback();
+
+  const { querySqliteFallback } = sqliteFallback;
+
+  await querySqliteFallback(
+    'INSERT INTO profile_view_logs (artisan_id, viewer_id, ip_address) VALUES (?, ?, ?)',
+    [9, 2, '127.0.0.1']
+  );
+
+  const rows = await new Promise((resolve, reject) => {
+    const db = new sqlite3.Database(fallbackPath, (err) => {
+      if (err) return reject(err);
+      db.all('SELECT artisan_id, viewer_id, ip_address FROM profile_view_logs ORDER BY log_id DESC LIMIT 5', (selectErr, results) => {
+        if (selectErr) return reject(selectErr);
+        db.close();
+        resolve(results);
+      });
+    });
+  });
+
+  assert.ok(rows.some((row) => row.artisan_id === 9 && row.ip_address === '127.0.0.1'), 'profile_view_logs should be created and the row should be inserted');
+});
