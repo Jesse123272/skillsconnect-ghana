@@ -10,6 +10,7 @@ import { query } from '@/lib/db';
 export const revalidate = 0; // Ensure live data on every load
 
 export default async function Home() {
+  const activityStartDate = process.env.PUBLIC_STATS_START_DATE || '2026-08-19';
   let stats = {
     total_artisans: 0,
     total_reviews: 0,
@@ -28,14 +29,12 @@ export default async function Home() {
       artisansCountRes,
       reviewsCountRes,
       categoriesCountRes,
-      regionsCountRes,
       categoriesRes,
       artisansRes
     ] = await Promise.all([
-      query("SELECT COUNT(*) as count FROM artisan_profiles WHERE is_approved = 1"),
-      query("SELECT COUNT(*) as count FROM reviews WHERE is_approved = 1"),
-      query("SELECT COUNT(*) as count FROM categories WHERE is_active = 1"),
-      query("SELECT COUNT(DISTINCT region) as count FROM users WHERE role = 'artisan' AND region IS NOT NULL AND region != ''"),
+      query("SELECT COUNT(*) as count FROM artisan_profiles WHERE is_approved = 1 AND created_at >= ?", [activityStartDate]),
+      query("SELECT COUNT(*) as count FROM reviews WHERE is_approved = 1 AND created_at >= ?", [activityStartDate]),
+      query("SELECT COUNT(*) as count FROM categories WHERE is_active = 1 AND created_at >= ?", [activityStartDate]),
       query("SELECT category_id, category_name, icon_class FROM categories WHERE is_active = 1 ORDER BY category_name ASC"),
       query(`
         SELECT 
@@ -69,9 +68,9 @@ export default async function Home() {
 
     // Keep the public counters honest until the platform has real activity to report.
     stats = {
-      total_artisans: 0,
-      total_reviews: 0,
-      total_categories: 0,
+      total_artisans: artisansCountRes[0]?.count || 0,
+      total_reviews: reviewsCountRes[0]?.count || 0,
+      total_categories: categoriesCountRes[0]?.count || 0,
       regions_covered: 16
     };
 

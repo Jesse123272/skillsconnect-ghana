@@ -116,6 +116,8 @@ Paystack test keys are the correct keys for a defense or local demonstration. Th
 
 For a hosted defense deployment, add the same test keys as environment variables in the hosting provider. Also set `NEXT_PUBLIC_SITE_URL` to the exact public HTTPS URL so Paystack can return to the verification page. Replace the test keys with live keys only after the Paystack account and business are fully approved.
 
+The homepage activity counters use the database directly. `PUBLIC_STATS_START_DATE` keeps imported demonstration rows out of the public totals; new approved artisans, categories, and reviews created after that date are counted automatically. The regions counter is fixed at Ghana&apos;s 16 administrative regions.
+
 ### Email SMTP Setup (Free, production-ready)
 
 #### SendGrid
