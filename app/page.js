@@ -11,6 +11,7 @@ export const revalidate = 0; // Ensure live data on every load
 
 export default async function Home() {
   const activityStartDate = process.env.PUBLIC_STATS_START_DATE || '2026-08-19';
+  const seededCategoryLimit = Number(process.env.PUBLIC_STATS_SEEDED_CATEGORY_LIMIT || 20);
   let stats = {
     total_artisans: 0,
     total_reviews: 0,
@@ -34,7 +35,7 @@ export default async function Home() {
     ] = await Promise.all([
       query("SELECT COUNT(*) as count FROM artisan_profiles WHERE is_approved = 1 AND created_at >= ?", [activityStartDate]),
       query("SELECT COUNT(*) as count FROM reviews WHERE is_approved = 1 AND created_at >= ?", [activityStartDate]),
-      query("SELECT COUNT(*) as count FROM categories WHERE is_active = 1 AND created_at >= ?", [activityStartDate]),
+      query("SELECT COUNT(*) as count FROM categories WHERE is_active = 1 AND category_id > ? AND created_at >= ?", [seededCategoryLimit, activityStartDate]),
       query("SELECT category_id, category_name, icon_class FROM categories WHERE is_active = 1 ORDER BY category_name ASC"),
       query(`
         SELECT 
