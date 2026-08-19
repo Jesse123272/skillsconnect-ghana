@@ -31,7 +31,6 @@ export default function DashboardLayout({ children, pageTitle = 'Dashboard' }) {
   const { user, logout, loading, unreadNotifications, unreadEnquiries, pendingArtisansCount, refreshBadges } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
-  const [isNested, setIsNested] = React.useState(false);
   
 
   // Handle redirect if not authenticated
@@ -40,22 +39,6 @@ export default function DashboardLayout({ children, pageTitle = 'Dashboard' }) {
       router.push('/login');
     }
   }, [user, loading, router]);
-
-  // If a persistent dashboard layout has already mounted (has #dashboard-root),
-  // treat this instance as nested and render only children to avoid duplicate chrome.
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      try {
-        if (typeof document !== 'undefined' && document.getElementById('dashboard-root')) {
-          setIsNested(true);
-        }
-      } catch (e) {
-        // ignore in SSR or restricted environments
-      }
-    }, 0);
-
-    return () => window.clearTimeout(timer);
-  }, []);
 
   if (loading) {
     return (
@@ -70,10 +53,6 @@ export default function DashboardLayout({ children, pageTitle = 'Dashboard' }) {
 
   if (!user) {
     return null; // Will redirect in useEffect
-  }
-
-  if (isNested) {
-    return <>{children}</>;
   }
 
   // Define sidebar menu configurations

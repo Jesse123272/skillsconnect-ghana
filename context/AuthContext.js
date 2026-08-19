@@ -31,12 +31,9 @@ export function AuthProvider({ children }) {
     const response = await fetch(input, mergedInit);
     if (response.status === 401 || response.status === 403) {
       setUser(null);
-      if (loading) {
-        setLoading(false);
-      }
     }
     return response;
-  }, [loading]);
+  }, []);
 
   // Patch browser fetch to ensure same-origin API requests send cookies
   useEffect(() => {
