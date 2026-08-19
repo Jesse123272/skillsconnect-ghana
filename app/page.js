@@ -11,8 +11,8 @@ export const revalidate = 0; // Ensure live data on every load
 
 export default async function Home() {
   let stats = {
-    total_artisans: 120,
-    total_reviews: 450,
+    total_artisans: 0,
+    total_reviews: 0,
     total_categories: 10,
     regions_covered: 16
   };
@@ -68,8 +68,8 @@ export default async function Home() {
     }
 
     stats = {
-      total_artisans: artisansCountRes[0]?.count || 120,
-      total_reviews: reviewsCountRes[0]?.count || 450,
+      total_artisans: Number(artisansCountRes[0]?.count) || 0,
+      total_reviews: Number(reviewsCountRes[0]?.count) || 0,
       total_categories: categoriesCountRes[0]?.count || 10,
       regions_covered: Math.max(16, regionsCountRes[0]?.count || 16)
     };
