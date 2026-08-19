@@ -8,6 +8,7 @@ import { CreditCard, CheckCircle, Clock, XCircle, DollarSign, Calendar, External
 import { toast } from 'react-hot-toast';
 
 export default function CustomerPaymentsPage() {
+  const { authFetch } = useAuth();
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState('all');

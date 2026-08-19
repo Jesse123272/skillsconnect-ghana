@@ -21,6 +21,7 @@ import {
 import { toast } from 'react-hot-toast';
 
 export default function ManageCustomers() {
+  const { authFetch } = useAuth();
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState('');
   const [searchQuery, setSearchQuery] = useState('');

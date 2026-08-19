@@ -20,6 +20,7 @@ import {
 import { toast } from 'react-hot-toast';
 
 export default function ManageEnquiries() {
+  const { authFetch } = useAuth();
   const [enquiries, setEnquiries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');

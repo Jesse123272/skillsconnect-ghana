@@ -20,6 +20,7 @@ import {
 import { toast } from 'react-hot-toast';
 
 export default function TransactionsLedger() {
+  const { authFetch } = useAuth();
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState('all'); // all, success, pending, failed

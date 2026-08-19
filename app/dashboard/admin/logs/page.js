@@ -17,6 +17,7 @@ import {
 import { toast } from 'react-hot-toast';
 
 export default function SecurityAuditLogs() {
+  const { authFetch } = useAuth();
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
 

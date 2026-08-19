@@ -18,6 +18,7 @@ import {
 import { toast } from 'react-hot-toast';
 
 export default function ManageReviews() {
+  const { authFetch } = useAuth();
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');

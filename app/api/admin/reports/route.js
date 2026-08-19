@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { query } from '@/lib/db';
+import { isSqliteFallbackEnabled, query } from '@/lib/db';
 import { getUserFromRequest } from '@/lib/auth';
 
 export async function GET(req) {
@@ -13,22 +13,34 @@ export async function GET(req) {
     }
 
     // 1. Chart 1: Registrations by Month (Last 12 Months)
-    const registrations12m = await query(
-      `SELECT DATE_FORMAT(created_at, '%b %Y') as month, COUNT(*) as count, MIN(created_at) as first_date
-       FROM users
-       WHERE created_at >= DATE_SUB(NOW(), INTERVAL 12 MONTH)
-       GROUP BY month
-       ORDER BY first_date ASC`
-    );
+     const registrations12m = await query(
+      isSqliteFallbackEnabled
+        ? `SELECT strftime('%Y-%m', created_at) as month, COUNT(*) as count, MIN(created_at) as first_date
+          FROM users
+          WHERE created_at >= datetime('now', '-12 month')
+          GROUP BY strftime('%Y-%m', created_at)
+          ORDER BY first_date ASC`
+        : `SELECT DATE_FORMAT(created_at, '%b %Y') as month, COUNT(*) as count, MIN(created_at) as first_date
+          FROM users
+          WHERE created_at >= DATE_SUB(NOW(), INTERVAL 12 MONTH)
+          GROUP BY month
+          ORDER BY first_date ASC`
+     );
 
     // 2. Chart 2: Enquiries by Month (Last 12 Months)
-    const enquiries12m = await query(
-      `SELECT DATE_FORMAT(created_at, '%b %Y') as month, COUNT(*) as count, MIN(created_at) as first_date
-       FROM enquiries
-       WHERE created_at >= DATE_SUB(NOW(), INTERVAL 12 MONTH)
-       GROUP BY month
-       ORDER BY first_date ASC`
-    );
+     const enquiries12m = await query(
+      isSqliteFallbackEnabled
+        ? `SELECT strftime('%Y-%m', created_at) as month, COUNT(*) as count, MIN(created_at) as first_date
+          FROM enquiries
+          WHERE created_at >= datetime('now', '-12 month')
+          GROUP BY strftime('%Y-%m', created_at)
+          ORDER BY first_date ASC`
+        : `SELECT DATE_FORMAT(created_at, '%b %Y') as month, COUNT(*) as count, MIN(created_at) as first_date
+          FROM enquiries
+          WHERE created_at >= DATE_SUB(NOW(), INTERVAL 12 MONTH)
+          GROUP BY month
+          ORDER BY first_date ASC`
+     );
 
     // 3. Chart 3: Doughnut — Artisans by Category
     const artisansByCategory = await query(
@@ -41,7 +53,7 @@ export async function GET(req) {
 
     // 4. Chart 4: Bar chart — Reviews by Rating (1-star to 5-star distribution)
     const reviewRatings = await query(
-      `SELECT FLOOR(rating) as rating, COUNT(*) as count
+      `SELECT ${isSqliteFallbackEnabled ? 'CAST(rating AS INTEGER)' : 'FLOOR(rating)'} as rating, COUNT(*) as count
        FROM reviews
        GROUP BY rating
        ORDER BY rating ASC`

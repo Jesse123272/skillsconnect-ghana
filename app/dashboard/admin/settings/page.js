@@ -24,6 +24,7 @@ import {
 import { toast } from 'react-hot-toast';
 
 export default function SystemSettings() {
+  const { authFetch } = useAuth();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [testingEmail, setTestingEmail] = useState(false);

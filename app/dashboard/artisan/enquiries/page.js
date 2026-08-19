@@ -189,6 +189,24 @@ export default function ArtisanEnquiriesList() {
                         </div>
                         <div>
                           <h6 className="fw-bold text-dark mb-0.5">{enq.customer_name || 'Client'}</h6>
+                          <div className="d-flex flex-wrap gap-2 fs-8">
+                            {enq.customer_phone && (
+                              <a href={`tel:${enq.customer_phone}`} className="text-primary text-decoration-none">
+                                <i className="fa-solid fa-phone me-1"></i>{enq.customer_phone}
+                              </a>
+                            )}
+                            {enq.customer_email && (
+                              <a href={`mailto:${enq.customer_email}`} className="text-secondary text-decoration-none text-truncate" style={{ maxWidth: '190px' }}>
+                                <i className="fa-solid fa-envelope me-1"></i>{enq.customer_email}
+                              </a>
+                            )}
+                          </div>
+                          {(enq.customer_region || enq.customer_district) && (
+                            <small className="text-muted d-block fs-8">
+                              <i className="fa-solid fa-location-dot me-1"></i>
+                              {[enq.customer_district, enq.customer_region].filter(Boolean).join(', ')}
+                            </small>
+                          )}
                           <small className="text-muted fs-8">
                             {enq.created_at ? new Date(enq.created_at).toLocaleDateString('en-GH') : 'Recent'}
                           </small>

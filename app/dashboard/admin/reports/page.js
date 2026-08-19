@@ -50,6 +50,7 @@ ChartJS.register(
 );
 
 export default function AnalyticalReports() {
+  const { authFetch } = useAuth();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 

@@ -93,7 +93,8 @@ export async function GET(req) {
       // Select data
       enquiries = await query(
         `SELECT e.enquiry_id, e.customer_id, e.artisan_id, e.subject, e.message, e.reply, e.status, e.is_read_customer, e.is_read_artisan, e.created_at, e.replied_at,
-                u.full_name as customer_name, u.profile_photo as customer_photo
+          u.full_name as customer_name, u.email as customer_email, u.phone as customer_phone,
+          u.region as customer_region, u.district as customer_district, u.profile_photo as customer_photo
          FROM enquiries e
          INNER JOIN users u ON e.customer_id = u.user_id
          ${whereClause}

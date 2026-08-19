@@ -8,6 +8,7 @@ import { CreditCard, CheckCircle, Clock, DollarSign, Calendar } from 'lucide-rea
 import { toast } from 'react-hot-toast';
 
 export default function ArtisanTransactionsPage() {
+  const { authFetch } = useAuth();
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState('all');
@@ -33,7 +34,7 @@ export default function ArtisanTransactionsPage() {
     }
     loadTransactions();
     return () => { isMounted = false; };
-  }, [filterStatus]);
+  }, [authFetch, filterStatus]);
 
   const totalEarningsGhs = transactions
     .filter(t => t.status === 'success')

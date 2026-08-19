@@ -204,7 +204,9 @@ export async function DELETE(req) {
     });
 
     // Clear auth cookies to log user out
-    clearAuthCookie(response);
+    clearAuthCookie(response, {
+      secure: req.headers.get('x-forwarded-proto') === 'https' || req.url.startsWith('https://'),
+    });
     return response;
 
   } catch (error) {

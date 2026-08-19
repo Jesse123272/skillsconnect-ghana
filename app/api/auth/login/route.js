@@ -61,7 +61,7 @@ function getFallbackAdminUser(email, password) {
   };
 }
 
-function buildAuthSuccessResponse(user, token, rememberMe) {
+function buildAuthSuccessResponse(user, token, rememberMe, req) {
   const { password_hash, ...safeUserData } = user;
   const response = NextResponse.json({
     success: true,
@@ -70,6 +70,7 @@ function buildAuthSuccessResponse(user, token, rememberMe) {
 
   setAuthCookie(response, token, {
     maxAge: rememberMe ? 30 * 24 * 60 * 60 : undefined,
+    secure: req.headers.get('x-forwarded-proto') === 'https' || req.url.startsWith('https://'),
   });
   return response;
 }
@@ -130,7 +131,7 @@ export async function POST(req) {
         role: fallbackAdminUser.role,
         full_name: fallbackAdminUser.full_name,
       });
-      return buildAuthSuccessResponse(fallbackAdminUser, token, rememberMe);
+      return buildAuthSuccessResponse(fallbackAdminUser, token, rememberMe, req);
     }
 
     // Ensure admin seed exists when the production database is empty or missing the account.
@@ -224,7 +225,7 @@ export async function POST(req) {
     }
 
     // 8. Prepare user data to return (exclude password_hash)
-    return buildAuthSuccessResponse(user, token, rememberMe);
+    return buildAuthSuccessResponse(user, token, rememberMe, req);
 
   } catch (error) {
     console.error('Login API Error:', error);

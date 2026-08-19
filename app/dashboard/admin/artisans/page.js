@@ -32,6 +32,7 @@ export default function ManageArtisans() {
 function ManageArtisansContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { authFetch } = useAuth();
 
   // Filters state
   const [search, setSearch] = useState('');

@@ -1,14 +1,18 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/context/AuthContext';
 // DashboardLayout provided by app/dashboard/layout.js; per-page wrapper removed
+import ProfileAvatar from '@/components/ProfileAvatar';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import AlertMessage from '@/components/AlertMessage';
 import { validatePassword } from '@/lib/validators';
 
 export default function ArtisanSettings() {
   const {  user, setUser, loading: authLoading , authFetch } = useAuth();
+  const [profilePhoto, setProfilePhoto] = useState('');
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const fileInputRef = useRef(null);
 
   // Active Tab State
   const [activeTab, setActiveTab] = useState('account'); // 'account', 'password', 'notifications'
@@ -36,10 +40,11 @@ export default function ArtisanSettings() {
 
   // Load existing preferences if available in user object
   useEffect(() => {
-    if (user && user.preferences) {
+    if (user) {
       const timer = setTimeout(() => {
+        setProfilePhoto(user.profile_photo || '');
         try {
-          const parsed = typeof user.preferences === 'string' ? JSON.parse(user.preferences) : user.preferences;
+          const parsed = typeof user.preferences === 'string' ? JSON.parse(user.preferences) : user.preferences || {};
           setPrefs({
             email_on_enquiry: parsed.email_on_enquiry !== undefined ? parsed.email_on_enquiry : true,
             email_on_review: parsed.email_on_review !== undefined ? parsed.email_on_review : true,
@@ -53,6 +58,50 @@ export default function ArtisanSettings() {
       return () => clearTimeout(timer);
     }
   }, [user]);
+
+  const handlePhotoUpload = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!['image/jpeg', 'image/png', 'image/gif', 'image/webp'].includes(file.type)) {
+      setFormError('Only JPG, PNG, GIF, and WEBP images are supported.');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setFormError('Profile images must be smaller than 5MB.');
+      return;
+    }
+
+    try {
+      setUploadingPhoto(true);
+      setFormError(null);
+      setFormSuccess(null);
+
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('type', 'profile');
+
+      const response = await authFetch('/api/uploads', { method: 'POST', body: formData });
+      const result = await response.json();
+
+      if (!response.ok || !result.success || !result.data?.file_path) {
+        setFormError(result.error || 'Failed to upload your profile image.');
+        return;
+      }
+
+      const uploadedPath = result.data.file_path;
+      setProfilePhoto(uploadedPath);
+      setUser((previous) => ({ ...previous, profile_photo: uploadedPath }));
+      setFormSuccess('Profile image uploaded successfully.');
+    } catch (error) {
+      console.error('Artisan profile image upload error:', error);
+      setFormError('An unexpected error occurred while uploading your profile image.');
+    } finally {
+      setUploadingPhoto(false);
+      if (event.target) event.target.value = '';
+    }
+  };
 
   // PASSWORD STRENGTH CALCULATION
   const getPasswordStrength = (pwd) => {
@@ -255,6 +304,31 @@ export default function ArtisanSettings() {
                     <span>Primary Account Overview</span>
                   </h5>
                   <p className="text-muted fs-8 mb-4">View core registered parameters. To protect trade profile integrity, email addresses are locked.</p>
+
+                  <div className="d-flex flex-column flex-sm-row align-items-center gap-3 mb-4 p-3 bg-light rounded-3 border">
+                    <ProfileAvatar name={user.full_name} photo_url={profilePhoto} size="lg" />
+                    <div className="text-center text-sm-start flex-grow-1">
+                      <h6 className="fw-bold text-dark mb-1">Profile Image</h6>
+                      <p className="text-muted fs-8 mb-2">Add a JPG, PNG, GIF, or WEBP image up to 5MB.</p>
+                      <input
+                        ref={fileInputRef}
+                        id="artisan-settings-photo-upload"
+                        type="file"
+                        accept="image/jpeg,image/png,image/gif,image/webp"
+                        className="d-none"
+                        onChange={handlePhotoUpload}
+                      />
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-primary rounded-pill px-3 fw-semibold"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={uploadingPhoto}
+                      >
+                        <i className="fa-solid fa-camera me-1.5"></i>
+                        {uploadingPhoto ? 'Uploading...' : 'Add / Change Image'}
+                      </button>
+                    </div>
+                  </div>
 
                   <div className="d-flex flex-column gap-3.5" id="account-settings-list">
                     {/* Locked Email Block */}

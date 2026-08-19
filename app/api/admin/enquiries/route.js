@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { query } from '@/lib/db';
+import { isSqliteFallbackEnabled, query } from '@/lib/db';
 import { getUserFromRequest } from '@/lib/auth';
 
 export async function GET(req) {
@@ -60,7 +60,11 @@ export async function GET(req) {
     const repliedResult = await query('SELECT COUNT(*) as count FROM enquiries WHERE status = "replied"');
     const repliedCount = repliedResult[0]?.count || 0;
 
-    const thisMonthResult = await query('SELECT COUNT(*) as count FROM enquiries WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)');
+    const thisMonthResult = await query(
+      isSqliteFallbackEnabled
+        ? "SELECT COUNT(*) as count FROM enquiries WHERE created_at >= datetime('now', '-30 day')"
+        : 'SELECT COUNT(*) as count FROM enquiries WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)'
+    );
     const thisMonthCount = thisMonthResult[0]?.count || 0;
 
     // Fetch total records for pagination
