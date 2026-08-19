@@ -17,18 +17,22 @@ export async function GET(req) {
     try {
       const users = await query(
         `SELECT user_id, full_name, email, phone, role, region, district, profile_photo, lat, lng, preferences, is_verified, is_active, last_login, created_at 
-         FROM users WHERE user_id = ?`,
-        [payload.user_id]
+         FROM users WHERE user_id = ? AND email = ?`,
+        [payload.user_id, payload.email]
       );
 
       if (!users || users.length === 0) {
-        return NextResponse.json(
-          { success: false, error: 'User account not found' },
-          { status: 404 }
-        );
+        user = {
+          user_id: payload.user_id,
+          full_name: payload.full_name || payload.email || 'User',
+          email: payload.email,
+          role: payload.role || 'customer',
+          is_verified: 1,
+          is_active: 1,
+        };
+      } else {
+        user = users[0];
       }
-
-      user = users[0];
     } catch (error) {
       console.warn('Auth me user lookup failed, falling back to token payload:', error?.message || error);
       user = {
