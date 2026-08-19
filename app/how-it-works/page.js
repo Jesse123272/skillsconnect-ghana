@@ -17,7 +17,7 @@ export default function HowItWorks() {
         <div className="container text-center py-4">
           <h1 className="display-6 fw-bold text-dark mb-2">How SkillsConnect Ghana Works</h1>
           <p className="text-muted mx-auto lead" style={{ maxWidth: '650px' }}>
-            A transparent, trust-first domestic trade ecosystem engineered for quality-minded customers and local professional providers.
+            A simple way to search for a trade, check the available details, and start a conversation about the work.
           </p>
         </div>
       </div>
@@ -149,7 +149,7 @@ export default function HowItWorks() {
                 <div className="row align-items-center">
                   <div className="col-md-8 text-start">
                     <h5 className="fw-bold text-dark mb-1">Want to expand your domestic trade customer base?</h5>
-                    <p className="text-muted small mb-0">Register your specialty trade, get verified, and access hundreds of leads right in your district.</p>
+                    <p className="text-muted small mb-0">Add your trade, service area, experience, and contact details so nearby customers can understand what you offer.</p>
                   </div>
                   <div className="col-md-4 mt-3 mt-md-0 d-flex justify-content-md-end">
                     <Link href="/register" className="btn btn-primary rounded-pill px-4 py-2.5 shadow-sm fw-semibold">

@@ -60,7 +60,7 @@ export async function POST(req) {
       return NextResponse.json({
         success: true,
         mode: 'mock',
-        message: 'Diagnostics completed. Since SMTP server environment variables are currently in simulated mode, we emulated successful delivery to your inbox. Please check server console or configure SMTP in AI Studio Settings.'
+        message: 'Diagnostics completed. SMTP is currently in simulated mode, so delivery was recorded without sending a real email. Check the server console or configure the deployment email settings.'
       });
     }
 

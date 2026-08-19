@@ -2,7 +2,7 @@
 
 **SkillsConnect Ghana** is a full-stack web application designed to connect verified Ghanaian artisans (electricians, plumbers, carpenters, masons, mechanics, tailors, beauticians, and more) with customers across all 16 regions of Ghana.
 
-The platform provides a secure, reliable environment featuring AI-powered artisan matching, direct enquiries, Paystack Mobile Money & Card escrow payments, customer reviews, and a management control panel.
+The platform provides an artisan directory, direct enquiries, Paystack Mobile Money and Card checkout, customer reviews, and a management control panel.
 
 ---
 
@@ -10,9 +10,9 @@ The platform provides a secure, reliable environment featuring AI-powered artisa
 
 ### 👥 For Customers
 - **Artisan Directory**: Search artisans by trade category, region, district, rating, and keywords.
-- **AI Matchmaker**: Describe your project in plain language to get instant AI-recommended artisans.
+- **Trade Finder**: Describe the work and location you need, then use the result to narrow the directory.
 - **Enquiries & Messaging**: Send job requests and communicate directly with artisans in real-time.
-- **Secure Escrow Payments**: Pay artisans safely via Paystack using **MTN Mobile Money**, **Telecel Cash**, **AT Money**, or **Bank Cards**.
+- **Paystack Checkout**: Test service payments with **MTN Mobile Money**, **Telecel Cash**, **AT Money**, or **Bank Cards**.
 - **Ratings & Reviews**: Share feedback and rate completed jobs.
 - **Payment Receipts**: Access printable receipts and transaction histories anytime.
 
@@ -37,7 +37,7 @@ The platform provides a secure, reliable environment featuring AI-powered artisa
 - **Database**: Dual Mode — MySQL / MariaDB support with zero-config **SQLite** fallback (`sql.js`)
 - **Authentication**: Custom JWT Authentication (`jose`, `bcryptjs`) with HTTP-only cookies
 - **Payments**: Paystack Gateway API (Ghana Mobile Money & Cards)
-- **AI Integration**: `@google/genai` (Google Gemini API)
+- **Optional provider integration**: The trade finder can use a configured text provider, with a local matching fallback for development.
 
 ---
 
@@ -102,6 +102,19 @@ EMAIL_USER=apikey
 EMAIL_PASS=your_sendgrid_api_key_here
 EMAIL_FROM="SkillsConnect Ghana <no-reply@skillsconnectghana.com>"
 ```
+
+### Testing the payment screen for a project demonstration
+
+Paystack test keys are the correct keys for a defense or local demonstration. They do not move real money, and Paystack may display a test-mode notice during checkout.
+
+1. In the Paystack Dashboard, switch to **Test** mode and copy the test secret key (`sk_test_...`) and public key (`pk_test_...`).
+2. Put the secret key only in `PAYSTACK_SECRET_KEY`. Put the public key in both `PAYSTACK_PUBLIC_KEY` and `NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY`.
+3. Start the app with `npm run dev`, sign in as a customer, open an enquiry, and scroll to the **Paystack checkout** card.
+4. Enter an amount such as `10.00`. The card will show **Test mode**, which is expected and is useful evidence for Chapter 4.
+5. Select **Test payment**. Complete the checkout with the test card or test Mobile Money details supplied in the Paystack Dashboard. Never use a real card or mobile-money PIN.
+6. After Paystack redirects to `/payments/verify`, capture the payment form, the Paystack test checkout, and the verification result as separate screenshots.
+
+For a hosted defense deployment, add the same test keys as environment variables in the hosting provider. Also set `NEXT_PUBLIC_SITE_URL` to the exact public HTTPS URL so Paystack can return to the verification page. Replace the test keys with live keys only after the Paystack account and business are fully approved.
 
 ### Email SMTP Setup (Free, production-ready)
 

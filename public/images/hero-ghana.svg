@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1">
+      <stop offset="0%" stop-color="#0A2814" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#0A2814" stop-opacity="0.95"/>
+    </linearGradient>
+  </defs>
+  <rect width="100%" height="100%" fill="#0A2814" />
+  <g fill="#0A2814" opacity="0.5">
+    <circle cx="200" cy="200" r="120" fill="#114E2E" />
+    <circle cx="1400" cy="600" r="160" fill="#0F6B3A" />
+  </g>
+  <g fill="#F5A623" opacity="0.06">
+    <rect x="200" y="160" width="1200" height="400" rx="20" />
+  </g>
+  <text x="80" y="420" fill="#FFFFFF" font-size="64" font-family="sans-serif" font-weight="700">SkillsConnect Ghana</text>
+  <text x="80" y="490" fill="#D4ECDC" font-size="28" font-family="sans-serif">Find trusted artisans near you — plumbers, electricians, tailors and more</text>
+</svg>

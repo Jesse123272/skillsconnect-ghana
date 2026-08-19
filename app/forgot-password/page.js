@@ -34,7 +34,7 @@ export default function ForgotPassword() {
       const result = await response.json();
 
       if (response.ok && result.success) {
-        toast.success('Reset link dispatched successfully!');
+                  toast.success('Reset instructions sent.');
         setIsSuccess(true);
       } else {
         const errorMsg = result.error || 'Failed to request reset link.';
@@ -65,7 +65,7 @@ export default function ForgotPassword() {
                     <i className="fa-solid fa-key fs-4"></i>
                   </div>
                   <h3 className="fw-bold text-dark mb-1">Recover Password</h3>
-                  <p className="text-muted small">Enter your email and we&apos;ll send you instructions to reset your password.</p>
+                  <p className="text-muted small">Enter the email attached to your account and we will send reset instructions.</p>
                 </div>
 
                 {apiError && (
@@ -81,7 +81,7 @@ export default function ForgotPassword() {
                     <input
                       type="email"
                       className="form-control text-secondary small"
-                      placeholder="name@example.com"
+                      placeholder="you@example.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required

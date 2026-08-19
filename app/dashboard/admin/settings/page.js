@@ -365,7 +365,7 @@ export default function SystemSettings() {
                         <strong className="d-block mb-1 text-dark">Currently in Sandbox / Mock Mode</strong>
                         Since your custom SMTP server details are not fully configured in the platform&apos;s Environment Settings, all account verification emails and system notifications are running in simulated mock mode (logged to server console). This prevents real email dispatching to actual user accounts.
                         <div className="mt-3 small">
-                          <strong className="d-block mb-1">You must configure these environment variables in AI Studio / Vercel:</strong>
+                          <strong className="d-block mb-1">Configure these environment variables in your deployment settings:</strong>
                           <ul className="ps-3 mb-1">
                             <li><code className="text-dark bg-white px-1 border rounded font-monospace small">EMAIL_HOST</code></li>
                             <li><code className="text-dark bg-white px-1 border rounded font-monospace small">EMAIL_PORT</code></li>
@@ -393,7 +393,7 @@ export default function SystemSettings() {
                     <span>How to enable real email deliveries for your users:</span>
                   </h6>
                   <p className="text-secondary mb-2" style={{ fontSize: '12px', lineHeight: '1.4' }}>
-                    To ensure you and your users receive actual verification codes in their actual email inboxes (Gmail, Yahoo, Outlook etc.), configure your SMTP mail credentials inside the **AI Studio Settings** under the **Secrets & Environment Variables** panel:
+                    To send verification codes and notifications to users&apos; inboxes, configure the SMTP credentials in your deployment&apos;s environment variables:
                   </p>
                   <ul className="text-secondary ps-3 mb-0" style={{ fontSize: '12px', lineHeight: '1.5' }}>
                     <li className="mb-1"><code className="text-dark bg-white px-1 border rounded font-monospace small">EMAIL_HOST</code>: The SMTP server address (e.g., <code className="font-monospace">smtp.gmail.com</code> for Gmail, <code className="font-monospace">smtp.mailgun.org</code>, etc.)</li>

@@ -15,7 +15,7 @@ export default function AiMatchmaker() {
     {
       id: 1,
       sender: 'ai',
-      text: 'Akwaaba! I am your AI Matchmaker. 🇬🇭 Tell me what trade service you need and where you are located (e.g., "I need a plumber to fix a leak in East Legon" or "Looking for an electrician in Ashanti"). I will match you with verified experts instantly!',
+      text: 'Akwaaba! Tell me the job you need done and where you are located. For example: “I need a plumber in East Legon” or “I need an electrician in Ashanti.” I will narrow the directory for you.',
       timestamp: new Date()
     }
   ]);
@@ -116,8 +116,8 @@ export default function AiMatchmaker() {
           id="ai-matchmaker-trigger"
         >
           <Sparkles size={18} className="text-warning animate-pulse" />
-          <span className="fw-semibold text-white">Ask AI Matchmaker</span>
-          <span className="badge bg-danger rounded-pill px-2 py-1 fs-9">Beta</span>
+          <span className="fw-semibold text-white">Find a trade</span>
+          <span className="badge bg-secondary text-dark rounded-pill px-2 py-1 fs-9">Quick search</span>
         </button>
       )}
 
@@ -141,10 +141,10 @@ export default function AiMatchmaker() {
                 <Sparkles size={16} className="text-warning" />
               </div>
               <div>
-                <h6 className="fw-bold mb-0 text-white leading-tight" style={{ fontSize: '0.95rem' }}>Akwaaba AI Matchmaker</h6>
+                <h6 className="fw-bold mb-0 text-white leading-tight" style={{ fontSize: '0.95rem' }}>Trade finder</h6>
                 <small className="text-white-50 fs-9 d-flex align-items-center gap-1">
                   <span className="bg-success rounded-circle" style={{ width: '5px', height: '5px', display: 'inline-block' }}></span>
-                  {messages.some((message) => message.source === 'local') ? 'Local matching available' : 'Powered by Gemini 2.0'}
+                  {messages.some((message) => message.source === 'local') ? 'Local directory matching' : 'Checking the directory'}
                 </small>
               </div>
             </div>
@@ -255,7 +255,7 @@ export default function AiMatchmaker() {
                 <div className="d-flex flex-column align-items-start">
                   <div className="p-3 bg-white text-dark rounded-4 rounded-bottom-start-0 shadow-sm d-flex align-items-center gap-2">
                     <RefreshCw size={14} className="animate-spin text-primary" />
-                    <span>Akwaaba AI is looking up experts...</span>
+                    <span>Checking local trade listings...</span>
                   </div>
                 </div>
               )}

@@ -227,7 +227,7 @@ export default function Register() {
       const result = await response.json();
 
       if (response.ok && result.success) {
-        toast.success('Account created successfully! Please enter the 6-digit code sent to your email.');
+        toast.success('Account created — check your email for the 6-digit verification code.');
         router.push(`/verify-email?email=${encodeURIComponent(result.data.email)}`);
       } else {
         const errorMsg = result.error || 'Registration failed. Please check inputs.';
@@ -252,8 +252,8 @@ export default function Register() {
             
             {/* TOP TITLE */}
             <div className="text-center mb-4">
-              <h3 className="fw-bold text-dark mb-1">Create Account</h3>
-              <p className="text-muted small">Connect with quality domestic services across Ghana</p>
+              <h3 className="fw-bold text-dark mb-1">Create an Account on SkillsConnect</h3>
+              <p className="text-muted small">Connect with trusted local artisans across Ghana — fast and secure.</p>
             </div>
 
             {/* ROLE TAB SELECTOR */}
@@ -293,7 +293,7 @@ export default function Register() {
                 <input
                   type="text"
                   className="form-control text-secondary small"
-                  placeholder="e.g. Kwame Mensah"
+                  placeholder="e.g. Kojo Mensah"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   required
@@ -305,7 +305,7 @@ export default function Register() {
                 <input
                   type="email"
                   className="form-control text-secondary small"
-                  placeholder="name@example.com"
+                  placeholder="you@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -323,7 +323,7 @@ export default function Register() {
                   required
                 />
                 <div className="form-text fs-8 text-muted">
-                  Will format standard 050/024 numbers into Ghana +233 standard.
+                  We will help format common Ghana numbers (e.g. 024/050) into the +233 standard.
                 </div>
               </div>
 
@@ -367,7 +367,7 @@ export default function Register() {
                     onClick={requestLocation}
                     disabled={locationRequested}
                   >
-                    Use Current Location
+                    Use My Location
                   </button>
                 </div>
                 {locationStatus && <div className="text-muted fs-8 mb-1">{locationStatus}</div>}

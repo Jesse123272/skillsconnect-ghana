@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400">
+  <rect width="100%" height="100%" fill="#F7F7F7"/>
+  <g transform="translate(40,40)" fill="#6C4F3D">
+    <rect x="0" y="0" width="520" height="320" rx="12" fill="#EFEFEF" stroke="#E0D7D0"/>
+    <text x="24" y="48" font-size="22" fill="#333">Bathroom Installation</text>
+    <text x="24" y="88" font-size="14" fill="#666">Plumbing and fixtures - Tema</text>
+  </g>
+</svg>

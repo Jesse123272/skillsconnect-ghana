@@ -2,9 +2,10 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { Wrench, LogOut, User, LayoutDashboard, Menu } from 'lucide-react';
+import { LogOut, User, LayoutDashboard, Menu } from 'lucide-react';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -32,9 +33,9 @@ export default function Navbar() {
       <div className="container">
         {/* Logo */}
         <Link href="/" className="navbar-brand d-flex align-items-center text-primary text-decoration-none">
-          <Wrench className="me-2 text-primary" size={24} />
+          <Image src="/icons/skillsconnect-logo.svg" alt="SkillsConnect Ghana" width={36} height={36} className="me-2" />
           <span className="fs-4 fw-bold">
-            SkillsConnect<span className="text-secondary">Ghana</span>
+            SkillsConnect <span className="text-secondary">Ghana</span>
           </span>
         </Link>
 
@@ -75,7 +76,7 @@ export default function Navbar() {
                 href="/#how-it-works"
                 className="nav-link fw-medium text-dark"
               >
-                How It Works
+                How SkillsConnect Works
               </Link>
             </li>
             <li className="nav-item">

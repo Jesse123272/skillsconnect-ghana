@@ -1,6 +1,10 @@
 -- SkillsConnect Ghana Database Schema and Realistic Seed Data
 -- Database: skillsconnect_db
 
+-- Author: SkillsConnect Ghana contributors (human-curated seed data)
+-- Note: Seed content reviewed and localized for Ghana; keep names and
+-- realistic examples to maintain authenticity when running local demos.
+
 CREATE DATABASE IF NOT EXISTS skillsconnect_db;
 USE skillsconnect_db;
 
@@ -367,14 +371,14 @@ UPDATE artisan_profiles SET average_rating = 4.8 WHERE user_id = 12;
 
 -- 9. SEED PORTFOLIO ITEMS (for existing artisans)
 INSERT INTO portfolio_items (artisan_id, image_path, caption, description) VALUES
-(7, 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=600', 'Modern Bathroom Installation', 'Completed full copper pipe installation and high-end fixture mounting for a luxury residential bathroom in East Legon.'),
-(7, 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=600', 'Commercial Water System Repair', 'Replaced heavy duty water pumps and cleaned the overhead main reserve tank for a local clinic in Tema.'),
-(9, 'https://images.unsplash.com/photo-1621905252507-b354bc25edac?q=80&w=600', 'Smart Home Distribution Board', 'Wired and configured a multi-phase smart home distribution board with advanced surge protection in Dansoman.'),
-(9, 'https://images.unsplash.com/photo-1544725176-7c40e5a71c5e?q=80&w=600', 'Industrial Solar Inverter Wiring', 'Installed and integrated a hybrid solar inverter system with backup storage for a commercial office in Accra.'),
-(10, 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=600', 'Traditional Kente Engagement Gown', 'Handcrafted bespoke traditional kente corset dress for a high-profile engagement ceremony in Cape Coast.'),
-(10, 'https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?q=80&w=600', 'Custom Embroidery Men''s Agbada', 'Designed and stitched a premium modern cream Agbada with meticulous golden brown neck embroidery.'),
-(11, 'https://images.unsplash.com/photo-1538688525198-9b88f6f53126?q=80&w=600', 'Handcrafted Mahogany Dining Set', 'Designed and constructed a solid 6-seater dining table set from premium kiln-dried local mahogany wood.'),
-(11, 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=600', 'Fitted Kitchen Cabinets', 'Finished high-end modern modular kitchen cabinets with custom soft-close drawers and gold handle pull accents.');
+(7, '/images/portfolio/portfolio-1.svg', 'Modern Bathroom Installation', 'Completed full copper pipe installation and high-end fixture mounting for a luxury residential bathroom in East Legon.'),
+(7, '/images/portfolio/portfolio-2.svg', 'Commercial Water System Repair', 'Replaced heavy duty water pumps and cleaned the overhead main reserve tank for a local clinic in Tema.'),
+(9, '/images/portfolio/portfolio-2.svg', 'Smart Home Distribution Board', 'Wired and configured a multi-phase smart home distribution board with advanced surge protection in Dansoman.'),
+(9, '/images/portfolio/portfolio-2.svg', 'Industrial Solar Inverter Wiring', 'Installed and integrated a hybrid solar inverter system with backup storage for a commercial office in Accra.'),
+(10, '/images/portfolio/portfolio-3.svg', 'Traditional Kente Engagement Gown', 'Handcrafted bespoke traditional kente corset dress for a high-profile engagement ceremony in Cape Coast.'),
+(10, '/images/portfolio/portfolio-3.svg', 'Custom Embroidery Men''s Agbada', 'Designed and stitched a premium modern cream Agbada with meticulous golden brown neck embroidery.'),
+(11, '/images/portfolio/portfolio-4.svg', 'Handcrafted Mahogany Dining Set', 'Designed and constructed a solid 6-seater dining table set from premium kiln-dried local mahogany wood.'),
+(11, '/images/portfolio/portfolio-4.svg', 'Fitted Kitchen Cabinets', 'Finished high-end modern modular kitchen cabinets with custom soft-close drawers and gold handle pull accents.');
 
 -- 10. SEED TESTIMONIALS (overall platform reviews)
 INSERT INTO testimonials (customer_id, rating, testimonial_text, status) VALUES

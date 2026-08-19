@@ -13,14 +13,14 @@ export default function Footer() {
               <i className="fa-solid fa-wrench me-2"></i>SkillsConnect Ghana
             </h5>
             <p className="text-white-50" style={{ fontSize: '14px', lineHeight: '1.6' }}>
-              SkillsConnect Ghana is the premier verified marketplace connecting highly skilled local artisans and tradespeople with homeowners and corporate clients across the nation.
+              SkillsConnect Ghana helps people find local tradespeople for everyday repairs, renovations, events, and services. Search by trade, check the details, and make the first contact yourself.
             </p>
           </div>
 
           {/* Column 2: Quick Links */}
           <div className="col-md-2 col-lg-2 col-xl-2 mx-auto mt-3">
             <h6 className="text-uppercase mb-4 font-weight-bold text-secondary fw-bold" style={{ color: '#F5A623' }}>
-              Quick Links
+              Explore
             </h6>
             <p className="mb-2">
               <Link href="/" className="text-white-50 text-decoration-none hover:text-white" style={{ fontSize: '14px' }}>
@@ -71,18 +71,9 @@ export default function Footer() {
             
             {/* Social Icons */}
             <div className="d-flex gap-3 mt-3">
-              <a href="https://facebook.com" className="text-white-50 hover:text-white fs-5" aria-label="Facebook">
-                <i className="fa-brands fa-facebook"></i>
-              </a>
-              <a href="https://twitter.com" className="text-white-50 hover:text-white fs-5" aria-label="Twitter">
-                <i className="fa-brands fa-twitter"></i>
-              </a>
-              <a href="https://instagram.com" className="text-white-50 hover:text-white fs-5" aria-label="Instagram">
-                <i className="fa-brands fa-instagram"></i>
-              </a>
-              <a href="https://linkedin.com" className="text-white-50 hover:text-white fs-5" aria-label="LinkedIn">
-                <i className="fa-brands fa-linkedin"></i>
-              </a>
+              <Link href="/contact" className="text-white-50 text-decoration-none small">
+                Have a question? Contact the team
+              </Link>
             </div>
           </div>
 
@@ -94,12 +85,12 @@ export default function Footer() {
         <div className="row align-items-center">
           <div className="col-md-7 col-lg-8">
             <p className="text-white-50 mb-0" style={{ fontSize: '13px' }}>
-              &copy; 2026 SkillsConnect Ghana. Made with pride for Ghanaian professionals 🇬🇭.
+              &copy; 2026 SkillsConnect Ghana. A local directory project for Ghanaian professionals.
             </p>
           </div>
           <div className="col-md-5 col-lg-4 text-md-end mt-2 mt-md-0">
             <p className="text-white-50 mb-0" style={{ fontSize: '13px' }}>
-              All Rights Reserved.
+              Built for practical connections.
             </p>
           </div>
         </div>

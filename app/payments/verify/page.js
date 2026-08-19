@@ -75,8 +75,8 @@ function PaymentVerifyContent() {
             <i className="fa-solid fa-check fs-1"></i>
           </div>
 
-          <span className="badge bg-success-subtle text-success border border-success-subtle px-3 py-1.5 rounded-pill fs-8 fw-bold mb-2">
-            Payment Verified & Escrowed
+            <span className="badge bg-success-subtle text-success border border-success-subtle px-3 py-1.5 rounded-pill fs-8 fw-bold mb-2">
+            Payment Verified
           </span>
 
           <h3 className="fw-black text-dark mb-1">Medaase! Payment Received</h3>
@@ -117,7 +117,7 @@ function PaymentVerifyContent() {
           {/* PAYSTACK TRUST BADGE */}
           <div className="d-flex align-items-center justify-content-center gap-2 mb-4 text-muted fs-8">
             <i className="fa-solid fa-shield-halved text-success"></i>
-            <span>Secured by Paystack Ghana (PCI-DSS Compliant)</span>
+            <span>Processed by Paystack</span>
           </div>
 
           {/* ACTION BUTTONS */}

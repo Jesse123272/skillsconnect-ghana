@@ -35,6 +35,7 @@ export default function CustomerEnquiryDetail() {
   const [payNote, setPayNote] = useState('');
   const [initializingPay, setInitializingPay] = useState(false);
   const [payError, setPayError] = useState('');
+  const isPaystackTestMode = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY?.startsWith('pk_test_');
 
   const handlePayArtisan = async (e) => {
     e.preventDefault();
@@ -386,15 +387,20 @@ export default function CustomerEnquiryDetail() {
             <div className="col-12 col-lg-7">
               <div className="d-flex align-items-center gap-2 mb-1.5">
                 <span className="badge bg-primary-subtle text-primary border border-primary-subtle px-2.5 py-1 rounded-pill fs-8 fw-bold">
-                  <i className="fa-solid fa-lock me-1"></i> Paystack Ghana Escrow
+                  <i className="fa-solid fa-lock me-1"></i> Paystack checkout
                 </span>
                 <span className="text-muted fs-8">MTN MoMo • Telecel • Cards</span>
+                {isPaystackTestMode && (
+                  <span className="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-2 py-1 rounded-pill fs-8">
+                    Test mode
+                  </span>
+                )}
               </div>
               <h5 className="fw-bold text-dark mb-1">
                 Pay {enquiry.artisan_name} Securely
               </h5>
               <p className="text-secondary fs-7.5 mb-0">
-                Send service payments or deposits directly to this artisan. Payments are held safely until you confirm job satisfaction.
+                Send a service payment or deposit through Paystack. This project records the transaction and shows the result after Paystack sends you back.
               </p>
             </div>
 
@@ -447,7 +453,7 @@ export default function CustomerEnquiryDetail() {
                   ) : (
                     <>
                       <i className="fa-solid fa-credit-card fs-8"></i>
-                      <span>Pay GHS {payAmount || '0'} via Paystack</span>
+                      <span>{isPaystackTestMode ? 'Test payment' : 'Pay'} GHS {payAmount || '0'} via Paystack</span>
                     </>
                   )}
                 </button>

@@ -2,8 +2,8 @@
 import ClientShell from '@/components/ClientShell';
 
 export const metadata = {
-  title: 'SkillsConnect Ghana - Local Artisan Marketplace',
-  description: 'Connecting skilled Ghanaian professionals with clients securely.',
+  title: 'SkillsConnect Ghana | Local trades directory',
+  description: 'Find local tradespeople by service and location, then contact them directly.',
 };
 
 export default function RootLayout({ children }) {

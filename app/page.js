@@ -11,9 +11,9 @@ export const revalidate = 0; // Ensure live data on every load
 
 export default async function Home() {
   let stats = {
-    total_artisans: 120,
-    total_reviews: 450,
-    total_categories: 10,
+    total_artisans: 0,
+    total_reviews: 0,
+    total_categories: 0,
     regions_covered: 16
   };
 
@@ -67,11 +67,12 @@ export default async function Home() {
       console.warn('Testimonials table unavailable in production DB, using reviews fallback.');
     }
 
+    // Keep the public counters honest until the platform has real activity to report.
     stats = {
-      total_artisans: artisansCountRes[0]?.count || 120,
-      total_reviews: reviewsCountRes[0]?.count || 450,
-      total_categories: categoriesCountRes[0]?.count || 10,
-      regions_covered: Math.max(16, regionsCountRes[0]?.count || 16)
+      total_artisans: 0,
+      total_reviews: 0,
+      total_categories: 0,
+      regions_covered: 16
     };
 
     categories = categoriesRes || [];
@@ -140,20 +141,20 @@ export default async function Home() {
         id="homepage-hero-section"
         style={{
           minHeight: '85vh',
-          background: 'linear-gradient(rgba(10, 40, 20, 0.85), rgba(10, 40, 20, 0.92)), url("https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=1600") no-repeat center center/cover'
+          background: 'linear-gradient(rgba(10, 40, 20, 0.85), rgba(10, 40, 20, 0.92)), url("/images/hero-ghana.svg") no-repeat center center/cover'
         }}
       >
         <div className="container py-5 text-start">
           <div className="row">
             <div className="col-lg-8">
               <span className="badge bg-secondary text-dark px-3 py-2 rounded-pill fw-semibold mb-3">
-                🇬🇭 Ghana&apos;s #1 Artisan Network
+                A practical directory for local jobs in Ghana
               </span>
               <h1 className="display-4 fw-bold text-white mb-3 lh-sm">
-                Find Trusted Skilled Artisans Near You in Ghana
+                Find someone who can do the job properly
               </h1>
               <p className="lead text-white-50 mb-4 fs-5" style={{ lineHeight: '1.7' }}>
-                Connect with verified professionals — plumbers, electricians, carpenters, and more across all 16 regions of Ghana.
+                Search by trade and location, compare profiles, then contact a professional directly. Start with a job in your area.
               </p>
 
               {/* SearchBar component client component */}
@@ -190,9 +191,9 @@ export default async function Home() {
               <div className="mt-4 p-4 rounded-4 bg-white bg-opacity-10 border border-white border-opacity-10 shadow-sm d-block d-md-none">
                 <div className="d-flex flex-column flex-sm-row align-items-center justify-content-between gap-3">
                   <div>
-                    <h5 className="text-white mb-1">Install SkillsConnect for faster access</h5>
+                    <h5 className="text-white mb-1">Keep the directory close</h5>
                     <p className="text-white-50 mb-0 small">
-                      Use the browser menu or share action on mobile to add SkillsConnect to your home screen.
+                      Add this page to your phone home screen so it is ready the next time a repair or project comes up.
                     </p>
                   </div>
                   <a href="#install-app" className="btn btn-outline-light rounded-pill px-4 py-2">
@@ -210,9 +211,9 @@ export default async function Home() {
         <div className="container py-4">
           <div className="row align-items-center gx-5">
             <div className="col-lg-7">
-              <h2 className="fw-bold text-dark">Install SkillsConnect on Your Phone</h2>
+              <h2 className="fw-bold text-dark">Keep SkillsConnect handy</h2>
               <p className="text-muted fs-5">
-                Save time and access Ghana&apos;s artisan marketplace instantly from your home screen. Install the app to enjoy faster navigation, offline-ready pages, and a native-like experience.
+                This site works well from a phone. Add it to your home screen when you regularly need local tradespeople.
               </p>
             </div>
             <div className="col-lg-5">
@@ -294,7 +295,7 @@ export default async function Home() {
         <div className="container py-3">
           <div className="text-center mb-5">
             <h2 className="fw-bold text-dark">Browse by Professional Trade</h2>
-            <p className="text-muted">Find certified experts in Ghana sorted by professional categories</p>
+            <p className="text-muted">Choose a trade to see people offering that service</p>
           </div>
           <div className="row g-4">
             {categories.map((cat, idx) => (

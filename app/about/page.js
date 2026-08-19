@@ -15,7 +15,7 @@ export default function About() {
         <div className="container text-center py-4">
           <h1 className="display-5 fw-bold text-dark mb-3">Empowering Ghanaian Artisans</h1>
           <p className="text-muted mx-auto lead" style={{ maxWidth: '700px' }}>
-            SkillsConnect Ghana is a modern, trust-driven digital marketplace matching verified local artisans with customers who demand excellence.
+            SkillsConnect Ghana is a student-built directory for finding local tradespeople by the work they do and the places they serve.
           </p>
         </div>
       </div>
@@ -26,10 +26,10 @@ export default function About() {
           <div className="col-lg-6">
             <h2 className="fw-bold text-dark mb-3">Our Mission</h2>
             <p className="text-secondary fs-6 mb-4" style={{ lineHeight: '1.7' }}>
-              In Ghana, finding a reliable, high-quality plumber, electrician, carpenter, or mason often relies on tedious word-of-mouth recommendations that can lead to inconsistent quality, pricing confusion, and missed connections.
+              Finding a plumber, electrician, carpenter, mason, or tailor often starts with a phone call to someone who knows someone. That can work, but it is difficult to compare options or keep the details of a job in one place.
             </p>
             <p className="text-secondary fs-6 mb-4" style={{ lineHeight: '1.7' }}>
-              SkillsConnect Ghana was founded with a single mission: to build a digital bridge that connects talented, certified local service providers directly with families, property managers, and businesses. We promote professional integrity, fair local wages, and absolute reliability.
+              This project gives that search a simple online starting point. Customers can check a profile, read available reviews, send an enquiry, and decide who to contact. Artisans get a place to describe their work and service area.
             </p>
             <div className="d-flex flex-column gap-3 mb-4">
               <div className="d-flex align-items-start gap-3">
@@ -37,8 +37,8 @@ export default function About() {
                   <i className="fa-solid fa-circle-check fs-5"></i>
                 </div>
                 <div>
-                  <h6 className="fw-bold text-dark mb-1">100% Verified Professionals</h6>
-                  <p className="text-muted small mb-0">Every artisan listed on our platform undergoes strict manual credential and identity verification.</p>
+                  <h6 className="fw-bold text-dark mb-1">Profiles with context</h6>
+                  <p className="text-muted small mb-0">Profiles show a trade, service area, experience, and the details a customer needs before making contact.</p>
                 </div>
               </div>
               <div className="d-flex align-items-start gap-3">
@@ -46,8 +46,8 @@ export default function About() {
                   <i className="fa-solid fa-star fs-5"></i>
                 </div>
                 <div>
-                  <h6 className="fw-bold text-dark mb-1">Trust-Based Reviews</h6>
-                  <p className="text-muted small mb-0">Real clients provide authentic post-service ratings and review logs so quality is transparently proven.</p>
+                  <h6 className="fw-bold text-dark mb-1">A record of feedback</h6>
+                  <p className="text-muted small mb-0">Customer ratings and written feedback help people make a more informed choice.</p>
                 </div>
               </div>
             </div>
