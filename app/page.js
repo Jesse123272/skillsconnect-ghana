@@ -32,8 +32,8 @@ export default async function Home() {
       categoriesRes,
       artisansRes
     ] = await Promise.all([
-      query("SELECT COUNT(*) as count FROM artisan_profiles WHERE is_approved = 1"),
-      query("SELECT COUNT(*) as count FROM reviews WHERE is_approved = 1"),
+      query("SELECT COUNT(*) as count FROM artisan_profiles WHERE is_approved = 1 AND user_id > 12"),
+      query("SELECT COUNT(*) as count FROM reviews WHERE is_approved = 1 AND artisan_id > 12"),
       query("SELECT COUNT(*) as count FROM categories WHERE is_active = 1"),
       query("SELECT COUNT(DISTINCT region) as count FROM users WHERE role = 'artisan' AND region IS NOT NULL AND region != ''"),
       query("SELECT category_id, category_name, icon_class FROM categories WHERE is_active = 1 ORDER BY category_name ASC"),
