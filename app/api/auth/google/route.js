@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { query } from '@/lib/db';
 import { setAuthCookie, signToken } from '@/lib/auth';
+import { sendEmail, verificationEmail } from '@/lib/mailer';
 import { randomBytes } from 'node:crypto';
 
 function getAppUrl(req) {
@@ -16,6 +17,15 @@ function redirectWithError(req, message) {
   const url = new URL('/login', getAppUrl(req));
   url.searchParams.set('error', message);
   return NextResponse.redirect(url);
+}
+
+function redirectToVerification(req, email) {
+  const url = new URL('/verify-email', getAppUrl(req));
+  url.searchParams.set('email', email);
+  url.searchParams.set('redirect', '/dashboard/customer');
+  const response = NextResponse.redirect(url);
+  response.cookies.set('google_oauth_state', '', { maxAge: 0, path: '/' });
+  return response;
 }
 
 export async function GET(req) {
@@ -108,11 +118,22 @@ export async function handleGoogleCallback(req) {
 
     if (!user) {
       const passwordHash = await bcrypt.hash(randomBytes(32).toString('hex'), 12);
+      const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
       const result = await query(
         `INSERT INTO users (full_name, email, phone, password_hash, role, profile_photo, google_id, is_verified, is_active)
-         VALUES (?, ?, ?, ?, 'customer', ?, ?, 1, 1)`,
+         VALUES (?, ?, ?, ?, 'customer', ?, ?, 0, 1)`,
         [fullName, email, '+233000000000', passwordHash, profilePhoto, profile.sub]
       );
+      await query('UPDATE users SET verification_token = ? WHERE user_id = ?', [verificationCode, result.insertId]);
+      try {
+        await sendEmail({
+          to: email,
+          subject: 'Verify your SkillsConnect Ghana Account',
+          html: verificationEmail(fullName, verificationCode),
+        });
+      } catch (emailError) {
+        console.warn('Google verification email failed:', emailError?.message || emailError);
+      }
       user = {
         user_id: result.insertId,
         full_name: fullName,
@@ -120,7 +141,7 @@ export async function handleGoogleCallback(req) {
         phone: '+233000000000',
         role: 'customer',
         profile_photo: profilePhoto,
-        is_verified: 1,
+        is_verified: 0,
         is_active: 1,
       };
     } else {
@@ -131,6 +152,10 @@ export async function handleGoogleCallback(req) {
         'UPDATE users SET google_id = ?, is_verified = 1, profile_photo = COALESCE(profile_photo, ?), last_login = NOW() WHERE user_id = ?',
         [profile.sub, profilePhoto, user.user_id]
       );
+    }
+
+    if (user.is_verified !== 1) {
+      return redirectToVerification(req, user.email);
     }
 
     const token = await signToken({

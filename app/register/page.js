@@ -607,6 +607,16 @@ export default function Register() {
                 )}
               </button>
 
+              <div className="d-flex align-items-center gap-2 my-3 text-muted small">
+                <hr className="flex-grow-1" />
+                <span>or</span>
+                <hr className="flex-grow-1" />
+              </div>
+              <a href="/api/auth/google" className="btn btn-outline-dark w-100 rounded-pill py-2.5 fs-6 fw-semibold mb-3">
+                <i className="fa-brands fa-google me-2" aria-hidden="true"></i>
+                Continue with Google
+              </a>
+
               <div className="text-center mt-2">
                 <span className="text-muted small">Already have an account? </span>
                 <Link href="/login" className="text-primary fw-semibold small text-decoration-none">

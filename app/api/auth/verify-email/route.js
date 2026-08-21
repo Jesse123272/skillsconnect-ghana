@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { isMockEmailMode, sendEmail, welcomeEmail, verificationEmail } from '@/lib/mailer';
+import { setAuthCookie, signToken } from '@/lib/auth';
 
 // POST: Verify 6-digit code
 export async function POST(req) {
   try {
     const body = await req.json();
-    const { email, code } = body;
+    const { email, code, redirect } = body;
 
     if (!email || !code) {
       return NextResponse.json(
@@ -72,6 +73,25 @@ export async function POST(req) {
       });
     } catch (emailError) {
       console.error('Welcome email sending on verification failed:', emailError);
+    }
+
+    if (redirect === '/dashboard/customer' && user.role !== 'admin') {
+      const token = await signToken({
+        user_id: user.user_id,
+        email: email.trim().toLowerCase(),
+        role: user.role,
+        full_name: user.full_name,
+      });
+      const response = NextResponse.json({
+        success: true,
+        autoLogin: true,
+        redirect,
+        message: 'Your account has been successfully verified. Redirecting to your dashboard.'
+      });
+      setAuthCookie(response, token, {
+        secure: req.headers.get('x-forwarded-proto') === 'https' || req.url.startsWith('https://'),
+      });
+      return response;
     }
 
     return NextResponse.json({

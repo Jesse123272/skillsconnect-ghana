@@ -11,6 +11,7 @@ function VerifyEmailForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const emailParam = searchParams.get('email') || '';
+  const redirectParam = searchParams.get('redirect') || '';
 
   const [email, setEmail] = useState(emailParam || '');
   const [code, setCode] = useState('');
@@ -70,6 +71,7 @@ function VerifyEmailForm() {
         body: JSON.stringify({
           email: email.trim(),
           code: code.trim(),
+          redirect: redirectParam,
         }),
       });
 
@@ -79,7 +81,7 @@ function VerifyEmailForm() {
         toast.success('Account verified successfully!');
         setIsSuccess(true);
         setTimeout(() => {
-          router.push('/login');
+          router.push(result.redirect || '/login');
         }, 3000);
       } else {
         const errorMsg = result.error || 'Verification failed. Please check the code.';
