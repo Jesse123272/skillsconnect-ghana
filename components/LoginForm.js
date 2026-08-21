@@ -28,6 +28,7 @@ export default function LoginForm({
 
   const redirectPath =
     searchParams.get('redirect') || searchParams.get('callbackUrl') || '';
+  const googleError = searchParams.get('error');
 
   const navigateToDashboard = useCallback(
     (role) => {
@@ -202,6 +203,13 @@ export default function LoginForm({
               </div>
             )}
 
+            {googleError && !apiError && (
+              <div className="alert alert-danger fs-7 py-2.5 px-3 mb-3 text-start" role="alert">
+                <i className="fa-solid fa-circle-exclamation me-1.5"></i>
+                {googleError}
+              </div>
+            )}
+
             <form onSubmit={handleLoginSubmit} className="text-start">
               <div className="mb-3">
                 <label className="form-label text-secondary small fw-medium">Email Address</label>
@@ -273,6 +281,20 @@ export default function LoginForm({
                   'Sign In'
                 )}
               </button>
+
+              {!requiredRole && (
+                <>
+                  <div className="d-flex align-items-center gap-2 my-3 text-muted small">
+                    <hr className="flex-grow-1" />
+                    <span>or</span>
+                    <hr className="flex-grow-1" />
+                  </div>
+                  <a href="/api/auth/google" className="btn btn-outline-dark w-100 rounded-pill py-2.5 fs-6 fw-semibold mb-3">
+                    <i className="fa-brands fa-google me-2" aria-hidden="true"></i>
+                    Continue with Google
+                  </a>
+                </>
+              )}
 
               {!requiredRole && (
                 <>

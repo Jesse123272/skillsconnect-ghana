@@ -2,6 +2,22 @@
 
 This application uses MySQL/MariaDB in production. SQLite is only for local development and will not be used in production.
 
+## Google sign-in
+
+Google sign-in is optional. Add these variables to the local environment and Vercel Production environment:
+
+```env
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+APP_URL=https://skillsconnect-ghana.vercel.app
+```
+
+In Google Cloud Console, add this authorized redirect URI to the OAuth web client:
+
+`https://skillsconnect-ghana.vercel.app/api/auth/google/callback`
+
+For local testing, also add `http://localhost:3000/api/auth/google/callback` and use `APP_URL=http://localhost:3000` locally.
+
 ## 1. Prepare the Railway database
 
 1. In Railway, create a **MySQL** service (not PostgreSQL) and wait for it to become healthy.
