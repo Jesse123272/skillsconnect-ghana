@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { isMockEmailMode, sendEmail, welcomeEmail, verificationEmail } from '@/lib/mailer';
-import { setAuthCookie, signToken } from '@/lib/auth';
+import { setAuthCookie, signToken, verifyGoogleVerificationChallenge } from '@/lib/auth';
+import bcrypt from 'bcryptjs';
+import { randomBytes } from 'node:crypto';
 
 // POST: Verify 6-digit code
 export async function POST(req) {
@@ -22,16 +24,35 @@ export async function POST(req) {
       [email.trim()]
     );
 
-    if (!users || users.length === 0) {
-      return NextResponse.json(
-        { success: false, error: 'User account not found.' },
-        { status: 404 }
+    let user = users?.[0];
+    const isGoogleChallenge = !user;
+
+    if (!user) {
+      const challenge = await verifyGoogleVerificationChallenge(req.cookies.get('google_verification_challenge')?.value);
+      if (!challenge || challenge.email !== email.trim().toLowerCase() || challenge.verification_code !== code.trim()) {
+        return NextResponse.json(
+          { success: false, error: 'User account not found or verification session expired. Please start Google sign-in again.' },
+          { status: 404 }
+        );
+      }
+
+      const passwordHash = await bcrypt.hash(randomBytes(32).toString('hex'), 12);
+      const result = await query(
+        `INSERT INTO users (full_name, email, phone, password_hash, role, profile_photo, google_id, is_verified, is_active)
+         VALUES (?, ?, ?, ?, 'customer', ?, ?, 1, 1)`,
+        [challenge.full_name, challenge.email, '+233000000000', passwordHash, challenge.profile_photo, challenge.google_id]
       );
+      user = {
+        user_id: result.insertId,
+        full_name: challenge.full_name,
+        email: challenge.email,
+        role: 'customer',
+        is_verified: 1,
+        is_active: 1,
+      };
     }
 
-    const user = users[0];
-
-    if (user.is_verified === 1) {
+    if (user.is_verified === 1 && !isGoogleChallenge) {
       return NextResponse.json({
         success: true,
         message: 'Your account is already verified! Please sign in.'
@@ -91,6 +112,7 @@ export async function POST(req) {
       setAuthCookie(response, token, {
         secure: req.headers.get('x-forwarded-proto') === 'https' || req.url.startsWith('https://'),
       });
+      response.cookies.set('google_verification_challenge', '', { maxAge: 0, path: '/' });
       return response;
     }
 

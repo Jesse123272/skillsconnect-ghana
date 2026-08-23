@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { query } from '@/lib/db';
-import { setAuthCookie, signToken } from '@/lib/auth';
+import { setAuthCookie, signGoogleVerificationChallenge, signToken } from '@/lib/auth';
 import { sendEmail, verificationEmail } from '@/lib/mailer';
 import { randomBytes } from 'node:crypto';
 
@@ -19,12 +19,19 @@ function redirectWithError(req, message) {
   return NextResponse.redirect(url);
 }
 
-function redirectToVerification(req, email) {
+async function redirectToVerification(req, email, challenge) {
   const url = new URL('/verify-email', getAppUrl(req));
   url.searchParams.set('email', email);
   url.searchParams.set('redirect', '/dashboard/customer');
   const response = NextResponse.redirect(url);
   response.cookies.set('google_oauth_state', '', { maxAge: 0, path: '/' });
+  response.cookies.set('google_verification_challenge', challenge, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 10 * 60,
+    path: '/',
+  });
   return response;
 }
 
@@ -144,18 +151,47 @@ export async function handleGoogleCallback(req) {
         is_verified: 0,
         is_active: 1,
       };
+      const challenge = await signGoogleVerificationChallenge({
+        email,
+        full_name: fullName,
+        google_id: profile.sub,
+        profile_photo: profilePhoto,
+        verification_code: verificationCode,
+      });
+      return redirectToVerification(req, email, challenge);
     } else {
       if (user.is_active !== 1) {
         return redirectWithError(req, 'Your account has been suspended or deactivated.');
       }
-      await query(
-        'UPDATE users SET google_id = ?, is_verified = 1, profile_photo = COALESCE(profile_photo, ?), last_login = NOW() WHERE user_id = ?',
-        [profile.sub, profilePhoto, user.user_id]
-      );
-    }
-
-    if (user.is_verified !== 1) {
-      return redirectToVerification(req, user.email);
+      if (user.is_verified === 1) {
+        await query(
+          'UPDATE users SET google_id = ?, profile_photo = COALESCE(profile_photo, ?), last_login = NOW() WHERE user_id = ?',
+          [profile.sub, profilePhoto, user.user_id]
+        );
+      } else {
+        const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+        await query(
+          'UPDATE users SET google_id = ?, verification_token = ?, profile_photo = COALESCE(profile_photo, ?) WHERE user_id = ?',
+          [profile.sub, verificationCode, profilePhoto, user.user_id]
+        );
+        try {
+          await sendEmail({
+            to: email,
+            subject: 'Verify your SkillsConnect Ghana Account',
+            html: verificationEmail(user.full_name, verificationCode),
+          });
+        } catch (emailError) {
+          console.warn('Google verification email failed:', emailError?.message || emailError);
+        }
+        const challenge = await signGoogleVerificationChallenge({
+          email,
+          full_name: user.full_name,
+          google_id: profile.sub,
+          profile_photo: profilePhoto,
+          verification_code: verificationCode,
+        });
+        return redirectToVerification(req, email, challenge);
+      }
     }
 
     const token = await signToken({
