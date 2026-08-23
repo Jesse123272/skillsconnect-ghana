@@ -25,11 +25,14 @@ export async function POST(req) {
     );
 
     let user = users?.[0];
+    const googleChallenge = await verifyGoogleVerificationChallenge(
+      req.cookies.get('google_verification_challenge')?.value
+    );
+    const challengeMatchesEmail = googleChallenge?.email === email.trim().toLowerCase();
     const isGoogleChallenge = !user;
 
     if (!user) {
-      const challenge = await verifyGoogleVerificationChallenge(req.cookies.get('google_verification_challenge')?.value);
-      if (!challenge || challenge.email !== email.trim().toLowerCase() || challenge.verification_code !== code.trim()) {
+      if (!googleChallenge || !challengeMatchesEmail || googleChallenge.verification_code !== code.trim()) {
         return NextResponse.json(
           { success: false, error: 'User account not found or verification session expired. Please start Google sign-in again.' },
           { status: 404 }
@@ -40,12 +43,12 @@ export async function POST(req) {
       const result = await query(
         `INSERT INTO users (full_name, email, phone, password_hash, role, profile_photo, google_id, is_verified, is_active)
          VALUES (?, ?, ?, ?, 'customer', ?, ?, 1, 1)`,
-        [challenge.full_name, challenge.email, '+233000000000', passwordHash, challenge.profile_photo, challenge.google_id]
+        [googleChallenge.full_name, googleChallenge.email, '+233000000000', passwordHash, googleChallenge.profile_photo, googleChallenge.google_id]
       );
       user = {
         user_id: result.insertId,
-        full_name: challenge.full_name,
-        email: challenge.email,
+        full_name: googleChallenge.full_name,
+        email: googleChallenge.email,
         role: 'customer',
         is_verified: 1,
         is_active: 1,
@@ -62,9 +65,10 @@ export async function POST(req) {
     const isMockMode = isMockEmailMode();
     const isBypass = isMockMode && code.trim() === '123456';
     const isTokenMatch = user.verification_token && user.verification_token.trim() === code.trim();
+    const isGoogleTokenMatch = challengeMatchesEmail && googleChallenge.verification_code === code.trim();
 
     // Compare verification token or allow bypass in mock mode
-    if (!isTokenMatch && !isBypass) {
+    if (!isTokenMatch && !isGoogleTokenMatch && !isBypass) {
       return NextResponse.json(
         { success: false, error: 'Invalid or expired verification code.' },
         { status: 400 }
