@@ -26,6 +26,7 @@ export async function PUT(req) {
       category_id,
       custom_category,
       years_experience,
+      starting_price,
       bio,
       service_areas
     } = body;
@@ -37,6 +38,9 @@ export async function PUT(req) {
     const cleanedDistrict = sanitizeText(district || '').trim();
     const cleanedBio = sanitizeText(bio || '').trim();
     const cleanedCustomCategory = sanitizeText(custom_category || '').trim();
+    const parsedStartingPrice = starting_price === '' || starting_price === null || starting_price === undefined
+      ? null
+      : Number(starting_price);
 
     // 1. Validate primary fields
     if (!cleanedName || !cleanedEmail || !cleanedPhone || !cleanedRegion || !cleanedDistrict) {
@@ -58,6 +62,10 @@ export async function PUT(req) {
       );
     }
 
+    if (parsedStartingPrice !== null && (!Number.isFinite(parsedStartingPrice) || parsedStartingPrice < 0)) {
+      return NextResponse.json({ success: false, error: 'Starting price must be a valid non-negative amount.' }, { status: 400 });
+    }
+
     // 3. Email collision check excluding the current user
     const emailCheck = await query(
       'SELECT user_id FROM users WHERE email = ? AND user_id != ?',
@@ -73,7 +81,7 @@ export async function PUT(req) {
     // 4. Update core users fields
     await query(
       `UPDATE users 
-       SET full_name = ?, email = ?, phone = ?, region = ?, district = ?, profile_photo = ? 
+           SET full_name = ?, email = ?, phone = ?, region = ?, district = ?, profile_photo = ? 
        WHERE user_id = ?`,
       [cleanedName, cleanedEmail, cleanedPhone, cleanedRegion, cleanedDistrict, profile_photo || null, payload.user_id]
     );
@@ -144,15 +152,15 @@ export async function PUT(req) {
       if (profileCheck && profileCheck.length > 0) {
         await query(
           `UPDATE artisan_profiles 
-           SET category_id = ?, bio = ?, years_experience = ?, service_areas = ? 
+           SET category_id = ?, bio = ?, years_experience = ?, starting_price = ?, service_areas = ? 
            WHERE user_id = ?`,
-          [resolvedCategory.categoryId, cleanedBio, parsedYearsExp, flattenedAreas.trim(), payload.user_id]
+          [resolvedCategory.categoryId, cleanedBio, parsedYearsExp, parsedStartingPrice, flattenedAreas.trim(), payload.user_id]
         );
       } else {
         await query(
-          `INSERT INTO artisan_profiles (user_id, category_id, bio, years_experience, service_areas, is_approved) 
-           VALUES (?, ?, ?, ?, ?, 0)`,
-          [payload.user_id, resolvedCategory.categoryId, cleanedBio, parsedYearsExp, flattenedAreas.trim()]
+          `INSERT INTO artisan_profiles (user_id, category_id, bio, years_experience, starting_price, service_areas, is_approved) 
+           VALUES (?, ?, ?, ?, ?, ?, 0)`,
+          [payload.user_id, resolvedCategory.categoryId, cleanedBio, parsedYearsExp, parsedStartingPrice, flattenedAreas.trim()]
         );
       }
     }

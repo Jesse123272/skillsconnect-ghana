@@ -257,6 +257,22 @@ export default function ArtisanProfileClient({
                   </div>
                   <div className="col-sm-6">
                     <div className="border rounded-3 p-3 bg-white">
+                      <small className="text-muted uppercase tracking-wider d-block mb-1">Starting Price</small>
+                      <span className="fw-bold text-success">
+                        {artisan.starting_price !== null && artisan.starting_price !== undefined
+                          ? `From GHS ${Number(artisan.starting_price).toFixed(2)}`
+                          : 'Request a quote'}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="col-sm-6">
+                    <div className="border rounded-3 p-3 bg-white">
+                      <small className="text-muted uppercase tracking-wider d-block mb-1">Contact</small>
+                      <a href={`tel:${artisan.phone}`} className="fw-bold text-primary text-decoration-none">{artisan.phone}</a>
+                    </div>
+                  </div>
+                  <div className="col-sm-6">
+                    <div className="border rounded-3 p-3 bg-white">
                       <small className="text-muted uppercase tracking-wider d-block mb-1">Member Since</small>
                       <span className="fw-bold text-dark">{memberSince}</span>
                     </div>
@@ -273,6 +289,7 @@ export default function ArtisanProfileClient({
                       <span className="fw-bold text-dark text-truncate d-block">
                         {artisan.district}, {artisan.region}
                       </span>
+                      {artisan.service_areas && <small className="text-muted d-block mt-1">{artisan.service_areas}</small>}
                     </div>
                   </div>
                 </div>

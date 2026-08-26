@@ -55,7 +55,7 @@ export async function GET(req) {
     if (user.role === 'artisan') {
       try {
         const profiles = await query(
-          `SELECT ap.profile_id, ap.category_id, ap.bio, ap.years_experience, ap.average_rating, ap.total_reviews, ap.profile_views, ap.is_approved, ap.is_featured, ap.service_areas, c.category_name, c.icon_class
+          `SELECT ap.profile_id, ap.category_id, ap.bio, ap.years_experience, ap.starting_price, ap.average_rating, ap.total_reviews, ap.profile_views, ap.is_approved, ap.is_featured, ap.service_areas, c.category_name, c.icon_class
            FROM artisan_profiles ap
            LEFT JOIN categories c ON ap.category_id = c.category_id
            WHERE ap.user_id = ?`,

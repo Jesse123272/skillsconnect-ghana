@@ -68,6 +68,7 @@ CREATE TABLE IF NOT EXISTS artisan_profiles (
     profile_views INT DEFAULT 0,
     is_approved TINYINT DEFAULT 0,
     is_featured TINYINT DEFAULT 0,
+    starting_price DECIMAL(10,2) DEFAULT NULL,
     service_areas TEXT DEFAULT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

@@ -24,6 +24,7 @@ export default function ArtisanProfileEdit() {
   // SECTION 2 - PROFESSIONAL INFO
   const [categoryId, setCategoryId] = useState('');
   const [yearsExperience, setYearsExperience] = useState('0');
+  const [startingPrice, setStartingPrice] = useState('');
   const [bio, setBio] = useState('');
   const [serviceAreas, setServiceAreas] = useState('');
 
@@ -82,6 +83,7 @@ export default function ArtisanProfileEdit() {
             const artisanProfile = fetchedUser.artisan_profile || {};
             setCategoryId(artisanProfile.category_id || '');
             setYearsExperience(artisanProfile.years_experience !== undefined ? String(artisanProfile.years_experience) : '0');
+            setStartingPrice(artisanProfile.starting_price !== null && artisanProfile.starting_price !== undefined ? String(artisanProfile.starting_price) : '');
             setBio(artisanProfile.bio || '');
             setServiceAreas(artisanProfile.service_areas || '');
           }
@@ -227,6 +229,7 @@ export default function ArtisanProfileEdit() {
           profile_photo: profilePhoto || null,
           ...categoryPayload,
           years_experience: parseInt(yearsExperience, 10) || 0,
+          starting_price: startingPrice,
           bio: bio.trim(),
           service_areas: serviceAreas.trim() || district,
         }),
@@ -249,6 +252,7 @@ export default function ArtisanProfileEdit() {
             ...prev?.artisan_profile,
             category_id: categoryPayload.category_id,
             years_experience: parseInt(yearsExperience, 10) || 0,
+            starting_price: startingPrice === '' ? null : Number(startingPrice),
             bio: bio.trim(),
             service_areas: serviceAreas.trim(),
           }
@@ -476,6 +480,22 @@ export default function ArtisanProfileEdit() {
                         placeholder="e.g., 5"
                         required
                       />
+                    </div>
+                    <div className="col-12 col-md-6">
+                      <label htmlFor="profile-starting-price" className="form-label fw-semibold text-dark fs-7 mb-1.5">
+                        Starting Price (GHS)
+                      </label>
+                      <input
+                        type="number"
+                        id="profile-starting-price"
+                        min="0"
+                        step="0.01"
+                        value={startingPrice}
+                        onChange={(e) => setStartingPrice(e.target.value)}
+                        className="form-control py-2 shadow-none"
+                        placeholder="e.g., 150"
+                      />
+                      <div className="form-text fs-8 text-muted">Optional starting price. Customers can request a final quote.</div>
                     </div>
                   </div>
 
