@@ -99,8 +99,16 @@ export default function CustomerEnquiryDetail() {
     try {
       // Fetch Enquiry Detail
       const enqRes = await authFetch(`/api/enquiries/${id}`);
+      if (enqRes.status === 401) {
+        router.replace(`/login?callbackUrl=${encodeURIComponent(`/dashboard/customer/enquiries/${id}`)}`);
+        return;
+      }
+      if (enqRes.status === 404) {
+        setError('This enquiry could not be found. It may have been removed or the link may be outdated.');
+        return;
+      }
       if (!enqRes.ok) {
-        throw new Error('Failed to retrieve enquiry thread details.');
+        throw new Error('We could not retrieve this enquiry right now. Please try again.');
       }
       
       const enqData = await enqRes.json();
@@ -138,7 +146,7 @@ export default function CustomerEnquiryDetail() {
     } finally {
       setLoading(false);
     }
-  }, [id, authFetch]);
+  }, [id, authFetch, router]);
 
   // Fetch thread messages
   const fetchMessages = useCallback(async (showLoading = false) => {
