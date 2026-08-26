@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import ProfileAvatar from '@/components/ProfileAvatar';
 import { 
   LayoutDashboard, 
   Search, 
@@ -105,11 +106,6 @@ export default function DashboardLayout({ children, pageTitle = 'Dashboard' }) {
 
   const navItems = getSidebarItems();
 
-  const getInitials = (name) => {
-    if (!name) return 'U';
-    return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
-  };
-
   const isLinkActive = (href) => {
     if (href === '/dashboard') {
       return pathname === '/dashboard';
@@ -157,11 +153,8 @@ export default function DashboardLayout({ children, pageTitle = 'Dashboard' }) {
 
       {/* User Info card */}
       <div className="p-3 mx-3 my-3 bg-light rounded-3 text-center border">
-        <div 
-          className="d-flex align-items-center justify-content-center bg-primary text-white rounded-circle fw-bold mx-auto mb-2"
-          style={{ width: '60px', height: '60px', fontSize: '20px' }}
-        >
-          {getInitials(user.full_name)}
+        <div className="d-flex align-items-center justify-content-center mx-auto mb-2">
+          <ProfileAvatar name={user.full_name} photo_url={user.profile_photo} size="lg" />
         </div>
         <h6 className="mb-0 text-dark fw-semibold text-truncate">{user.full_name}</h6>
         <span className="badge bg-secondary text-dark text-capitalize mt-1 font-semibold" style={{ fontSize: '11px' }}>
@@ -252,12 +245,7 @@ export default function DashboardLayout({ children, pageTitle = 'Dashboard' }) {
                 data-bs-toggle="dropdown" 
                 aria-expanded="false"
               >
-                <div 
-                  className="d-flex align-items-center justify-content-center bg-primary text-white rounded-circle fw-bold"
-                  style={{ width: '36px', height: '36px', fontSize: '14px' }}
-                >
-                  {getInitials(user.full_name)}
-                </div>
+                <ProfileAvatar name={user.full_name} photo_url={user.profile_photo} size="sm" />
               </button>
               <ul className="dropdown-menu dropdown-menu-end shadow border-0 mt-2 p-2 rounded-3" aria-labelledby="headerUserDropdown" style={{ minWidth: '200px' }}>
                 <li className="px-3 py-2 text-dark">
