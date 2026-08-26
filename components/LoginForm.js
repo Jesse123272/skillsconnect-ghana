@@ -152,15 +152,11 @@ export default function LoginForm({
           return;
         }
 
-        toast.success(`Welcome back, ${loggedInUser.full_name || 'User'}! 👋`);
+        toast.success(`Welcome back, ${loggedInUser.full_name || 'User'}! Start exploring SkillsConnect Ghana.`);
         setUser(loggedInUser);
 
         if (loggedInUser.role !== 'admin' && typeof window !== 'undefined' && navigator.geolocation) {
-          try {
-            await requestLocationSave();
-          } catch {
-            // Do not block navigation if location saving fails.
-          }
+          void requestLocationSave();
         }
 
         navigateToDashboard(loggedInUser.role);
