@@ -106,7 +106,11 @@ export async function POST(req) {
       ? '/dashboard/artisan'
       : '/dashboard/customer';
 
-    if (isGoogleChallenge && user.role !== 'admin') {
+    const shouldAutoLogin = user.role !== 'admin' && (
+      isGoogleChallenge || redirect === '/dashboard/customer' || redirect === '/dashboard/artisan'
+    );
+
+    if (shouldAutoLogin) {
       const token = await signToken({
         user_id: user.user_id,
         email: normalizedEmail,

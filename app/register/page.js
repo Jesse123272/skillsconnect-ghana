@@ -228,7 +228,12 @@ export default function Register() {
 
       if (response.ok && result.success) {
         toast.success('Account created — check your email for the 6-digit verification code.');
-        router.push(`/verify-email?email=${encodeURIComponent(result.data.email)}`);
+        const verificationRedirect = result.data.role === 'artisan'
+          ? '/dashboard/artisan'
+          : '/dashboard/customer';
+        router.push(
+          `/verify-email?email=${encodeURIComponent(result.data.email)}&redirect=${encodeURIComponent(verificationRedirect)}`
+        );
       } else {
         const errorMsg = result.error || 'Registration failed. Please check inputs.';
         setApiError(errorMsg);
