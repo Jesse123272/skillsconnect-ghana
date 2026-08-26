@@ -80,9 +80,9 @@ function VerifyEmailForm() {
       if (response.ok && result.success) {
         toast.success('Account verified successfully!');
         setIsSuccess(true);
-        setTimeout(() => {
-          router.push(result.redirect || '/login');
-        }, 3000);
+        window.setTimeout(() => {
+          router.replace(result.redirect || '/login');
+        }, 1200);
       } else {
         const errorMsg = result.error || 'Verification failed. Please check the code.';
         setApiError(errorMsg);
@@ -239,13 +239,13 @@ function VerifyEmailForm() {
           
           <h3 className="fw-bold text-dark mb-2">Verification Complete</h3>
           <p className="text-secondary small mb-4" style={{ lineHeight: '1.6' }}>
-            Excellent! Your email <strong className="text-dark">{email}</strong> is officially verified. We are redirecting you to sign in to your new SkillsConnect Ghana dashboard.
+            Excellent! Your email <strong className="text-dark">{email}</strong> is officially verified. We are taking you to your SkillsConnect Ghana dashboard.
           </p>
 
           <div className="spinner-border spinner-border-sm text-primary mb-3" role="status">
             <span className="visually-hidden">Loading...</span>
           </div>
-          <p className="text-muted small">Redirecting to login page...</p>
+          <p className="text-muted small">Redirecting to dashboard...</p>
         </div>
       )}
     </div>

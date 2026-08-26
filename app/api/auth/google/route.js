@@ -200,7 +200,10 @@ export async function handleGoogleCallback(req) {
       role: user.role,
       full_name: user.full_name,
     });
-    const response = NextResponse.redirect(new URL('/dashboard/customer', getAppUrl(req)));
+    const dashboardPath = user.role === 'artisan'
+      ? '/dashboard/artisan'
+      : '/dashboard/customer';
+    const response = NextResponse.redirect(new URL(dashboardPath, getAppUrl(req)));
     setAuthCookie(response, token, {
       maxAge: 30 * 24 * 60 * 60,
       secure: req.headers.get('x-forwarded-proto') === 'https' || req.url.startsWith('https://'),

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { isMockEmailMode, sendEmail, welcomeEmail, verificationEmail } from '@/lib/mailer';
-import { setAuthCookie, signToken, verifyGoogleVerificationChallenge } from '@/lib/auth';
+import { setAuthCookie, signGoogleVerificationChallenge, signToken, verifyGoogleVerificationChallenge } from '@/lib/auth';
 import bcrypt from 'bcryptjs';
 import { randomBytes } from 'node:crypto';
 
@@ -18,6 +18,12 @@ export async function POST(req) {
       );
     }
 
+    const normalizedEmail = email.trim().toLowerCase();
+    const challenge = await verifyGoogleVerificationChallenge(
+      req.cookies.get('google_verification_challenge')?.value
+    );
+    const isGoogleChallenge = challenge?.email === normalizedEmail;
+
     // Find user
     const users = await query(
       'SELECT user_id, full_name, role, is_verified, verification_token FROM users WHERE email = ?',
@@ -25,14 +31,9 @@ export async function POST(req) {
     );
 
     let user = users?.[0];
-    const googleChallenge = await verifyGoogleVerificationChallenge(
-      req.cookies.get('google_verification_challenge')?.value
-    );
-    const challengeMatchesEmail = googleChallenge?.email === email.trim().toLowerCase();
-    const isGoogleChallenge = !user;
 
     if (!user) {
-      if (!googleChallenge || !challengeMatchesEmail || googleChallenge.verification_code !== code.trim()) {
+      if (!isGoogleChallenge || challenge.verification_code !== code.trim()) {
         return NextResponse.json(
           { success: false, error: 'User account not found or verification session expired. Please start Google sign-in again.' },
           { status: 404 }
@@ -43,12 +44,12 @@ export async function POST(req) {
       const result = await query(
         `INSERT INTO users (full_name, email, phone, password_hash, role, profile_photo, google_id, is_verified, is_active)
          VALUES (?, ?, ?, ?, 'customer', ?, ?, 1, 1)`,
-        [googleChallenge.full_name, googleChallenge.email, '+233000000000', passwordHash, googleChallenge.profile_photo, googleChallenge.google_id]
+        [challenge.full_name, challenge.email, '+233000000000', passwordHash, challenge.profile_photo, challenge.google_id]
       );
       user = {
         user_id: result.insertId,
-        full_name: googleChallenge.full_name,
-        email: googleChallenge.email,
+        full_name: challenge.full_name,
+        email: challenge.email,
         role: 'customer',
         is_verified: 1,
         is_active: 1,
@@ -64,11 +65,12 @@ export async function POST(req) {
 
     const isMockMode = isMockEmailMode();
     const isBypass = isMockMode && code.trim() === '123456';
-    const isTokenMatch = user.verification_token && user.verification_token.trim() === code.trim();
-    const isGoogleTokenMatch = challengeMatchesEmail && googleChallenge.verification_code === code.trim();
+    const isTokenMatch = isGoogleChallenge
+      ? challenge.verification_code === code.trim()
+      : user.verification_token && user.verification_token.trim() === code.trim();
 
     // Compare verification token or allow bypass in mock mode
-    if (!isTokenMatch && !isGoogleTokenMatch && !isBypass) {
+    if (!isTokenMatch && !isBypass) {
       return NextResponse.json(
         { success: false, error: 'Invalid or expired verification code.' },
         { status: 400 }
@@ -100,17 +102,21 @@ export async function POST(req) {
       console.error('Welcome email sending on verification failed:', emailError);
     }
 
-    if (redirect === '/dashboard/customer' && user.role !== 'admin') {
+    const dashboardRedirect = user.role === 'artisan'
+      ? '/dashboard/artisan'
+      : '/dashboard/customer';
+
+    if (isGoogleChallenge && user.role !== 'admin') {
       const token = await signToken({
         user_id: user.user_id,
-        email: email.trim().toLowerCase(),
+        email: normalizedEmail,
         role: user.role,
         full_name: user.full_name,
       });
       const response = NextResponse.json({
         success: true,
         autoLogin: true,
-        redirect,
+        redirect: dashboardRedirect,
         message: 'Your account has been successfully verified. Redirecting to your dashboard.'
       });
       setAuthCookie(response, token, {
@@ -146,6 +152,11 @@ export async function PUT(req) {
         { status: 400 }
       );
     }
+
+    const normalizedEmail = email.trim().toLowerCase();
+    const challenge = await verifyGoogleVerificationChallenge(
+      req.cookies.get('google_verification_challenge')?.value
+    );
 
     // Find user
     const users = await query(
@@ -190,10 +201,29 @@ export async function PUT(req) {
       console.error('Resend verification email failed:', emailError);
     }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       message: 'A new 6-digit verification code has been dispatched to your email.'
     });
+
+    if (challenge?.email === normalizedEmail) {
+      const refreshedChallenge = await signGoogleVerificationChallenge({
+        email: normalizedEmail,
+        full_name: challenge.full_name,
+        google_id: challenge.google_id,
+        profile_photo: challenge.profile_photo,
+        verification_code: verificationCode,
+      });
+      response.cookies.set('google_verification_challenge', refreshedChallenge, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 10 * 60,
+        path: '/',
+      });
+    }
+
+    return response;
 
   } catch (error) {
     console.error('Resend Verify Email API Error:', error);
