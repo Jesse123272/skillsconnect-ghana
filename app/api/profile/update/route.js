@@ -157,10 +157,11 @@ export async function PUT(req) {
           [resolvedCategory.categoryId, cleanedBio, parsedYearsExp, parsedStartingPrice, flattenedAreas.trim(), payload.user_id]
         );
       } else {
+        const initialApprovalState = await getInitialArtisanApprovalState(query);
         await query(
           `INSERT INTO artisan_profiles (user_id, category_id, bio, years_experience, starting_price, service_areas, is_approved) 
-           VALUES (?, ?, ?, ?, ?, ?, 0)`,
-          [payload.user_id, resolvedCategory.categoryId, cleanedBio, parsedYearsExp, parsedStartingPrice, flattenedAreas.trim()]
+           VALUES (?, ?, ?, ?, ?, ?, ?)`,
+          [payload.user_id, resolvedCategory.categoryId, cleanedBio, parsedYearsExp, parsedStartingPrice, flattenedAreas.trim(), initialApprovalState]
         );
       }
     }

@@ -5,6 +5,7 @@ import { sendEmail, welcomeEmail, verificationEmail } from '@/lib/mailer';
 import { sanitizeObject, sanitizeText } from '@/lib/security';
 import { validateEmail, validatePassword, validatePhone } from '@/lib/validators';
 import { resolveCategorySelection } from '@/lib/category-utils';
+import { getInitialArtisanApprovalState } from '@/lib/artisan-approval';
 
 export async function POST(req) {
   try {
@@ -186,10 +187,11 @@ export async function POST(req) {
     if (cleanedRole === 'artisan' && userId) {
       try {
         const resolvedCategory = await resolveCategorySelection(query, parsedCategoryId, cleanedCustomCategory);
+        const initialApprovalState = await getInitialArtisanApprovalState(query);
         await query(
           `INSERT INTO artisan_profiles (user_id, category_id, bio, years_experience, is_approved) 
-           VALUES (?, ?, ?, ?, 0)`,
-          [userId, resolvedCategory.categoryId, cleanedBio, parsedYearsExp]
+           VALUES (?, ?, ?, ?, ?)`,
+          [userId, resolvedCategory.categoryId, cleanedBio, parsedYearsExp, initialApprovalState]
         );
       } catch (profileError) {
         console.warn('Artisan profile insert failed:', profileError?.message || profileError);

@@ -42,7 +42,7 @@ export default function SystemSettings() {
 
   // Extended simulation state variables (saved in local memory)
   const [escrowFee, setEscrowFee] = useState(5.0);
-  const [autoVerify, setAutoVerify] = useState(false);
+  const [autoVerify, setAutoVerify] = useState(true);
   const [maintenanceMode, setMaintenanceMode] = useState(false);
 
   const router = useRouter();
@@ -70,6 +70,7 @@ export default function SystemSettings() {
           setPlatformName(settingsData.data.platform_name);
           setContactEmail(settingsData.data.contact_email);
           setContactPhone(settingsData.data.contact_phone);
+          setAutoVerify(settingsData.data.artisan_approval_mode !== 'manual');
           setAboutText(settingsData.data.about_text);
         }
 
@@ -92,7 +93,7 @@ export default function SystemSettings() {
     }
     loadSettings();
     return () => { active = false; };
-  }, [router]);
+  }, [authFetch, router]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -109,6 +110,7 @@ export default function SystemSettings() {
           platform_name: platformName.trim(),
           contact_email: contactEmail.trim(),
           contact_phone: contactPhone.trim(),
+          artisan_approval_mode: autoVerify ? 'auto' : 'manual',
           about_text: aboutText.trim()
         }),
         credentials: 'include'
@@ -461,8 +463,8 @@ EMAIL_FROM=&quot;SkillsConnect Ghana &lt;noreply@skillsconnect.gh&gt;&quot;
             <div className="d-flex flex-column gap-3">
               <div className="d-flex align-items-center justify-content-between">
                 <div>
-                  <span className="fw-semibold d-block text-dark small">Automatic Verification</span>
-                  <span className="text-muted d-block small" style={{ fontSize: '11px' }}>Verify profiles instantly</span>
+                  <span className="fw-semibold d-block text-dark small">Automatic Artisan Approval</span>
+                  <span className="text-muted d-block small" style={{ fontSize: '11px' }}>Approve after email verification</span>
                 </div>
                 <div className="form-check form-switch">
                   <input 

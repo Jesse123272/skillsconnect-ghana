@@ -83,6 +83,21 @@ export async function POST(req) {
       [user.user_id]
     );
 
+    if (user.role === 'artisan') {
+      let approvalMode = 'auto';
+      try {
+        const settings = await query(
+          "SELECT setting_value FROM system_settings WHERE setting_key = 'artisan_approval_mode' LIMIT 1"
+        );
+        approvalMode = settings?.[0]?.setting_value === 'manual' ? 'manual' : 'auto';
+      } catch (settingsError) {
+        console.warn('Artisan approval mode lookup failed; using automatic approval:', settingsError?.message || settingsError);
+      }
+      if (approvalMode === 'auto') {
+        await query('UPDATE artisan_profiles SET is_approved = 1 WHERE user_id = ?', [user.user_id]);
+      }
+    }
+
     // Log verification action
     const ip = req.headers.get('x-forwarded-for') || '127.0.0.1';
     await query(
