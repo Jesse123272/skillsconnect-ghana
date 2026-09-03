@@ -102,7 +102,7 @@ export default function ArtisanDetail({ params }) {
       });
       const data = await res.json();
       if (data.success) {
-        toast.success('Artisan application declined and account removed.');
+        toast.success('Artisan profile disapproved and hidden from public listings.');
         router.push('/dashboard/admin/artisans');
       } else {
         toast.error(data.error || 'Failed to decline application.');
@@ -502,7 +502,7 @@ export default function ArtisanDetail({ params }) {
                   className="btn btn-outline-danger py-2 w-full d-flex align-items-center justify-content-center gap-1.5"
                 >
                   <X size={18} />
-                  <span>Decline & Remove</span>
+                  <span>Disapprove Listing</span>
                 </button>
               </div>
             ) : (
@@ -577,16 +577,16 @@ export default function ArtisanDetail({ params }) {
           <div className="modal-dialog modal-dialog-centered">
             <div className="modal-content text-dark">
               <div className="modal-header bg-danger text-white">
-                <h5 className="modal-title">Decline Artisan Listing Application</h5>
+                <h5 className="modal-title">Disapprove Artisan Listing</h5>
                 <button type="button" className="btn-close btn-close-white" onClick={() => setShowRejectModal(false)}></button>
               </div>
               <form onSubmit={handleRejectProfileSubmit}>
                 <div className="modal-body">
                   <p className="small text-muted">
-                    State the specific details regarding this decline decision. These elements are emailed directly to the artisan.
+                    State the specific reason for disapproval. The account and profile data will be preserved, and the reason will be emailed to the artisan.
                   </p>
                   <div className="mb-3">
-                    <label className="form-label fw-semibold small">Decline Reason</label>
+                    <label className="form-label fw-semibold small">Disapproval Reason</label>
                     <textarea 
                       className="form-control"
                       rows="4"
@@ -599,7 +599,7 @@ export default function ArtisanDetail({ params }) {
                 </div>
                 <div className="modal-footer">
                   <button type="button" className="btn btn-secondary" onClick={() => setShowRejectModal(false)}>Cancel</button>
-                  <button type="submit" className="btn btn-danger">Confirm Decline & Remove</button>
+                  <button type="submit" className="btn btn-danger">Confirm Disapproval</button>
                 </div>
               </form>
             </div>

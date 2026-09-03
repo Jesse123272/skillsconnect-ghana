@@ -39,7 +39,7 @@ export async function POST(req) {
       );
     }
 
-    // Retrieve artisan details before deletion
+    // Retrieve artisan details before changing the approval state.
     const artisans = await query(
       `SELECT u.full_name, u.email 
        FROM users u
@@ -57,9 +57,9 @@ export async function POST(req) {
 
     const artisan = artisans[0];
 
-    // Delete user from DB. Cascading constraints in the MySQL schema will automatically
-    // clean up associated profiles, reviews, gallery items, enquries, and portfolio items.
-    await query('DELETE FROM users WHERE user_id = ?', [parsedId]);
+    // Keep the account and its data, but remove it from public listings until an admin
+    // approves it again.
+    await query('UPDATE artisan_profiles SET is_approved = 0 WHERE user_id = ?', [parsedId]);
 
     // Send rejection notice email to artisan
     const emailHtml = `
@@ -81,14 +81,14 @@ export async function POST(req) {
           <div class="header">SkillsConnect Ghana Application Status Update</div>
           <p>Hello <strong>${artisan.full_name}</strong>,</p>
           <p>Thank you for applying to list your professional trade services on SkillsConnect Ghana.</p>
-          <p>Our verification team has completed a review of your profile. Regrettably, your professional listing application has been declined at this time due to the following reason:</p>
+          <p>An administrator has temporarily disapproved your professional listing for the following reason:</p>
           
           <div class="reason-box">
             <strong>Rejection Reason:</strong><br>
             ${reason.trim()}
           </div>
 
-          <p>We welcome you to submit a fresh application on our platform once these details have been corrected or verified.</p>
+          <p>Your account and profile data have been preserved. You can contact the platform team after addressing this issue so your listing can be reviewed and approved again.</p>
           
           <div class="footer">
             <p>&copy; 2026 SkillsConnect Ghana. All rights reserved.</p>
@@ -117,7 +117,7 @@ export async function POST(req) {
 
     return NextResponse.json({
       success: true,
-      message: `Artisan application for ${artisan.full_name} has been declined and removed successfully`
+      message: `Artisan profile for ${artisan.full_name} has been disapproved and hidden from public listings`
     });
 
   } catch (error) {

@@ -249,14 +249,14 @@ function ManageArtisansContent() {
       });
       const data = await res.json();
       if (data.success) {
-        toast.success(`Application for ${name} has been rejected.`);
+        toast.success(`${name} has been disapproved and hidden from public listings.`);
         setTriggerRefetch(prev => prev + 1);
       } else {
-        toast.error(data.error || 'Failed to reject application.');
+        toast.error(data.error || 'Failed to disapprove artisan.');
       }
     } catch (err) {
       console.error(err);
-      toast.error('Network error during rejection.');
+      toast.error('Network error during disapproval.');
     } finally {
       setProcessingId(null);
       setArtisanToReject(null);
@@ -485,6 +485,18 @@ function ManageArtisansContent() {
                             </>
                           )}
 
+                          {artisan.is_approved === 1 && (
+                            <button
+                              disabled={processingId === artisan.user_id}
+                              onClick={() => openRejectModal(artisan)}
+                              className="btn btn-sm btn-outline-danger p-1"
+                              title="Disapprove Artisan"
+                              style={{ width: '30px', height: '30px' }}
+                            >
+                              <X size={14} />
+                            </button>
+                          )}
+
                           {/* Detail View */}
                           <Link 
                             href={`/dashboard/admin/artisans/${artisan.user_id}`} 
@@ -560,22 +572,22 @@ function ManageArtisansContent() {
         </div>
       )}
 
-      {/* REJECTION REASON MODAL */}
+      {/* DISAPPROVAL REASON MODAL */}
       {showRejectModal && (
         <div className="modal show d-block z-3" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
           <div className="modal-dialog modal-dialog-centered">
             <div className="modal-content text-dark">
               <div className="modal-header bg-danger text-white">
-                <h5 className="modal-title">Decline Artisan Listing Application</h5>
+                <h5 className="modal-title">Disapprove Artisan Listing</h5>
                 <button type="button" className="btn-close btn-close-white" onClick={() => setShowRejectModal(false)}></button>
               </div>
               <form onSubmit={handleRejectSubmit}>
                 <div className="modal-body">
                   <p className="small text-muted">
-                    Specify the formal reason why <strong>{artisanToReject?.full_name}</strong>&rsquo;s application is rejected. An email detailing these items will be automatically dispatched.
+                    Specify the formal reason why <strong>{artisanToReject?.full_name}</strong>&rsquo;s profile is being disapproved. The account will be preserved and the reason will be emailed to the artisan.
                   </p>
                   <div className="mb-3">
-                    <label className="form-label fw-semibold small">Decline Reason</label>
+                    <label className="form-label fw-semibold small">Disapproval Reason</label>
                     <textarea 
                       className="form-control"
                       rows="4"
@@ -588,7 +600,7 @@ function ManageArtisansContent() {
                 </div>
                 <div className="modal-footer">
                   <button type="button" className="btn btn-secondary" onClick={() => setShowRejectModal(false)}>Cancel</button>
-                  <button type="submit" className="btn btn-danger">Confirm Decline & Remove</button>
+                  <button type="submit" className="btn btn-danger">Confirm Disapproval</button>
                 </div>
               </form>
             </div>
