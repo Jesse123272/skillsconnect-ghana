@@ -5,6 +5,7 @@ import Footer from '@/components/Footer';
 import HeroSearch from '@/components/HeroSearch';
 import ArtisanCard from '@/components/ArtisanCard';
 import StarRating from '@/components/StarRating';
+import AnimatedCounter from '@/components/AnimatedCounter';
 import { query } from '@/lib/db';
 
 export const revalidate = 0; // Ensure live data on every load
@@ -164,12 +165,12 @@ export default async function Home() {
               <div className="d-flex flex-wrap gap-3 mt-4" id="hero-stats-badges">
                 <div className="badge bg-white bg-opacity-10 border border-white border-opacity-10 px-3 py-2.5 rounded-3 d-flex align-items-center gap-2">
                   <i className="fa-solid fa-user-check text-secondary"></i>
-                  <span className="fw-semibold">{stats.total_artisans}</span>
+                  <span className="fw-semibold"><AnimatedCounter value={stats.total_artisans} /></span>
                   <span className="text-white-50">Verified Artisans</span>
                 </div>
                 <div className="badge bg-white bg-opacity-10 border border-white border-opacity-10 px-3 py-2.5 rounded-3 d-flex align-items-center gap-2">
                   <i className="fa-solid fa-star text-secondary"></i>
-                  <span className="fw-semibold">{stats.total_reviews}</span>
+                  <span className="fw-semibold"><AnimatedCounter value={stats.total_reviews} /></span>
                   <span className="text-white-50">Completed Reviews</span>
                 </div>
               </div>
@@ -339,19 +340,19 @@ export default async function Home() {
         <div className="container py-3">
           <div className="row g-4 text-center">
             <div className="col-6 col-md-3">
-              <h1 className="display-5 fw-bold text-white mb-1">{stats.total_artisans}</h1>
+              <h1 className="display-5 fw-bold text-white mb-1"><AnimatedCounter value={stats.total_artisans} /></h1>
               <p className="text-white-50 mb-0 small uppercase tracking-wider">Total Artisans</p>
             </div>
             <div className="col-6 col-md-3">
-              <h1 className="display-5 fw-bold text-white mb-1">{stats.total_categories}</h1>
+              <h1 className="display-5 fw-bold text-white mb-1"><AnimatedCounter value={stats.total_categories} /></h1>
               <p className="text-white-50 mb-0 small uppercase tracking-wider">Total Categories</p>
             </div>
             <div className="col-6 col-md-3">
-              <h1 className="display-5 fw-bold text-white mb-1">{stats.total_reviews}</h1>
+              <h1 className="display-5 fw-bold text-white mb-1"><AnimatedCounter value={stats.total_reviews} /></h1>
               <p className="text-white-50 mb-0 small uppercase tracking-wider">Total Reviews</p>
             </div>
             <div className="col-6 col-md-3">
-              <h1 className="display-5 fw-bold text-white mb-1">{stats.regions_covered}</h1>
+              <h1 className="display-5 fw-bold text-white mb-1"><AnimatedCounter value={stats.regions_covered} /></h1>
               <p className="text-white-50 mb-0 small uppercase tracking-wider">Regions Covered</p>
             </div>
           </div>
