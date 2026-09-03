@@ -80,7 +80,7 @@ function ManageArtisansContent() {
       }
     }
     loadCategories();
-  }, []);
+  }, [authFetch]);
 
   useEffect(() => {
     let active = true;
@@ -114,7 +114,7 @@ function ManageArtisansContent() {
     }
     loadArtisans();
     return () => { active = false; };
-  }, [page, status, categoryId, region, searchQuery, triggerRefetch]);
+  }, [page, status, categoryId, region, searchQuery, triggerRefetch, authFetch]);
 
   // Handle Search Trigger
   const handleSearchSubmit = (e) => {

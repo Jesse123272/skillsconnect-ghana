@@ -35,7 +35,7 @@ export default function CustomerPaymentsPage() {
     }
     loadPayments();
     return () => { isMounted = false; };
-  }, [filterStatus]);
+  }, [filterStatus, authFetch]);
 
   const totalSpentGhs = transactions
     .filter(t => t.status === 'success')

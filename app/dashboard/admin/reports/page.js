@@ -74,7 +74,7 @@ export default function AnalyticalReports() {
     }
     loadReports();
     return () => { active = false; };
-  }, []);
+  }, [authFetch]);
 
   const handlePrint = () => {
     window.print();

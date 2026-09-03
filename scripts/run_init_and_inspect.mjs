@@ -1,4 +1,4 @@
-import { querySqliteFallback } from '../lib/sqlite-fallback.js';
+import { querySqliteFallback } from '../lib/sqlite-fallback.mjs';
 
 (async ()=>{
   try {

@@ -82,7 +82,7 @@ export default function SecurityAuditLogs() {
     }
     loadLogs();
     return () => { active = false; };
-  }, [page, action, startDate, endDate, searchQuery]);
+  }, [page, action, startDate, endDate, searchQuery, authFetch]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();

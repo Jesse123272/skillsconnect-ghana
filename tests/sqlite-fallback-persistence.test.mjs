@@ -10,7 +10,7 @@ const dbPath = path.join(tempDir, 'persist-test.db');
 process.env.SQLITE_DB_PATH = dbPath;
 
 test('writes SQLite fallback inserts to disk so later reads see the new rows', async () => {
-  const { querySqliteFallback } = await import('../lib/sqlite-fallback.js');
+  const { querySqliteFallback } = await import('../lib/sqlite-fallback.mjs');
 
   await querySqliteFallback(`CREATE TABLE IF NOT EXISTS test_persist (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -38,7 +38,7 @@ test('creates missing profile_view_logs table and writes rows in SQLite fallback
   const fallbackPath = path.join(tempDir2, 'profile-view-logs.db');
   process.env.SQLITE_DB_PATH = fallbackPath;
 
-  const sqliteFallback = await import('../lib/sqlite-fallback.js');
+  const sqliteFallback = await import('../lib/sqlite-fallback.mjs');
   sqliteFallback.closeSqliteFallback();
 
   const { querySqliteFallback } = sqliteFallback;
@@ -63,7 +63,7 @@ test('creates missing profile_view_logs table and writes rows in SQLite fallback
 });
 
 test('seeded SQLite fallback categories include a broad set of trade specialties', async () => {
-  const { querySqliteFallback } = await import('../lib/sqlite-fallback.js');
+  const { querySqliteFallback } = await import('../lib/sqlite-fallback.mjs');
 
   const rows = await querySqliteFallback('SELECT category_name FROM categories WHERE is_active = 1 ORDER BY category_name ASC');
   const names = rows.map((row) => row.category_name.toLowerCase());

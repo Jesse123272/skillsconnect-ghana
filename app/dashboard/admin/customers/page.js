@@ -65,7 +65,7 @@ export default function ManageCustomers() {
     }
     loadUsers();
     return () => { active = false; };
-  }, [page, searchQuery, triggerRefetch]);
+  }, [page, searchQuery, triggerRefetch, authFetch]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();

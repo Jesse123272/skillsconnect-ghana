@@ -1,7 +1,7 @@
 import assert from 'assert';
-import { querySqliteFallback, closeSqliteFallback } from '../lib/sqlite-fallback.js';
-import { resolveCategorySelection } from '../lib/category-utils.js';
-import { getArtisanApprovalMode, getInitialArtisanApprovalState } from '../lib/artisan-approval.js';
+import { querySqliteFallback, closeSqliteFallback } from '../lib/sqlite-fallback.mjs';
+import { resolveCategorySelection } from '../lib/category-utils.mjs';
+import { getArtisanApprovalMode, getInitialArtisanApprovalState } from '../lib/artisan-approval.mjs';
 
 (async () => {
   // Trigger initialization via a simple query and ensure a clean starting point

@@ -59,7 +59,7 @@ export default function ManageReviews() {
     }
     loadReviews();
     return () => { active = false; };
-  }, [page, status, searchQuery]);
+  }, [page, status, searchQuery, authFetch]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();

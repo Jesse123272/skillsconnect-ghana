@@ -57,7 +57,7 @@ export default function TransactionsLedger() {
     }
     loadTransactions();
     return () => { active = false; };
-  }, [page, status]);
+  }, [page, status, authFetch]);
 
   // Calculate simple stats directly during rendering (React Best Practice)
   const totalRevenue = transactions

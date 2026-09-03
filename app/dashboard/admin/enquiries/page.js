@@ -67,7 +67,7 @@ export default function ManageEnquiries() {
     }
     loadEnquiries();
     return () => { active = false; };
-  }, [page, status, searchQuery, triggerRefetch]);
+  }, [page, status, searchQuery, triggerRefetch, authFetch]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
