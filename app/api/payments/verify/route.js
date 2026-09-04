@@ -72,7 +72,21 @@ export async function POST(req) {
     // 4. Extract payment outcomes
     const paystackStatus = verificationData.status; // e.g., 'success', 'failed'
     const channel = verificationData.channel; // e.g., 'mobile_money', 'card'
-    const paystackMetadata = JSON.stringify(verificationData.metadata || null);
+    let originalMetadata = {};
+    try {
+      originalMetadata = transaction.metadata
+        ? (typeof transaction.metadata === 'string' ? JSON.parse(transaction.metadata) : transaction.metadata)
+        : {};
+    } catch {
+      originalMetadata = {};
+    }
+    const verifiedMetadata = {
+      ...originalMetadata,
+      paystack: verificationData.metadata || null,
+      paystack_reference: verificationData.reference || reference.trim(),
+      gateway_response: verificationData.gateway_response || null,
+      paid_at: verificationData.paid_at || null
+    };
 
     let finalStatus = 'failed';
     if (paystackStatus === 'success') {
@@ -84,7 +98,7 @@ export async function POST(req) {
       `UPDATE transactions 
        SET status = ?, channel = ?, verified_at = NOW(), metadata = ? 
        WHERE reference = ?`,
-      [finalStatus, channel, paystackMetadata, reference.trim()]
+      [finalStatus, channel, JSON.stringify(verifiedMetadata), reference.trim()]
     );
 
     // 6. Send immediate visual notification alert

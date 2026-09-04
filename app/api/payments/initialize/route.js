@@ -16,6 +16,8 @@ export async function POST(req) {
     const body = await req.json();
     const { amount, enquiry_id, artisan_id, note } = body;
     const amountGhs = parseFloat(amount);
+    const enquiryId = parseInt(enquiry_id, 10);
+    const artisanId = parseInt(artisan_id, 10);
 
     // Validate positive payment amount
     if (isNaN(amountGhs) || amountGhs <= 0) {
@@ -23,6 +25,19 @@ export async function POST(req) {
         { success: false, error: 'A valid positive payment amount is required' },
         { status: 400 }
       );
+    }
+
+    if (!Number.isInteger(enquiryId) || !Number.isInteger(artisanId) || enquiryId <= 0 || artisanId <= 0) {
+      return NextResponse.json({ success: false, error: 'A valid enquiry and artisan are required for payment.' }, { status: 400 });
+    }
+
+    const enquiries = await query(
+      'SELECT enquiry_id, customer_id, artisan_id, status FROM enquiries WHERE enquiry_id = ? LIMIT 1',
+      [enquiryId]
+    );
+    const enquiry = enquiries?.[0];
+    if (!enquiry || enquiry.customer_id !== payload.user_id || enquiry.artisan_id !== artisanId) {
+      return NextResponse.json({ success: false, error: 'You can only pay for your own enquiry and its assigned artisan.' }, { status: 403 });
     }
 
     // 1. Generate unique platform-compliant transaction reference
@@ -51,8 +66,8 @@ export async function POST(req) {
     }
 
     const metadataObj = {
-      enquiry_id: enquiry_id || null,
-      artisan_id: artisan_id || null,
+      enquiry_id: enquiryId,
+      artisan_id: artisanId,
       note: note || 'Trade Service Payment',
       customer_email: payload.email,
       customer_name: payload.full_name

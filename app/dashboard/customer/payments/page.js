@@ -112,7 +112,7 @@ export default function CustomerPaymentsPage() {
         </ul>
 
         <span className="text-muted fs-8 d-none d-sm-inline">
-          <i className="fa-solid fa-shield-halved text-success me-1"></i> Paystack Ghana Escrow Secured
+              <i className="fa-solid fa-shield-halved text-success me-1"></i> Secure Paystack Ghana Payments
         </span>
       </div>
 

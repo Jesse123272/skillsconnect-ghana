@@ -102,7 +102,7 @@ export default function TransactionsLedger() {
               <Clock size={22} />
             </div>
             <div>
-              <span className="text-muted small d-block">Pending Escrows</span>
+              <span className="text-muted small d-block">Pending Payments</span>
               <h5 className="fw-bold mb-0">{pendingCount} Active</h5>
             </div>
           </div>

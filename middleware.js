@@ -30,11 +30,14 @@ export async function middleware(request) {
   const isUploadApi = pathname.startsWith('/api/uploads');
   const isAdminApi = pathname.startsWith('/api/admin');
   const isPaymentApi = pathname.startsWith('/api/payments');
+  const isPaystackWebhook = pathname === '/api/payments/webhook' && method === 'POST';
 
   let requiresAuth = false;
 
   // Apply routing logic
-  if (isDashboard) {
+  if (isPaystackWebhook) {
+    requiresAuth = false;
+  } else if (isDashboard) {
     requiresAuth = true;
   } else if (isEnquiriesApi || isReviewsApi) {
     // Only protect POST, PUT, DELETE operations for enquiries and reviews

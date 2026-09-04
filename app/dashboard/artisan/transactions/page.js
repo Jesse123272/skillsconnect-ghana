@@ -77,7 +77,7 @@ export default function ArtisanTransactionsPage() {
           {[
             { key: 'all', label: 'All Received' },
             { key: 'success', label: 'Verified Paid' },
-            { key: 'pending', label: 'Pending / Escrow' }
+            { key: 'pending', label: 'Pending Payments' }
           ].map((tab) => (
             <li key={tab.key} className="nav-item">
               <button

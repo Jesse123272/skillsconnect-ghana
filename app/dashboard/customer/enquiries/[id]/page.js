@@ -394,7 +394,7 @@ export default function CustomerEnquiryDetail() {
             <div className="col-12 col-lg-7">
               <div className="d-flex align-items-center gap-2 mb-1.5">
                 <span className="badge bg-primary-subtle text-primary border border-primary-subtle px-2.5 py-1 rounded-pill fs-8 fw-bold">
-                  <i className="fa-solid fa-lock me-1"></i> Paystack Ghana Escrow
+                  <i className="fa-solid fa-lock me-1"></i> Pay securely with Paystack Ghana
                 </span>
                 <span className="text-muted fs-8">MTN MoMo • Telecel • Cards</span>
               </div>

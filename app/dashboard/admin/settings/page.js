@@ -305,16 +305,16 @@ export default function SystemSettings() {
             </form>
           </div>
 
-          {/* Advanced Escrow Fees console */}
+          {/* Payment fee reference */}
           <div className="card shadow-sm border p-4 bg-white">
             <h5 className="fw-bold mb-3 d-flex align-items-center gap-2">
               <Cpu size={20} className="text-secondary" />
-              <span>Payments & Escrow Commission Fees</span>
+              <span>Payment Fee Reference</span>
             </h5>
             <div className="row g-3">
               <div className="col-md-8">
                 <p className="text-muted small mb-0">
-                  Configure the flat platform fee percentage calculated and deducted automatically during digital invoice escrow clearings.
+                  Keep a reference percentage for planning. Paystack payment fees are not automatically deducted or held by this application.
                 </p>
               </div>
               <div className="col-md-4">
@@ -328,7 +328,7 @@ export default function SystemSettings() {
                     value={escrowFee}
                     onChange={(e) => {
                       setEscrowFee(parseFloat(e.target.value) || 0);
-                      toast.success('Escrow fee preference saved locally!');
+                      toast.success('Payment fee reference updated locally.');
                     }}
                   />
                   <span className="input-group-text bg-light fw-bold">%</span>
