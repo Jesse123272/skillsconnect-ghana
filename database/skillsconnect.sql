@@ -104,11 +104,13 @@ CREATE TABLE IF NOT EXISTS enquiries (
     subject VARCHAR(200) NOT NULL,
     message TEXT NOT NULL,
     reply TEXT DEFAULT NULL,
-    status ENUM('pending', 'replied') DEFAULT 'pending',
+    status ENUM('pending', 'replied', 'in_progress', 'completed', 'closed', 'cancelled') DEFAULT 'pending',
     is_read_artisan TINYINT DEFAULT 0,
     is_read_customer TINYINT DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     replied_at DATETIME DEFAULT NULL,
+    completed_at DATETIME DEFAULT NULL,
+    completed_by INT DEFAULT NULL,
     FOREIGN KEY (customer_id) REFERENCES users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (artisan_id) REFERENCES users(user_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

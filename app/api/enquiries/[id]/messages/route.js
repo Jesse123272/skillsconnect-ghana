@@ -204,7 +204,8 @@ export async function POST(req, { params }) {
       // Artisan sent message
       await query(
         `UPDATE enquiries 
-         SET status = 'replied', replied_at = NOW(), is_read_customer = 0, is_read_artisan = 1 
+         SET status = CASE WHEN status = 'completed' THEN status ELSE 'replied' END,
+             replied_at = NOW(), is_read_customer = 0, is_read_artisan = 1
          WHERE enquiry_id = ?`,
         [enquiryId]
       );

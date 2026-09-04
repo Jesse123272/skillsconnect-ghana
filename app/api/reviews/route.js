@@ -139,6 +139,7 @@ export async function POST(req) {
 
     const body = await req.json();
     const { artisan_id, rating, review_text } = body;
+    const enquiryId = parseInt(body.enquiry_id, 10);
 
     const parsedArtisanId = parseInt(artisan_id, 10);
     const parsedRating = parseInt(rating, 10);
@@ -165,15 +166,19 @@ export async function POST(req) {
       );
     }
 
-    // 1. Check if customer has sent at least one enquiry to this artisan (to prevent cold spam reviews)
+    if (isNaN(enquiryId) || enquiryId <= 0) {
+      return NextResponse.json({ success: false, error: 'A completed enquiry is required to submit a review' }, { status: 400 });
+    }
+
+    // 1. Require a completed enquiry owned by this customer and artisan.
     const enquiryCheck = await query(
-      'SELECT enquiry_id FROM enquiries WHERE customer_id = ? AND artisan_id = ? LIMIT 1',
-      [payload.user_id, parsedArtisanId]
+      "SELECT enquiry_id FROM enquiries WHERE enquiry_id = ? AND customer_id = ? AND artisan_id = ? AND status = 'completed' LIMIT 1",
+      [enquiryId, payload.user_id, parsedArtisanId]
     );
 
     if (!enquiryCheck || enquiryCheck.length === 0) {
       return NextResponse.json(
-        { success: false, error: 'You can only review artisans with whom you have initiated an enquiry interaction' },
+        { success: false, error: 'You can only review an artisan after the selected enquiry is completed' },
         { status: 400 }
       );
     }

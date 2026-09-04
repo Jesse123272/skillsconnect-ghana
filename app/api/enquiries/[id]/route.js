@@ -130,10 +130,9 @@ export async function PATCH(req, { params }) {
     }
 
     // Update status
-    await query(
-      'UPDATE enquiries SET status = ? WHERE enquiry_id = ?',
-      [status, enquiryId]
-    );
+    const completionUpdate = status === 'completed' ? ', completed_at = CURRENT_TIMESTAMP, completed_by = ?' : '';
+    const updateParams = status === 'completed' ? [status, payload.user_id, enquiryId] : [status, enquiryId];
+    await query(`UPDATE enquiries SET status = ?${completionUpdate} WHERE enquiry_id = ?`, updateParams);
 
     // Send notification to the counterpart
     const otherUserId = payload.user_id === enquiry.customer_id ? enquiry.artisan_id : enquiry.customer_id;

@@ -15,6 +15,7 @@ function NewReviewFormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const artisanId = searchParams.get('artisan_id');
+  const enquiryId = searchParams.get('enquiry_id');
 
   const [artisan, setArtisan] = useState(null);
   const [loadingArtisan, setLoadingArtisan] = useState(true);
@@ -72,7 +73,7 @@ function NewReviewFormContent() {
     setFormError(null);
     setFormSuccess(null);
 
-    if (!artisanId) {
+    if (!artisanId || !enquiryId) {
       setFormError('Artisan selection is missing.');
       return;
     }
@@ -97,6 +98,7 @@ function NewReviewFormContent() {
         },
         body: JSON.stringify({
           artisan_id: parseInt(artisanId, 10),
+          enquiry_id: parseInt(enquiryId, 10),
           rating: rating,
           review_text: reviewText.trim(),
         }),

@@ -585,7 +585,7 @@ export default function CustomerEnquiryDetail() {
         </div>
 
         {/* 4. ACTIONS / WRITE REVIEW CTA BLOCK */}
-        {!hasReviewed ? (
+        {!hasReviewed && status === 'completed' ? (
           <div className={`card border rounded-3 p-4 text-center ${status === 'completed' ? 'bg-warning-subtle border-warning' : 'bg-light'} shadow-xs animate__animated animate__fadeIn mb-4`} id="enquiry-review-cta-card">
             <div className="rounded-circle bg-warning text-dark p-3 d-flex align-items-center justify-content-center mx-auto mb-3" style={{ width: '60px', height: '60px' }}>
               <i className="fa-solid fa-star fs-3"></i>
@@ -597,21 +597,21 @@ export default function CustomerEnquiryDetail() {
               Your feedback is crucial for maintaining top quality standards on SkillsConnect Ghana! Share your ratings on speed, work quality, communication, and cost honesty.
             </p>
             <Link 
-              href={`/dashboard/customer/reviews/new?artisan_id=${enquiry.artisan_id}`} 
+              href={`/dashboard/customer/reviews/new?artisan_id=${enquiry.artisan_id}&enquiry_id=${enquiry.enquiry_id}`} 
               className="btn btn-warning px-5 py-2.5 rounded-pill shadow-sm fw-bold text-dark d-inline-flex align-items-center gap-2 mx-auto"
             >
               <i className="fa-solid fa-pen-nib"></i>
               <span>{status === 'completed' ? 'Write Review Now ★★★★★' : 'Leave a Review for this Artisan'}</span>
             </Link>
           </div>
-        ) : (
+        ) : hasReviewed ? (
           <div className="card border rounded-3 p-3 bg-success-subtle text-success text-center mb-4" id="review-already-submitted-badge">
             <span className="fs-7.5 fw-bold d-inline-flex align-items-center justify-content-center gap-2">
               <i className="fa-solid fa-circle-check fs-6"></i>
               <span>You have already submitted a rating & review for {enquiry.artisan_name}. Thank you!</span>
             </span>
           </div>
-        )}
+        ) : null}
 
       </div>
     </>
