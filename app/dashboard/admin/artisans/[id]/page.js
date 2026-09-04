@@ -163,6 +163,50 @@ export default function ArtisanDetail({ params }) {
     }
   };
 
+  const handleTrustFlag = async (flag, label) => {
+    setProcessing(true);
+    try {
+      const res = await authFetch(`/api/admin/artisans/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ [flag]: !profile[flag] }),
+        credentials: 'include'
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast.success(`${label} status updated.`);
+        setTriggerRefetch(prev => prev + 1);
+      } else toast.error(data.error || `Failed to update ${label}.`);
+    } catch (err) {
+      console.error(err);
+      toast.error(`Error updating ${label}.`);
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const handleGuarantorModeration = async (guarantorId, status) => {
+    setProcessing(true);
+    try {
+      const res = await authFetch(`/api/admin/guarantors/${guarantorId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+        credentials: 'include'
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast.success(`Reference ${status}.`);
+        setTriggerRefetch(prev => prev + 1);
+      } else toast.error(data.error || 'Failed to moderate reference.');
+    } catch (err) {
+      console.error(err);
+      toast.error('Error moderating reference.');
+    } finally {
+      setProcessing(false);
+    }
+  };
+
   const handleToggleFeatured = async () => {
     setProcessing(true);
     try {
@@ -557,6 +601,28 @@ export default function ArtisanDetail({ params }) {
             </div>
 
             <hr className="my-3" />
+
+            <h6 className="fw-bold mb-2">Trust Verification</h6>
+            <div className="d-flex flex-column gap-2 mb-4">
+              {[['ghana_card_verified', 'Ghana Card verified'], ['police_checked', 'Police checked'], ['trade_certified', 'Trade certified']].map(([flag, label]) => (
+                <button key={flag} disabled={processing} onClick={() => handleTrustFlag(flag, label)} className={`btn btn-sm text-start ${profile?.[flag] ? 'btn-success' : 'btn-outline-secondary'}`}>
+                  <ShieldCheck size={14} className="me-1" /> {profile?.[flag] ? `${label} (on)` : `Mark ${label}`}
+                </button>
+              ))}
+            </div>
+
+            {profile?.guarantors?.length > 0 && (
+              <div className="mb-4">
+                <h6 className="fw-bold mb-2">Reference Moderation</h6>
+                {profile.guarantors.map((guarantor) => (
+                  <div key={guarantor.guarantor_id} className="border rounded-3 p-2 mb-2 small">
+                    <div className="d-flex justify-content-between gap-2"><strong>{guarantor.name}</strong><span className="text-capitalize">{guarantor.status}</span></div>
+                    <div className="text-muted">{guarantor.relationship} | {guarantor.phone || guarantor.email || 'No contact'}</div>
+                    {guarantor.status === 'pending' && <div className="d-flex gap-1 mt-2"><button disabled={processing} className="btn btn-sm btn-success" onClick={() => handleGuarantorModeration(guarantor.guarantor_id, 'approved')}>Approve</button><button disabled={processing} className="btn btn-sm btn-outline-danger" onClick={() => handleGuarantorModeration(guarantor.guarantor_id, 'rejected')}>Reject</button></div>}
+                  </div>
+                ))}
+              </div>
+            )}
 
             {/* Delete Block */}
             <button 

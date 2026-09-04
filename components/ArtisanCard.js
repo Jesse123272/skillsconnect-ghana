@@ -67,6 +67,10 @@ export default function ArtisanCard({ artisan }) {
           </span>
           {acceptsEmergency && <span className="badge bg-danger-subtle text-danger">Emergency ready</span>}
           {artisan.is_verified === 1 && <span className="badge bg-info-subtle text-info">Verified</span>}
+          {artisan.ghana_card_verified === 1 && <span className="badge bg-success-subtle text-success">Ghana Card</span>}
+          {artisan.police_checked === 1 && <span className="badge bg-success-subtle text-success">Police checked</span>}
+          {artisan.trade_certified === 1 && <span className="badge bg-warning-subtle text-warning-emphasis">Trade certified</span>}
+          {Number(artisan.approved_guarantor_count) > 0 && <span className="badge bg-primary-subtle text-primary">{artisan.approved_guarantor_count} reference{Number(artisan.approved_guarantor_count) === 1 ? '' : 's'}</span>}
         </div>
 
         {/* Location display with pin icon */}

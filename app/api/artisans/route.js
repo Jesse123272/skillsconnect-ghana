@@ -115,8 +115,9 @@ export async function GET(req) {
       querySql = `
         SELECT 
           u.user_id, u.full_name, u.email, u.phone, u.region, u.district, u.profile_photo, u.is_verified, u.lat, u.lng,
-          ap.profile_id, ap.category_id, ap.bio, ap.years_experience, ap.starting_price, ap.average_rating, ap.total_reviews, ap.profile_views, ap.is_approved, ap.is_featured, ap.is_available, ap.accepts_emergency, ap.service_areas, ap.created_at,
-          c.category_name, c.icon_class
+          ap.profile_id, ap.category_id, ap.bio, ap.years_experience, ap.starting_price, ap.average_rating, ap.total_reviews, ap.profile_views, ap.is_approved, ap.is_featured, ap.is_available, ap.accepts_emergency, ap.ghana_card_verified, ap.police_checked, ap.trade_certified, ap.service_areas, ap.created_at,
+          c.category_name, c.icon_class,
+          (SELECT COUNT(*) FROM guarantors g WHERE g.artisan_id = u.user_id AND g.status = 'approved') AS approved_guarantor_count
         FROM users u
         INNER JOIN artisan_profiles ap ON u.user_id = ap.user_id
         INNER JOIN categories c ON ap.category_id = c.category_id
@@ -148,8 +149,9 @@ export async function GET(req) {
       querySql = `
         SELECT
           u.user_id, u.full_name, u.email, u.phone, u.region, u.district, u.profile_photo, u.is_verified,
-          ap.profile_id, ap.category_id, ap.bio, ap.years_experience, ap.starting_price, ap.average_rating, ap.total_reviews, ap.profile_views, ap.is_approved, ap.is_featured, ap.is_available, ap.accepts_emergency, ap.service_areas, ap.created_at,
+          ap.profile_id, ap.category_id, ap.bio, ap.years_experience, ap.starting_price, ap.average_rating, ap.total_reviews, ap.profile_views, ap.is_approved, ap.is_featured, ap.is_available, ap.accepts_emergency, ap.ghana_card_verified, ap.police_checked, ap.trade_certified, ap.service_areas, ap.created_at,
           c.category_name, c.icon_class,
+          (SELECT COUNT(*) FROM guarantors g WHERE g.artisan_id = u.user_id AND g.status = 'approved') AS approved_guarantor_count,
           ${distanceFormula} AS distance_km,
           ((1 - (${distanceFormula} / ?)) * 0.40 + (ap.average_rating / 5) * 0.35 + (CASE WHEN ap.total_reviews = 0 THEN 0 ELSE LEAST(ap.total_reviews / 50, 1) END) * 0.15 + (CASE WHEN ap.profile_views = 0 THEN 0 ELSE LEAST(ap.profile_views / 200, 1) END) * 0.10) AS weighted_score
         FROM users u

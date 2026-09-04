@@ -5,6 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import ProfileAvatar from '@/components/ProfileAvatar';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import AlertMessage from '@/components/AlertMessage';
+import GuarantorManager from '@/components/GuarantorManager';
 import { filterCategoriesBySearch, getCategorySubmissionPayload } from '@/lib/category-utils';
 
 export default function ArtisanProfileEdit() {
@@ -649,6 +650,8 @@ export default function ArtisanProfileEdit() {
                   </button>
                 )}
               </div>
+
+              <GuarantorManager authFetch={authFetch} />
             </div>
 
           </div>

@@ -70,12 +70,30 @@ CREATE TABLE IF NOT EXISTS artisan_profiles (
     is_featured TINYINT DEFAULT 0,
     is_available TINYINT DEFAULT 1,
     accepts_emergency TINYINT DEFAULT 0,
+    ghana_card_verified TINYINT DEFAULT 0,
+    police_checked TINYINT DEFAULT 0,
+    trade_certified TINYINT DEFAULT 0,
     starting_price DECIMAL(10,2) DEFAULT NULL,
     service_areas TEXT DEFAULT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (category_id) REFERENCES categories(category_id) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Table 3b: guarantors and professional references
+CREATE TABLE IF NOT EXISTS guarantors (
+    guarantor_id INT AUTO_INCREMENT PRIMARY KEY,
+    artisan_id INT NOT NULL,
+    name VARCHAR(150) NOT NULL,
+    relationship VARCHAR(100) NOT NULL,
+    phone VARCHAR(30) DEFAULT NULL,
+    email VARCHAR(150) DEFAULT NULL,
+    notes TEXT DEFAULT NULL,
+    status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (artisan_id) REFERENCES users(user_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Table 4: enquiries

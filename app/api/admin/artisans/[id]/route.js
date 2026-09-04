@@ -25,7 +25,7 @@ export async function GET(req, { params }) {
     const artisans = await query(
       `SELECT 
         u.user_id, u.full_name, u.email, u.phone, u.region, u.district, u.profile_photo, u.is_verified, u.is_active, u.created_at as user_created_at,
-        ap.profile_id, ap.category_id, ap.bio, ap.years_experience, ap.average_rating, ap.total_reviews, ap.profile_views, ap.is_approved, ap.is_featured, ap.service_areas, ap.created_at
+        ap.profile_id, ap.category_id, ap.bio, ap.years_experience, ap.average_rating, ap.total_reviews, ap.profile_views, ap.is_approved, ap.is_featured, ap.ghana_card_verified, ap.police_checked, ap.trade_certified, ap.service_areas, ap.created_at
        FROM users u
        LEFT JOIN artisan_profiles ap ON u.user_id = ap.user_id
        LEFT JOIN categories c ON ap.category_id = c.category_id
@@ -67,6 +67,12 @@ export async function GET(req, { params }) {
       [artisanId]
     );
 
+    const guarantors = await query(
+      `SELECT guarantor_id, name, relationship, phone, email, notes, status, created_at, updated_at
+       FROM guarantors WHERE artisan_id = ? ORDER BY created_at DESC`,
+      [artisanId]
+    );
+
     let areaArray = [];
     if (artisan.service_areas) {
       areaArray = artisan.service_areas.split(',').map(s => s.trim()).filter(Boolean);
@@ -77,7 +83,8 @@ export async function GET(req, { params }) {
       service_areas: areaArray,
       reviews,
       portfolio,
-      gallery
+      gallery,
+      guarantors
     };
 
     return NextResponse.json({
@@ -113,7 +120,7 @@ export async function PUT(req, { params }) {
     }
 
     const body = await req.json();
-    const { action, is_featured, is_verified, is_approved, is_active } = body;
+    const { action, is_featured, is_verified, is_approved, is_active, ghana_card_verified, police_checked, trade_certified } = body;
 
     // Fetch user and profile to check existence
     const users = await query('SELECT full_name, email FROM users WHERE user_id = ? AND role = "artisan"', [artisanId]);
@@ -201,6 +208,12 @@ export async function PUT(req, { params }) {
     if (is_active !== undefined) {
       const actVal = is_active ? 1 : 0;
       await query('UPDATE users SET is_active = ? WHERE user_id = ?', [actVal, artisanId]);
+    }
+
+    for (const [flag, value] of Object.entries({ ghana_card_verified, police_checked, trade_certified })) {
+      if (value !== undefined) {
+        await query(`UPDATE artisan_profiles SET ${flag} = ? WHERE user_id = ?`, [value ? 1 : 0, artisanId]);
+      }
     }
 
     return NextResponse.json({ success: true, message: 'Artisan updated successfully.' });

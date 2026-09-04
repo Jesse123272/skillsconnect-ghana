@@ -20,7 +20,7 @@ export async function GET(req, { params }) {
     const artisans = await query(
       `SELECT 
         u.user_id, u.full_name, u.email, u.phone, u.region, u.district, u.profile_photo, u.is_verified,
-        ap.profile_id, ap.category_id, ap.bio, ap.years_experience, ap.starting_price, ap.average_rating, ap.total_reviews, ap.profile_views, ap.is_approved, ap.is_featured, ap.is_available, ap.accepts_emergency, ap.service_areas, ap.created_at,
+        ap.profile_id, ap.category_id, ap.bio, ap.years_experience, ap.starting_price, ap.average_rating, ap.total_reviews, ap.profile_views, ap.is_approved, ap.is_featured, ap.is_available, ap.accepts_emergency, ap.ghana_card_verified, ap.police_checked, ap.trade_certified, ap.service_areas, ap.created_at,
         c.category_name, c.icon_class
        FROM users u
        INNER JOIN artisan_profiles ap ON u.user_id = ap.user_id
@@ -80,6 +80,12 @@ export async function GET(req, { params }) {
       [artisanId]
     );
 
+    const guarantors = await query(
+      `SELECT guarantor_id, name, relationship, phone, email, notes, created_at
+       FROM guarantors WHERE artisan_id = ? AND status = 'approved' ORDER BY created_at DESC`,
+      [artisanId]
+    );
+
     // 7. Check if logged-in customer has saved this artisan
     let isSaved = false;
     const payload = await getUserFromRequest(req);
@@ -106,6 +112,8 @@ export async function GET(req, { params }) {
       reviews: reviews,
       portfolio: portfolio,
       gallery: gallery,
+      guarantors,
+      approved_guarantor_count: guarantors.length,
       is_saved: isSaved
     };
 
