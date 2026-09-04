@@ -20,7 +20,7 @@ export async function GET(req, { params }) {
     const artisans = await query(
       `SELECT 
         u.user_id, u.full_name, u.email, u.phone, u.region, u.district, u.profile_photo, u.is_verified,
-        ap.profile_id, ap.category_id, ap.bio, ap.years_experience, ap.starting_price, ap.average_rating, ap.total_reviews, ap.profile_views, ap.is_approved, ap.is_featured, ap.service_areas, ap.created_at,
+        ap.profile_id, ap.category_id, ap.bio, ap.years_experience, ap.starting_price, ap.average_rating, ap.total_reviews, ap.profile_views, ap.is_approved, ap.is_featured, ap.is_available, ap.accepts_emergency, ap.service_areas, ap.created_at,
         c.category_name, c.icon_class
        FROM users u
        INNER JOIN artisan_profiles ap ON u.user_id = ap.user_id

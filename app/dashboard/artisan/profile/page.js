@@ -27,6 +27,8 @@ export default function ArtisanProfileEdit() {
   const [startingPrice, setStartingPrice] = useState('');
   const [bio, setBio] = useState('');
   const [serviceAreas, setServiceAreas] = useState('');
+  const [isAvailable, setIsAvailable] = useState(true);
+  const [acceptsEmergency, setAcceptsEmergency] = useState(false);
 
   // SECTION 3 - PROFILE PHOTO
   const [profilePhoto, setProfilePhoto] = useState('');
@@ -86,6 +88,8 @@ export default function ArtisanProfileEdit() {
             setStartingPrice(artisanProfile.starting_price !== null && artisanProfile.starting_price !== undefined ? String(artisanProfile.starting_price) : '');
             setBio(artisanProfile.bio || '');
             setServiceAreas(artisanProfile.service_areas || '');
+            setIsAvailable(artisanProfile.is_available !== 0);
+            setAcceptsEmergency(artisanProfile.accepts_emergency === 1 || artisanProfile.accepts_emergency === true);
           }
         }
       } catch (err) {
@@ -232,6 +236,8 @@ export default function ArtisanProfileEdit() {
           starting_price: startingPrice,
           bio: bio.trim(),
           service_areas: serviceAreas.trim() || district,
+          is_available: isAvailable,
+          accepts_emergency: acceptsEmergency,
         }),
       });
 
@@ -496,6 +502,24 @@ export default function ArtisanProfileEdit() {
                         placeholder="e.g., 150"
                       />
                       <div className="form-text fs-8 text-muted">Optional starting price. Customers can request a final quote.</div>
+                    </div>
+                  </div>
+
+                  {/* SERVICE COVERAGE AREAS */}
+                  <div className="row g-3 mb-3">
+                    <div className="col-12 col-md-6">
+                      <div className="form-check form-switch border rounded-3 p-3 ps-5 h-100">
+                        <input className="form-check-input" type="checkbox" role="switch" id="profile-availability" checked={isAvailable} onChange={(e) => setIsAvailable(e.target.checked)} />
+                        <label className="form-check-label fw-semibold text-dark" htmlFor="profile-availability">I am available for new jobs</label>
+                        <div className="form-text fs-8">Turn this off when you are fully booked.</div>
+                      </div>
+                    </div>
+                    <div className="col-12 col-md-6">
+                      <div className="form-check form-switch border rounded-3 p-3 ps-5 h-100">
+                        <input className="form-check-input" type="checkbox" role="switch" id="profile-emergency" checked={acceptsEmergency} onChange={(e) => setAcceptsEmergency(e.target.checked)} />
+                        <label className="form-check-label fw-semibold text-dark" htmlFor="profile-emergency">I accept emergency requests</label>
+                        <div className="form-text fs-8">Let customers find you for urgent jobs.</div>
+                      </div>
                     </div>
                   </div>
 

@@ -18,6 +18,8 @@ export default function ArtisanCard({ artisan }) {
   const bio = artisan.bio || 'No professional biography provided yet.';
   const photoUrl = artisan.profile_photo || artisan.image || null;
   const isSaved = artisan.is_saved === true || artisan.is_saved === 1;
+  const isAvailable = artisan.is_available !== 0;
+  const acceptsEmergency = artisan.accepts_emergency === 1 || artisan.accepts_emergency === true;
 
   // Build unified location string
   const locationString = district ? `${district}, ${region}` : region;
@@ -57,6 +59,14 @@ export default function ArtisanCard({ artisan }) {
           <span className="text-muted fs-7" style={{ marginTop: '2px' }}>
             ({reviewsCount} {reviewsCount === 1 ? 'review' : 'reviews'})
           </span>
+        </div>
+
+        <div className="d-flex flex-wrap justify-content-center gap-1 mb-3">
+          <span className={`badge ${isAvailable ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary'}`}>
+            {isAvailable ? 'Available' : 'Busy'}
+          </span>
+          {acceptsEmergency && <span className="badge bg-danger-subtle text-danger">Emergency ready</span>}
+          {artisan.is_verified === 1 && <span className="badge bg-info-subtle text-info">Verified</span>}
         </div>
 
         {/* Location display with pin icon */}

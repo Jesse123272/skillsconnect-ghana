@@ -28,7 +28,9 @@ export async function PUT(req) {
       years_experience,
       starting_price,
       bio,
-      service_areas
+      service_areas,
+      is_available,
+      accepts_emergency
     } = body;
 
     const cleanedName = sanitizeText(full_name || '').trim();
@@ -41,6 +43,8 @@ export async function PUT(req) {
     const parsedStartingPrice = starting_price === '' || starting_price === null || starting_price === undefined
       ? null
       : Number(starting_price);
+    const parsedAvailability = is_available === false || is_available === 0 ? 0 : 1;
+    const parsedEmergency = accepts_emergency === true || accepts_emergency === 1 ? 1 : 0;
 
     // 1. Validate primary fields
     if (!cleanedName || !cleanedEmail || !cleanedPhone || !cleanedRegion || !cleanedDistrict) {
@@ -152,16 +156,16 @@ export async function PUT(req) {
       if (profileCheck && profileCheck.length > 0) {
         await query(
           `UPDATE artisan_profiles 
-           SET category_id = ?, bio = ?, years_experience = ?, starting_price = ?, service_areas = ? 
+           SET category_id = ?, bio = ?, years_experience = ?, starting_price = ?, service_areas = ?, is_available = ?, accepts_emergency = ?
            WHERE user_id = ?`,
-          [resolvedCategory.categoryId, cleanedBio, parsedYearsExp, parsedStartingPrice, flattenedAreas.trim(), payload.user_id]
+          [resolvedCategory.categoryId, cleanedBio, parsedYearsExp, parsedStartingPrice, flattenedAreas.trim(), parsedAvailability, parsedEmergency, payload.user_id]
         );
       } else {
         const initialApprovalState = await getInitialArtisanApprovalState(query);
         await query(
-          `INSERT INTO artisan_profiles (user_id, category_id, bio, years_experience, starting_price, service_areas, is_approved) 
-           VALUES (?, ?, ?, ?, ?, ?, ?)`,
-          [payload.user_id, resolvedCategory.categoryId, cleanedBio, parsedYearsExp, parsedStartingPrice, flattenedAreas.trim(), initialApprovalState]
+          `INSERT INTO artisan_profiles (user_id, category_id, bio, years_experience, starting_price, service_areas, is_available, accepts_emergency, is_approved)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [payload.user_id, resolvedCategory.categoryId, cleanedBio, parsedYearsExp, parsedStartingPrice, flattenedAreas.trim(), parsedAvailability, parsedEmergency, initialApprovalState]
         );
       }
     }

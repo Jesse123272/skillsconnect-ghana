@@ -149,6 +149,11 @@ export default function ArtisanProfileClient({
                   <span className="badge bg-primary px-3 py-1.5 rounded-pill fs-7">
                     {artisan.category_name}
                   </span>
+                  <span className={`badge ${artisan.is_available !== 0 ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary'}`}>
+                    {artisan.is_available !== 0 ? 'Available' : 'Busy'}
+                  </span>
+                  {artisan.accepts_emergency === 1 && <span className="badge bg-danger-subtle text-danger">Emergency ready</span>}
+                  {artisan.is_verified === 1 && <span className="badge bg-info-subtle text-info">Verified</span>}
                   <span className="text-muted small d-flex align-items-center gap-1">
                     <i className="fa-solid fa-location-dot text-primary"></i>
                     {artisan.district}, {artisan.region}
