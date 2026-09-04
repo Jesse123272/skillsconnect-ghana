@@ -44,7 +44,7 @@ export default function HeroSearch() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="w-100" id="hero-location-search-form" style={{ maxWidth: '680px' }}>
+    <form action="/browse" method="get" onSubmit={handleSubmit} className="w-100" id="hero-location-search-form" style={{ maxWidth: '680px' }}>
       <div className="bg-white rounded-4 p-2 shadow-lg d-flex flex-column flex-md-row align-items-stretch gap-2 border">
         
         {/* Trade/Skill Field */}
@@ -52,6 +52,7 @@ export default function HeroSearch() {
           <i className="fa-solid fa-magnifying-glass text-muted me-2.5 fs-6"></i>
           <input
             type="text"
+            name="keyword"
             className="form-control border-0 shadow-none px-0 text-dark fs-6"
             placeholder="What trade do you need? (e.g. Plumber)"
             value={keyword}
@@ -64,6 +65,7 @@ export default function HeroSearch() {
           <i className="fa-solid fa-location-dot text-primary me-2.5 fs-6"></i>
           <input
             type="text"
+            name="district"
             className="form-control border-0 shadow-none px-0 text-dark fs-6"
             placeholder="City or Region (e.g. Accra, Kumasi)"
             value={location}
