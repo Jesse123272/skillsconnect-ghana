@@ -63,6 +63,9 @@ export async function POST(req) {
         { success: false, error: `Paystack initialization failed: ${paystackError.message}` },
         { status: 502 }
       );
+      if (!paystackResponse?.reference || paystackResponse.reference !== reference) {
+        throw new Error('Paystack returned an unexpected transaction reference.');
+      }
     }
 
     const metadataObj = {
@@ -92,7 +95,7 @@ export async function POST(req) {
       success: true,
       data: {
         authorization_url: paystackResponse.authorization_url,
-        reference: paystackResponse.reference
+        reference
       }
     });
 

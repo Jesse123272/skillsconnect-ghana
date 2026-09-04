@@ -72,6 +72,14 @@ export async function POST(req) {
     // 4. Extract payment outcomes
     const paystackStatus = verificationData.status; // e.g., 'success', 'failed'
     const channel = verificationData.channel; // e.g., 'mobile_money', 'card'
+    const verifiedAmount = Number(verificationData.amount) / 100;
+    const verifiedCurrency = String(verificationData.currency || '').toUpperCase();
+    if (!Number.isFinite(verifiedAmount) || Math.abs(verifiedAmount - Number(transaction.amount)) > 0.01 || verifiedCurrency !== 'GHS') {
+      return NextResponse.json(
+        { success: false, error: 'Paystack returned payment details that do not match the original transaction.' },
+        { status: 502 }
+      );
+    }
     let originalMetadata = {};
     try {
       originalMetadata = transaction.metadata

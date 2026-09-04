@@ -54,6 +54,25 @@ node scripts/check_db.js
 
 It checks that the app can reach MySQL and reports the table and user counts without printing credentials.
 
+## 4. Paystack production readiness
+
+The application supports standard Paystack GHS payments and verifies them server-side. Configure these production variables:
+
+```text
+PAYSTACK_SECRET_KEY=<Paystack live secret key>
+PAYSTACK_PUBLIC_KEY=<Paystack live public key>
+NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY=<same live public key>
+NEXT_PUBLIC_SITE_URL=https://<your-domain>
+```
+
+Set the Paystack webhook URL to:
+
+`https://<your-domain>/api/payments/webhook`
+
+Paystack must send the `x-paystack-signature` header. The webhook rejects unsigned requests and processes each transaction only once.
+
+The current application does not claim escrow. To activate marketplace split payments, complete Paystack business/KYC verification, enable Subaccounts or Split Payments in the Paystack dashboard, create and verify artisan recipient accounts, and provide the approved settlement rules. Those account-owner actions cannot be completed from application code.
+
 ## Important: uploads
 
 Vercel's filesystem is ephemeral. The current `public/uploads` storage works locally but uploaded photos will not persist after a Vercel deployment. Use a persistent object-storage provider (such as Cloudinary, S3, or Cloudflare R2) before relying on uploads in production.
