@@ -1,7 +1,7 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 
 const AuthContext = createContext({
   user: null,
@@ -11,10 +11,20 @@ const AuthContext = createContext({
   authFetch: async () => {},
 });
 
+const PUBLIC_ROUTE_PREFIXES = ['/artisan', '/artisans', '/about', '/browse', '/contact', '/how-it-works', '/login', '/register', '/forgot-password', '/reset-password', '/verify-email', '/terms'];
+
+function isPublicPath(pathname) {
+  if (!pathname) return false;
+  if (pathname === '/') return true;
+  return PUBLIC_ROUTE_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(prefix + '/'));
+}
+
 export function AuthProvider({ children }) {
   const router = useRouter();
+  const pathname = usePathname();
+  const isPublicRoute = useMemo(() => isPublicPath(pathname), [pathname]);
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!isPublicRoute);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [unreadEnquiries, setUnreadEnquiries] = useState(0);
   const [pendingArtisansCount, setPendingArtisansCount] = useState(0);
@@ -65,11 +75,19 @@ export function AuthProvider({ children }) {
     window.__SCG_FETCH_PATCHED = true;
   }, []);
 
-  // Fetch current user from /api/auth/me on mount
+  // Fetch current user from /api/auth/me on mount, but skip public pages to avoid noisy 401s.
   useEffect(() => {
+    if (isPublicRoute) {
+      return;
+    }
+
+    let active = true;
+
     async function fetchMe() {
       try {
         const response = await authFetch('/api/auth/me');
+        if (!active) return;
+
         if (response.ok) {
           const result = await response.json();
           if (result.success && result.data) {
@@ -82,14 +100,21 @@ export function AuthProvider({ children }) {
         }
       } catch (error) {
         console.error('Error fetching authenticated user details:', error);
-        setUser(null);
+        if (active) {
+          setUser(null);
+        }
       } finally {
-        setLoading(false);
+        if (active) {
+          setLoading(false);
+        }
       }
     }
 
     fetchMe();
-  }, [authFetch]);
+    return () => {
+      active = false;
+    };
+  }, [authFetch, isPublicRoute]);
 
   // Fetch lightweight badge counts once after we have the user
   useEffect(() => {
