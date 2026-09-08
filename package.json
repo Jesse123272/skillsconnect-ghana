@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "test": "node tests/humanization.test.mjs && node tests/sqlite-fallback-regression.test.mjs",
+    "test": "node tests/humanization.test.mjs && node tests/sqlite-fallback-regression.test.mjs && node tests/defense-readiness.test.mjs",
     "clean": "next clean"
   },
   "dependencies": {

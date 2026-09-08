@@ -2,7 +2,7 @@
 
 **SkillsConnect Ghana** is a full-stack web application designed to connect verified Ghanaian artisans (electricians, plumbers, carpenters, masons, mechanics, tailors, beauticians, and more) with customers across all 16 regions of Ghana.
 
-The platform provides a secure, reliable environment featuring AI-powered artisan matching, direct enquiries, Paystack Mobile Money & Card escrow payments, customer reviews, and a management control panel.
+The platform provides a secure, reliable environment featuring AI-powered artisan matching, direct enquiries, direct Paystack Mobile Money & Card payments, customer reviews, and a management control panel.
 
 ---
 
@@ -12,7 +12,7 @@ The platform provides a secure, reliable environment featuring AI-powered artisa
 - **Artisan Directory**: Search artisans by trade category, region, district, rating, and keywords.
 - **AI Matchmaker**: Describe your project in plain language to get instant AI-recommended artisans.
 - **Enquiries & Messaging**: Send job requests and communicate directly with artisans in real-time.
-- **Secure Escrow Payments**: Pay artisans safely via Paystack using **MTN Mobile Money**, **Telecel Cash**, **AT Money**, or **Bank Cards**.
+- **Secure Direct Payments**: Pay artisans securely via Paystack using **MTN Mobile Money**, **Telecel Cash**, **AT Money**, or **Bank Cards**. This is a direct Paystack payment flow, not marketplace escrow.
 - **Ratings & Reviews**: Share feedback and rate completed jobs.
 - **Payment Receipts**: Access printable receipts and transaction histories anytime.
 
@@ -36,7 +36,7 @@ The platform provides a secure, reliable environment featuring AI-powered artisa
 - **Backend**: Next.js API Routes (Serverless / Server-side)
 - **Database**: Dual Mode — MySQL / MariaDB support with zero-config **SQLite** fallback (`sql.js`)
 - **Authentication**: Custom JWT Authentication (`jose`, `bcryptjs`) with HTTP-only cookies
-- **Payments**: Paystack Gateway API (Ghana Mobile Money & Cards)
+- **Payments**: Paystack Gateway API for direct Ghana Mobile Money & Card payments
 - **AI Integration**: `@google/genai` (Google Gemini API)
 
 ---

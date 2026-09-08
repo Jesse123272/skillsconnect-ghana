@@ -22,6 +22,7 @@ async function ensureSettingsTable() {
         ['contact_email', 'support@skillsconnect.gov.gh'],
         ['contact_phone', '+233 24 123 4567'],
         ['artisan_approval_mode', 'auto'],
+        ['default_locale', 'en'],
         ['about_text', 'Connecting Ghanaian citizens with top-vetted professional and local trade services. Built with security, speed, and high reliability in mind.']
       ];
       for (const [key, val] of defaults) {
@@ -58,6 +59,7 @@ export async function GET(req) {
         contact_email: settings.contact_email || 'support@skillsconnect.gov.gh',
         contact_phone: settings.contact_phone || '+233 24 123 4567',
         artisan_approval_mode: settings.artisan_approval_mode === 'manual' ? 'manual' : 'auto',
+        default_locale: settings.default_locale || 'en',
         about_text: settings.about_text || 'Connecting Ghanaian citizens with top-vetted professional and local trade services.'
       }
     });
@@ -81,14 +83,15 @@ export async function POST(req) {
     await ensureSettingsTable();
 
     const body = await req.json();
-    const { platform_name, contact_email, contact_phone, about_text, artisan_approval_mode } = body;
+    const { platform_name, contact_email, contact_phone, about_text, artisan_approval_mode, default_locale } = body;
 
     const updates = {
       platform_name,
       contact_email,
       contact_phone,
       about_text,
-      artisan_approval_mode: artisan_approval_mode === 'manual' ? 'manual' : 'auto'
+      artisan_approval_mode: artisan_approval_mode === 'manual' ? 'manual' : 'auto',
+      default_locale: default_locale || 'en'
     };
 
     for (const [key, value] of Object.entries(updates)) {

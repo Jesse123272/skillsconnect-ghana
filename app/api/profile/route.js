@@ -13,13 +13,16 @@ export async function PUT(req) {
     }
 
     const body = await req.json();
-    
+    const safeLocale = typeof body?.preferred_language === 'string' && body.preferred_language.trim()
+      ? body.preferred_language.trim()
+      : (typeof body?.locale === 'string' && body.locale.trim() ? body.locale.trim() : 'en');
+
     // Accept preferences from request body (can be nested or flat, let's store as stringified JSON)
-    const preferencesString = JSON.stringify(body);
+    const preferencesString = JSON.stringify({ ...body, preferred_language: safeLocale, locale: safeLocale });
 
     await query(
-      'UPDATE users SET preferences = ? WHERE user_id = ?',
-      [preferencesString, payload.user_id]
+      'UPDATE users SET preferences = ?, preferred_language = ?, locale = ? WHERE user_id = ?',
+      [preferencesString, safeLocale, safeLocale, payload.user_id]
     );
 
     // Log action to activity_logs table

@@ -402,7 +402,7 @@ export default function CustomerEnquiryDetail() {
                 Pay {enquiry.artisan_name} Securely
               </h5>
               <p className="text-secondary fs-7.5 mb-0">
-                Send service payments or deposits directly to this artisan. Payments are held safely until you confirm job satisfaction.
+                Send a direct Paystack payment for this service. This is a secure Paystack payment flow, not a marketplace escrow hold. True marketplace escrow requires Paystack Subaccounts / Split Payments approval and settlement setup.
               </p>
             </div>
 

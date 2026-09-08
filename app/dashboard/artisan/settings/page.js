@@ -30,7 +30,8 @@ export default function ArtisanSettings() {
     email_on_enquiry: true,
     email_on_review: true,
     email_on_approval: true,
-    in_app_notifications: true
+    in_app_notifications: true,
+    preferred_language: 'en'
   });
 
   // UI TRANSACTION STATES
@@ -49,7 +50,8 @@ export default function ArtisanSettings() {
             email_on_enquiry: parsed.email_on_enquiry !== undefined ? parsed.email_on_enquiry : true,
             email_on_review: parsed.email_on_review !== undefined ? parsed.email_on_review : true,
             email_on_approval: parsed.email_on_approval !== undefined ? parsed.email_on_approval : true,
-            in_app_notifications: parsed.in_app_notifications !== undefined ? parsed.in_app_notifications : true
+            in_app_notifications: parsed.in_app_notifications !== undefined ? parsed.in_app_notifications : true,
+            preferred_language: parsed.preferred_language || parsed.locale || 'en'
           });
         } catch (err) {
           console.error('Error parsing notification preferences from user payload:', err);
@@ -207,7 +209,9 @@ export default function ArtisanSettings() {
         // Update user context state instantly
         setUser((prev) => ({
           ...prev,
-          preferences: JSON.stringify(prefs)
+          preferences: JSON.stringify(prefs),
+          preferred_language: prefs.preferred_language,
+          locale: prefs.preferred_language
         }));
       } else {
         setFormError(result.error || 'Failed to update preferences.');
@@ -549,6 +553,21 @@ export default function ArtisanSettings() {
                 <p className="text-muted fs-8 mb-4">Choose how you want to be alerted when client activities take place on SkillsConnect Ghana.</p>
 
                 <form onSubmit={handlePreferencesSubmit}>
+                  <div className="mb-4">
+                    <label htmlFor="artisan-settings-language" className="form-label fw-semibold text-dark fs-7 mb-1.5">
+                      Preferred Language
+                    </label>
+                    <select
+                      id="artisan-settings-language"
+                      value={prefs.preferred_language || 'en'}
+                      onChange={(e) => setPrefs((prev) => ({ ...prev, preferred_language: e.target.value }))}
+                      className="form-select py-2 shadow-none fs-7"
+                    >
+                      <option value="en">English</option>
+                      <option value="tw">Twi</option>
+                    </select>
+                  </div>
+
                   <div className="d-flex flex-column gap-3.5 mb-4" id="notifications-prefs-toggles">
                     
                     {/* Toggle: Email on new enquiry */}

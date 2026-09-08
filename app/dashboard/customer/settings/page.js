@@ -27,6 +27,7 @@ export default function CustomerSettings() {
   const [region, setRegion] = useState('');
   const [district, setDistrict] = useState('');
   const [profilePhoto, setProfilePhoto] = useState('');
+  const [preferredLanguage, setPreferredLanguage] = useState('en');
 
   // Form Password State
   const [currentPassword, setCurrentPassword] = useState('');
@@ -82,6 +83,7 @@ export default function CustomerSettings() {
         setRegion(user.region || '');
         setDistrict(user.district || '');
         setProfilePhoto(user.profile_photo || '');
+        setPreferredLanguage(user.preferred_language || user.locale || 'en');
       }, 0);
       return () => clearTimeout(timer);
     }
@@ -213,6 +215,7 @@ export default function CustomerSettings() {
           region: region,
           district: district,
           profile_photo: profilePhoto.trim() || null,
+          preferred_language: preferredLanguage,
         }),
       });
 
@@ -230,6 +233,8 @@ export default function CustomerSettings() {
           region: region,
           district: district,
           profile_photo: profilePhoto.trim() || null,
+          preferred_language: preferredLanguage,
+          locale: preferredLanguage,
         }));
       } else {
         setProfileError(result.error || 'Failed to update profile settings.');
@@ -482,6 +487,21 @@ export default function CustomerSettings() {
                       required
                     />
                     <div className="form-text fs-8 text-muted">Format: +233XXXXXXXXX (e.g., +233245678901)</div>
+                  </div>
+
+                  <div className="mb-3">
+                    <label htmlFor="settings-language" className="form-label fw-semibold text-dark fs-7">
+                      Preferred Language
+                    </label>
+                    <select
+                      id="settings-language"
+                      value={preferredLanguage}
+                      onChange={(e) => setPreferredLanguage(e.target.value)}
+                      className="form-select py-2 shadow-none fs-7"
+                    >
+                      <option value="en">English</option>
+                      <option value="tw">Twi</option>
+                    </select>
                   </div>
 
                   {/* GEOGRAPHY ROW */}

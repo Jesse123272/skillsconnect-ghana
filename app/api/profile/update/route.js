@@ -30,7 +30,9 @@ export async function PUT(req) {
       bio,
       service_areas,
       is_available,
-      accepts_emergency
+      accepts_emergency,
+      preferred_language,
+      locale
     } = body;
 
     const cleanedName = sanitizeText(full_name || '').trim();
@@ -40,6 +42,7 @@ export async function PUT(req) {
     const cleanedDistrict = sanitizeText(district || '').trim();
     const cleanedBio = sanitizeText(bio || '').trim();
     const cleanedCustomCategory = sanitizeText(custom_category || '').trim();
+    const normalizedLocale = (preferred_language || locale || 'en').toString().trim().toLowerCase();
     const parsedStartingPrice = starting_price === '' || starting_price === null || starting_price === undefined
       ? null
       : Number(starting_price);
@@ -85,9 +88,9 @@ export async function PUT(req) {
     // 4. Update core users fields
     await query(
       `UPDATE users 
-           SET full_name = ?, email = ?, phone = ?, region = ?, district = ?, profile_photo = ? 
+           SET full_name = ?, email = ?, phone = ?, region = ?, district = ?, profile_photo = ?, preferred_language = ?, locale = ? 
        WHERE user_id = ?`,
-      [cleanedName, cleanedEmail, cleanedPhone, cleanedRegion, cleanedDistrict, profile_photo || null, payload.user_id]
+      [cleanedName, cleanedEmail, cleanedPhone, cleanedRegion, cleanedDistrict, profile_photo || null, normalizedLocale, normalizedLocale, payload.user_id]
     );
 
     // 5. If artisan, handle optional artisan_profiles updates
