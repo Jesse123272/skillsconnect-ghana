@@ -68,7 +68,9 @@ export default function SaveButton({ artisanId, isInitiallySaved }) {
         cursor: 'pointer',
         transition: 'all 0.2s ease'
       }}
-      title={isSaved ? 'Unsave Artisan' : 'Save Artisan'}
+      aria-label={isSaved ? 'Unsave artisan' : 'Save artisan'}
+      aria-pressed={isSaved}
+      title={isSaved ? 'Unsave artisan' : 'Save artisan'}
     >
       <Heart 
         size={20} 

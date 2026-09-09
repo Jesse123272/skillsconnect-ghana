@@ -46,9 +46,9 @@ export default function ArtisanCard({ artisan }) {
         </div>
 
         {/* Name with truncation */}
-        <h5 className="card-title fw-bold mb-2 text-dark text-truncate w-100 px-2" title={name}>
+        <h3 className="card-title fw-bold mb-2 text-dark w-100 px-2" title={name}>
           {name}
-        </h5>
+        </h3>
 
         {/* Rating and Reviews Row */}
         <div className="d-flex align-items-center gap-2 mb-3">
@@ -74,23 +74,15 @@ export default function ArtisanCard({ artisan }) {
         </div>
 
         {/* Location display with pin icon */}
-        <p className="card-text text-muted fs-7 mb-3 d-flex align-items-center justify-content-center text-truncate w-100 px-2">
-          <i className="fa-solid fa-location-dot text-danger me-1.5 fs-6"></i>
+        <p className="card-text text-muted fs-7 mb-3 d-flex align-items-center justify-content-center w-100 px-2">
+          <i className="fa-solid fa-location-dot text-danger me-1.5 fs-6" aria-hidden="true"></i>
           <span>{locationString}</span>
         </p>
 
         {/* Bio excerpt with line truncation */}
         <p 
           className="card-text text-secondary fs-7 mb-4 px-1"
-          style={{
-            display: '-webkit-box',
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            lineHeight: '1.5',
-            minHeight: '3rem'
-          }}
+          style={{ lineHeight: '1.5', minHeight: '3rem' }}
         >
           {bio}
         </p>

@@ -49,8 +49,10 @@ export default function HeroSearch() {
         
         {/* Trade/Skill Field */}
         <div className="d-flex align-items-center flex-grow-1 px-3 py-1.5 border-bottom border-md-0 border-md-end">
-          <i className="fa-solid fa-magnifying-glass text-muted me-2.5 fs-6"></i>
+          <i className="fa-solid fa-magnifying-glass text-muted me-2.5 fs-6" aria-hidden="true"></i>
+          <label htmlFor="hero-keyword" className="visually-hidden">Trade or skill</label>
           <input
+            id="hero-keyword"
             type="text"
             name="keyword"
             className="form-control border-0 shadow-none px-0 text-dark fs-6"
@@ -62,8 +64,10 @@ export default function HeroSearch() {
 
         {/* Location/City/Region Field */}
         <div className="d-flex align-items-center flex-grow-1 px-3 py-1.5">
-          <i className="fa-solid fa-location-dot text-primary me-2.5 fs-6"></i>
+          <i className="fa-solid fa-location-dot text-primary me-2.5 fs-6" aria-hidden="true"></i>
+          <label htmlFor="hero-location" className="visually-hidden">City or region</label>
           <input
+            id="hero-location"
             type="text"
             name="district"
             className="form-control border-0 shadow-none px-0 text-dark fs-6"

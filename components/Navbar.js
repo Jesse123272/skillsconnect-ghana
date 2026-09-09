@@ -28,7 +28,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="navbar navbar-expand-lg sticky-top bg-white shadow-sm py-3" id="main-navbar">
+    <nav className="navbar navbar-expand-lg sticky-top bg-white shadow-sm py-3" id="main-navbar" aria-label="Primary navigation">
       <div className="container">
         {/* Logo */}
         <Link href="/" className="navbar-brand d-flex align-items-center text-primary text-decoration-none">
@@ -105,7 +105,7 @@ export default function Navbar() {
                   >
                     {getInitials(user.full_name)}
                   </div>
-                  <span className="d-none d-md-inline text-dark fw-medium fs-6">
+                  <span className="d-none d-md-inline text-dark fw-medium fs-6" aria-label={user.full_name}>
                     {user.full_name?.split(' ')[0]}
                   </span>
                 </button>
@@ -115,7 +115,7 @@ export default function Navbar() {
                   style={{ minWidth: '220px' }}
                 >
                   <li className="px-3 py-2 border-b">
-                    <span className="fw-semibold text-dark d-block text-truncate">
+                    <span className="fw-semibold text-dark d-block text-truncate" title={user.full_name}>
                       {user.full_name}
                     </span>
                     <span className="text-muted small text-capitalize">{user.role} Account</span>

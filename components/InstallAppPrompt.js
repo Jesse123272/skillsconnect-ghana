@@ -68,15 +68,15 @@ export default function InstallAppPrompt() {
   const buttonLabel = promptEvent ? 'Install App' : 'Add to Home Screen';
 
   return (
-    <div className="position-fixed bottom-0 start-0 end-0 bg-white border-top shadow-lg p-3" style={{ zIndex: 1100 }}>
+    <div className="position-sticky bottom-0 start-0 end-0 bg-white border-top shadow-lg p-3 install-app-banner" style={{ zIndex: 1100 }} role="region" aria-label="Install SkillsConnect">
       <div className="d-flex flex-column flex-sm-row align-items-center justify-content-between gap-3">
         <div className="d-flex align-items-start gap-3">
           <div className="bg-primary text-white rounded-3 p-2 d-flex align-items-center justify-content-center" style={{ width: '44px', height: '44px' }}>
             <i className="fa-solid fa-download"></i>
           </div>
           <div>
-            <h6 className="mb-1 fw-bold">Install SkillsConnect</h6>
-            <p className="mb-0 text-muted" style={{ fontSize: '0.95rem' }}>
+            <h2 className="mb-1 fw-bold install-banner-heading">Install SkillsConnect</h2>
+            <p className="mb-0 install-app-copy" style={{ fontSize: '0.95rem' }}>
               {promptEvent ? 'Install the PWA for faster access and a better mobile experience.' : deviceHint}
             </p>
           </div>
@@ -91,7 +91,7 @@ export default function InstallAppPrompt() {
               {buttonLabel}
             </button>
           )}
-          <button type="button" className="btn btn-link btn-sm text-muted" onClick={() => setShowBanner(false)}>
+          <button type="button" className="btn btn-link btn-sm install-dismiss" onClick={() => setShowBanner(false)}>
             Dismiss
           </button>
         </div>

@@ -119,7 +119,7 @@ export default function RootLayout({ children }) {
             color: var(--primary) !important;
           }
           .text-secondary {
-            color: var(--secondary) !important;
+            color: #475569 !important;
           }
           .text-success {
             color: var(--success) !important;
@@ -146,6 +146,13 @@ export default function RootLayout({ children }) {
           .btn:hover, .btn:focus {
             transform: translateY(-1px);
             box-shadow: 0 16px 30px rgba(0, 0, 0, 0.12);
+          }
+          :where(a, button, input, select, textarea):focus-visible {
+            outline: 3px solid #F5A623 !important;
+            outline-offset: 3px;
+          }
+          :where(section, [id]) {
+            scroll-margin-top: 90px;
           }
           .hover-scale {
             transition: transform 0.25s ease, box-shadow 0.25s ease;
@@ -190,8 +197,8 @@ export default function RootLayout({ children }) {
             min-height: 62px;
           }
           .btn-outline-light {
-            color: rgba(255,255,255,0.9) !important;
-            border-color: rgba(255,255,255,0.75) !important;
+            color: #ffffff !important;
+            border-color: rgba(255,255,255,0.9) !important;
           }
           .btn-outline-light:hover, .btn-outline-light:focus {
             color: #fff !important;
@@ -288,7 +295,42 @@ export default function RootLayout({ children }) {
             background-color: rgba(26,107,60,0.08) !important;
           }
           .text-white-75 {
-            color: rgba(255,255,255,0.75) !important;
+            color: #E7F2EB !important;
+          }
+
+          .hero-support-text,
+          .hero-stat-label,
+          .platform-stat-label {
+            color: #E7F2EB !important;
+          }
+          .category-name,
+          .testimonial-name,
+          .install-heading,
+          .install-card-heading,
+          .install-banner-heading {
+            font-size: inherit;
+            line-height: 1.4;
+          }
+          .category-name {
+            overflow-wrap: anywhere;
+          }
+          .footer-heading {
+            color: #FFD166 !important;
+          }
+          .footer-copy,
+          .footer-link,
+          .install-app-copy,
+          .install-dismiss {
+            color: #E7F2EB !important;
+          }
+          .install-dismiss:hover,
+          .install-dismiss:focus-visible,
+          .footer-link:hover,
+          .footer-link:focus-visible {
+            color: #FFFFFF !important;
+          }
+          .install-app-banner {
+            scroll-margin-bottom: 1rem;
           }
 
           .hero-search-container {

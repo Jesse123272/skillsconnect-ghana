@@ -57,6 +57,8 @@ export default function StarRating({
   return (
     <div 
       className={`d-inline-flex align-items-center ${interactive ? 'star-rating-interactive' : ''}`}
+      role={interactive ? 'group' : 'img'}
+      aria-label={`${Number(rating).toFixed(1)} out of ${maxStars} stars`}
       style={{ gap: '4px' }}
     >
       {[...Array(maxStars)].map((_, i) => (
@@ -70,7 +72,7 @@ export default function StarRating({
             fontSize,
             cursor: interactive ? 'pointer' : 'default',
             transition: 'transform 0.1s ease, color 0.1s ease',
-            color: (hoverRating || rating) >= (i + 1) ? '#F5A623' : '#dee2e6'
+            color: (hoverRating || rating) >= (i + 1) ? '#B45309' : '#6B7280'
           }}
         />
       ))}

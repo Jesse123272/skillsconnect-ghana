@@ -121,6 +121,7 @@ export default async function Home() {
   return (
     <div className="d-flex flex-column min-vh-100" id="homepage-container">
       <Navbar />
+      <main id="main-content">
 
       {/* SECTION 1 - HERO */}
       <section 
@@ -140,7 +141,7 @@ export default async function Home() {
               <h1 className="display-4 fw-bold text-white mb-3 lh-sm">
                 Find Trusted Skilled Artisans Near You in Ghana
               </h1>
-              <p className="lead text-white-50 mb-4 fs-5" style={{ lineHeight: '1.7' }}>
+              <p className="lead hero-support-text mb-4 fs-5" style={{ lineHeight: '1.7' }}>
                 Connect with verified professionals — plumbers, electricians, carpenters, and more across all 16 regions of Ghana.
               </p>
 
@@ -149,37 +150,37 @@ export default async function Home() {
                 <HeroSearch />
               </div>
 
-              <div className="d-flex flex-wrap gap-2 gap-sm-3 mb-4">
+              <nav className="d-flex flex-wrap gap-2 gap-sm-3 mb-4" aria-label="Popular searches">
                 {quickSearches.map((term) => (
                   <Link
                     href={`/browse?keyword=${encodeURIComponent(term)}`}
                     key={term}
-                    className="btn btn-sm btn-outline-light rounded-pill px-3 py-2 text-white-75 border-white-25 hero-pill"
+                    className="btn btn-sm btn-outline-light rounded-pill px-3 py-2 hero-pill"
                   >
                     {term}
                   </Link>
                 ))}
-              </div>
+              </nav>
 
               {/* Stats badges */}
               <div className="d-flex flex-wrap gap-3 mt-4" id="hero-stats-badges">
                 <div className="badge bg-white bg-opacity-10 border border-white border-opacity-10 px-3 py-2.5 rounded-3 d-flex align-items-center gap-2">
-                  <i className="fa-solid fa-user-check text-secondary"></i>
+                  <i className="fa-solid fa-user-check text-secondary" aria-hidden="true"></i>
                   <span className="fw-semibold"><AnimatedCounter value={stats.total_artisans} /></span>
-                  <span className="text-white-50">Verified Artisans</span>
+                  <span className="hero-stat-label">Verified Artisans</span>
                 </div>
                 <div className="badge bg-white bg-opacity-10 border border-white border-opacity-10 px-3 py-2.5 rounded-3 d-flex align-items-center gap-2">
-                  <i className="fa-solid fa-star text-secondary"></i>
+                  <i className="fa-solid fa-star text-secondary" aria-hidden="true"></i>
                   <span className="fw-semibold"><AnimatedCounter value={stats.total_reviews} /></span>
-                  <span className="text-white-50">Completed Reviews</span>
+                  <span className="hero-stat-label">Completed Reviews</span>
                 </div>
               </div>
 
               <div className="mt-4 p-4 rounded-4 bg-white bg-opacity-10 border border-white border-opacity-10 shadow-sm d-block d-md-none">
                 <div className="d-flex flex-column flex-sm-row align-items-center justify-content-between gap-3">
                   <div>
-                    <h5 className="text-white mb-1">Install SkillsConnect for faster access</h5>
-                    <p className="text-white-50 mb-0 small">
+                    <h3 className="text-white mb-1 install-heading">Install SkillsConnect for faster access</h3>
+                    <p className="hero-support-text mb-0 small">
                       Use the browser menu or share action on mobile to add SkillsConnect to your home screen.
                     </p>
                   </div>
@@ -210,8 +211,8 @@ export default async function Home() {
                     <i className="fa-solid fa-mobile-screen-button fa-lg"></i>
                   </div>
                   <div>
-                    <h5 className="mb-1 fw-semibold">For iPhone</h5>
-                    <p className="mb-0 text-muted small">Open Safari, tap Share, then choose Add to Home Screen.</p>
+                    <h3 className="mb-1 fw-semibold install-card-heading">For iPhone</h3>
+                      <p className="mb-0 text-muted small">Open Safari, tap Share, then choose Add to Home Screen.</p>
                   </div>
                 </div>
                 <div className="d-flex align-items-center gap-3 mb-3">
@@ -219,7 +220,7 @@ export default async function Home() {
                     <i className="fa-brands fa-android fa-lg"></i>
                   </div>
                   <div>
-                    <h5 className="mb-1 fw-semibold">For Android</h5>
+                    <h3 className="mb-1 fw-semibold install-card-heading">For Android</h3>
                     <p className="mb-0 text-muted small">Open Chrome, tap the browser menu, then Add to Home screen.</p>
                   </div>
                 </div>
@@ -228,7 +229,7 @@ export default async function Home() {
                     <i className="fa-solid fa-globe fa-lg"></i>
                   </div>
                   <div>
-                    <h5 className="mb-1 fw-semibold">Anywhere</h5>
+                    <h3 className="mb-1 fw-semibold install-card-heading">Anywhere</h3>
                     <p className="mb-0 text-muted small">Use the install prompt or bookmark SkillsConnect for quick access.</p>
                   </div>
                 </div>
@@ -251,7 +252,7 @@ export default async function Home() {
                 <div className="d-flex align-items-center justify-content-center bg-primary text-white rounded-circle mb-3 mx-auto" style={{ width: '60px', height: '60px' }}>
                   <i className="fa-solid fa-magnifying-glass fs-4"></i>
                 </div>
-                <h5 className="fw-bold mb-2">1. Search</h5>
+                <h3 className="fw-bold mb-2">1. Search</h3>
                 <p className="text-muted mb-0 small">Browse skilled professionals by their trade specialty and location details.</p>
               </div>
             </div>
@@ -260,7 +261,7 @@ export default async function Home() {
                 <div className="d-flex align-items-center justify-content-center bg-primary text-white rounded-circle mb-3 mx-auto" style={{ width: '60px', height: '60px' }}>
                   <i className="fa-solid fa-comments fs-4"></i>
                 </div>
-                <h5 className="fw-bold mb-2">2. Connect</h5>
+                <h3 className="fw-bold mb-2">2. Connect</h3>
                 <p className="text-muted mb-0 small">View vetted profiles, verify years of experience, and read real customer reviews.</p>
               </div>
             </div>
@@ -269,7 +270,7 @@ export default async function Home() {
                 <div className="d-flex align-items-center justify-content-center bg-primary text-white rounded-circle mb-3 mx-auto" style={{ width: '60px', height: '60px' }}>
                   <i className="fa-solid fa-star-half-stroke fs-4"></i>
                 </div>
-                <h5 className="fw-bold mb-2">3. Review</h5>
+                <h3 className="fw-bold mb-2">3. Review</h3>
                 <p className="text-muted mb-0 small">Rate your work experience to help maintain high standards across Ghana.</p>
               </div>
             </div>
@@ -295,7 +296,7 @@ export default async function Home() {
                     <div className="rounded-circle d-flex align-items-center justify-content-center mb-3 bg-light" style={{ width: '64px', height: '64px' }}>
                       <i className={`fa-solid ${cat.icon_class || 'fa-screwdriver-wrench'} text-primary fs-3`}></i>
                     </div>
-                    <h6 className="fw-bold text-dark mb-1 text-truncate w-100">{cat.category_name}</h6>
+                    <h3 className="fw-bold text-dark mb-1 category-name">{cat.category_name}</h3>
                     <small className="text-muted">View experts</small>
                   </div>
                 </Link>
@@ -340,20 +341,20 @@ export default async function Home() {
         <div className="container py-3">
           <div className="row g-4 text-center">
             <div className="col-6 col-md-3">
-              <h1 className="display-5 fw-bold text-white mb-1"><AnimatedCounter value={stats.total_artisans} /></h1>
-              <p className="text-white-50 mb-0 small uppercase tracking-wider">Total Artisans</p>
+              <p className="display-5 fw-bold text-white mb-1" aria-live="polite"><AnimatedCounter value={stats.total_artisans} /></p>
+              <p className="platform-stat-label mb-0 small uppercase tracking-wider">Total Artisans</p>
             </div>
             <div className="col-6 col-md-3">
-              <h1 className="display-5 fw-bold text-white mb-1"><AnimatedCounter value={stats.total_categories} /></h1>
-              <p className="text-white-50 mb-0 small uppercase tracking-wider">Total Categories</p>
+              <p className="display-5 fw-bold text-white mb-1" aria-live="polite"><AnimatedCounter value={stats.total_categories} /></p>
+              <p className="platform-stat-label mb-0 small uppercase tracking-wider">Total Categories</p>
             </div>
             <div className="col-6 col-md-3">
-              <h1 className="display-5 fw-bold text-white mb-1"><AnimatedCounter value={stats.total_reviews} /></h1>
-              <p className="text-white-50 mb-0 small uppercase tracking-wider">Total Reviews</p>
+              <p className="display-5 fw-bold text-white mb-1" aria-live="polite"><AnimatedCounter value={stats.total_reviews} /></p>
+              <p className="platform-stat-label mb-0 small uppercase tracking-wider">Total Reviews</p>
             </div>
             <div className="col-6 col-md-3">
-              <h1 className="display-5 fw-bold text-white mb-1"><AnimatedCounter value={stats.regions_covered} /></h1>
-              <p className="text-white-50 mb-0 small uppercase tracking-wider">Regions Covered</p>
+              <p className="display-5 fw-bold text-white mb-1" aria-live="polite"><AnimatedCounter value={stats.regions_covered} /></p>
+              <p className="platform-stat-label mb-0 small uppercase tracking-wider">Regions Covered</p>
             </div>
           </div>
         </div>
@@ -373,7 +374,7 @@ export default async function Home() {
                   <i className="fa-solid fa-user-shield text-primary fs-5"></i>
                 </div>
                 <div>
-                  <h5 className="fw-bold text-dark mb-1">Verified Profiles</h5>
+                  <h3 className="fw-bold text-dark mb-1">Verified Profiles</h3>
                   <p className="text-muted mb-0 small">Every service provider undergoes background screening, identity verification, and manual credentials validation.</p>
                 </div>
               </div>
@@ -384,7 +385,7 @@ export default async function Home() {
                   <i className="fa-solid fa-location-crosshairs text-primary fs-5"></i>
                 </div>
                 <div>
-                  <h5 className="fw-bold text-dark mb-1">Location-Based Search</h5>
+                  <h3 className="fw-bold text-dark mb-1">Location-Based Search</h3>
                   <p className="text-muted mb-0 small">Filter results quickly by specific region, district, or neighborhood area to find professionals near you.</p>
                 </div>
               </div>
@@ -395,7 +396,7 @@ export default async function Home() {
                   <i className="fa-solid fa-star-half-stroke text-primary fs-5"></i>
                 </div>
                 <div>
-                  <h5 className="fw-bold text-dark mb-1">Trusted Reviews</h5>
+                  <h3 className="fw-bold text-dark mb-1">Trusted Reviews</h3>
                   <p className="text-muted mb-0 small">Read authentic customer feedback and star ratings collected exclusively after validated job interactions.</p>
                 </div>
               </div>
@@ -406,7 +407,7 @@ export default async function Home() {
                   <i className="fa-solid fa-paper-plane text-primary fs-5"></i>
                 </div>
                 <div>
-                  <h5 className="fw-bold text-dark mb-1">Direct Messaging</h5>
+                  <h3 className="fw-bold text-dark mb-1">Direct Messaging</h3>
                   <p className="text-muted mb-0 small">Connect with artisans directly, submit job requirements, and get quick price estimations with no third-party cuts.</p>
                 </div>
               </div>
@@ -440,7 +441,7 @@ export default async function Home() {
                     <i className="fa-solid fa-headset fs-4"></i>
                   </div>
                   <div>
-                    <h5 className="fw-bold mb-1">Customer Support</h5>
+                    <h3 className="fw-bold mb-1">Customer Support</h3>
                     <p className="text-muted small mb-0">Reach our admin support team by email or submit feedback through the contact form.</p>
                   </div>
                 </div>
@@ -481,7 +482,7 @@ export default async function Home() {
                         EA
                       </div>
                       <div>
-                        <h6 className="fw-bold text-dark mb-0 fs-7">Emmanuel Appiah</h6>
+                        <h3 className="fw-bold text-dark mb-0 testimonial-name">Emmanuel Appiah</h3>
                         <small className="text-muted">Accra, Ghana</small>
                       </div>
                     </div>
@@ -500,7 +501,7 @@ export default async function Home() {
                         MA
                       </div>
                       <div>
-                        <h6 className="fw-bold text-dark mb-0 fs-7">Mercy Ansah</h6>
+                        <h3 className="fw-bold text-dark mb-0 testimonial-name">Mercy Ansah</h3>
                         <small className="text-muted">Kumasi, Ghana</small>
                       </div>
                     </div>
@@ -519,7 +520,7 @@ export default async function Home() {
                         KB
                       </div>
                       <div>
-                        <h6 className="fw-bold text-dark mb-0 fs-7">Kwame Boateng</h6>
+                        <h3 className="fw-bold text-dark mb-0 testimonial-name">Kwame Boateng</h3>
                         <small className="text-muted">Tema, Ghana</small>
                       </div>
                     </div>
@@ -541,7 +542,7 @@ export default async function Home() {
                         {test.customer_name?.substring(0, 2) || 'CL'}
                       </div>
                       <div>
-                        <h6 className="fw-bold text-dark mb-0 fs-7">{test.customer_name}</h6>
+                        <h3 className="fw-bold text-dark mb-0 testimonial-name">{test.customer_name}</h3>
                         <small className="text-muted">
                           {test.artisan_name ? `Reviewed ${test.artisan_name}` : 'Verified Customer'}
                         </small>
@@ -559,7 +560,7 @@ export default async function Home() {
       <section className="py-5 bg-primary text-white text-center" id="homepage-cta">
         <div className="container py-4">
           <h2 className="fw-bold mb-2 text-white">Are You a Skilled Artisan?</h2>
-          <p className="lead text-white-50 mb-4" style={{ maxWidth: '600px', margin: '0 auto 1.5rem' }}>
+          <p className="lead hero-support-text mb-4" style={{ maxWidth: '600px', margin: '0 auto 1.5rem' }}>
             Join thousands growing their business on SkillsConnect Ghana. Showcase your craft, connect with clients, and earn more.
           </p>
           <Link href="/register" className="btn btn-light text-primary px-4 py-2.5 rounded-pill fw-bold hover-scale shadow">
@@ -568,6 +569,7 @@ export default async function Home() {
         </div>
       </section>
 
+      </main>
       <Footer />
     </div>
   );
