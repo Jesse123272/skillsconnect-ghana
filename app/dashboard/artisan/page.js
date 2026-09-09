@@ -26,10 +26,13 @@ export default function ArtisanDashboardHome() {
 
   const handleCopyProfileLink = async () => {
     if (typeof window === 'undefined') return;
-    const url = `${window.location.origin}/artisan/${user.user_id}`;
+    const hasPublicProfile = Boolean(profile?.artisan_profile?.profile_id || user?.artisan_profile?.profile_id);
+    const url = hasPublicProfile
+      ? `${window.location.origin}/artisan/${user.user_id}`
+      : `${window.location.origin}/dashboard/artisan/profile`;
     try {
       await navigator.clipboard.writeText(url);
-      toast.success('Profile link copied to clipboard');
+      toast.success(hasPublicProfile ? 'Profile link copied to clipboard' : 'Complete your profile before sharing it');
     } catch (err) {
       console.error('Clipboard copy failed:', err);
       toast.error('Could not copy link. Please copy manually.');
@@ -187,13 +190,13 @@ export default function ArtisanDashboardHome() {
             </div>
             <div className="col-12 col-md-4 text-md-end">
               <div className="d-flex flex-column flex-sm-row justify-content-sm-end align-items-stretch gap-2">
-                <Link 
-                  href={`/artisan/${user.user_id}`} 
+                <Link
+                  href={profile?.artisan_profile?.profile_id ? `/artisan/${user.user_id}` : '/dashboard/artisan/profile'}
                   className="btn btn-outline-light px-4 py-2.5 rounded-pill fw-semibold shadow-sm hover-bg-light hover-text-dark"
                   target="_blank"
                 >
                   <i className="fa-solid fa-arrow-up-right-from-square me-1.5 fs-8"></i>
-                  <span>View My Public Profile</span>
+                  <span>{profile?.artisan_profile?.profile_id ? 'View My Public Profile' : 'Complete My Profile'}</span>
                 </Link>
                 <button 
                   type="button"
