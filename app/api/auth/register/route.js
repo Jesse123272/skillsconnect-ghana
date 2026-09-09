@@ -188,13 +188,25 @@ export async function POST(req) {
       try {
         const resolvedCategory = await resolveCategorySelection(query, parsedCategoryId, cleanedCustomCategory);
         const initialApprovalState = await getInitialArtisanApprovalState(query);
+        if (!resolvedCategory.categoryId) {
+          throw new Error('A valid artisan category could not be resolved.');
+        }
         await query(
           `INSERT INTO artisan_profiles (user_id, category_id, bio, years_experience, is_approved) 
            VALUES (?, ?, ?, ?, ?)`,
           [userId, resolvedCategory.categoryId, cleanedBio, parsedYearsExp, initialApprovalState]
         );
       } catch (profileError) {
-        console.warn('Artisan profile insert failed:', profileError?.message || profileError);
+        console.error('Artisan profile insert failed; removing incomplete account:', profileError?.message || profileError);
+        try {
+          await query('DELETE FROM users WHERE user_id = ?', [userId]);
+        } catch (cleanupError) {
+          console.error('Failed to remove incomplete artisan account:', cleanupError?.message || cleanupError);
+        }
+        return NextResponse.json(
+          { success: false, error: 'We could not finish creating your artisan profile. Please check your category and try again.' },
+          { status: 500 }
+        );
       }
     }
 

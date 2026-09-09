@@ -23,8 +23,8 @@ export async function GET(req, { params }) {
         ap.profile_id, ap.category_id, ap.bio, ap.years_experience, ap.starting_price, ap.average_rating, ap.total_reviews, ap.profile_views, ap.is_approved, ap.is_featured, ap.is_available, ap.accepts_emergency, ap.ghana_card_verified, ap.police_checked, ap.trade_certified, ap.service_areas, ap.created_at,
         c.category_name, c.icon_class
        FROM users u
-       INNER JOIN artisan_profiles ap ON u.user_id = ap.user_id
-       INNER JOIN categories c ON ap.category_id = c.category_id
+      LEFT JOIN artisan_profiles ap ON u.user_id = ap.user_id
+      LEFT JOIN categories c ON ap.category_id = c.category_id
        WHERE u.user_id = ? AND u.is_active = 1`,
       [artisanId]
     );
@@ -37,6 +37,19 @@ export async function GET(req, { params }) {
     }
 
     const artisan = artisans[0];
+
+    if (!artisan.profile_id) {
+      artisan.category_name = 'Profile setup in progress';
+      artisan.bio = 'This artisan account is completing its public profile. Please check back soon.';
+      artisan.years_experience = 0;
+      artisan.average_rating = 0;
+      artisan.total_reviews = 0;
+      artisan.profile_views = 0;
+      artisan.is_approved = 0;
+      artisan.is_available = 0;
+      artisan.accepts_emergency = 0;
+      artisan.service_areas = null;
+    }
 
     // 3. Increment profile_views in artisan_profiles and log the view
     await query('UPDATE artisan_profiles SET profile_views = profile_views + 1 WHERE user_id = ?', [artisanId]);

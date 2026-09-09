@@ -41,8 +41,8 @@ export default async function ArtisanProfilePage({ params }) {
         ap.profile_id, ap.category_id, ap.bio, ap.years_experience, ap.starting_price, ap.average_rating, ap.total_reviews, ap.profile_views, ap.is_approved, ap.is_available, ap.accepts_emergency, ap.service_areas,
         c.category_name, c.icon_class
       FROM users u
-      INNER JOIN artisan_profiles ap ON u.user_id = ap.user_id
-      INNER JOIN categories c ON ap.category_id = c.category_id
+      LEFT JOIN artisan_profiles ap ON u.user_id = ap.user_id
+      LEFT JOIN categories c ON ap.category_id = c.category_id
       WHERE u.user_id = ? AND u.role = 'artisan' AND u.is_active = 1
     `, [artisanId]);
 
@@ -55,6 +55,24 @@ export default async function ArtisanProfilePage({ params }) {
 
   if (!artisan) {
     notFound();
+  }
+
+  const hasProfile = Boolean(artisan.profile_id);
+  if (!hasProfile) {
+    artisan = {
+      ...artisan,
+      category_name: 'Profile setup in progress',
+      bio: 'This artisan account is completing its public profile. Please check back soon.',
+      years_experience: 0,
+      average_rating: 0,
+      total_reviews: 0,
+      profile_views: 0,
+      is_approved: 0,
+      is_available: 0,
+      accepts_emergency: 0,
+      service_areas: null,
+      approved_guarantor_count: 0,
+    };
   }
 
   // 3. Fetch portfolio/gallery items
