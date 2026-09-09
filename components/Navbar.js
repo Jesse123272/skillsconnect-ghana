@@ -28,7 +28,8 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="navbar navbar-expand-lg sticky-top bg-white shadow-sm py-3" id="main-navbar" aria-label="Primary navigation">
+    <header>
+      <nav className="navbar navbar-expand-lg sticky-top bg-white shadow-sm py-3" id="main-navbar" aria-label="Primary navigation">
       <div className="container">
         {/* Logo */}
         <Link href="/" className="navbar-brand d-flex align-items-center text-primary text-decoration-none">
@@ -158,6 +159,7 @@ export default function Navbar() {
           </div>
         </div>
       </div>
-    </nav>
+      </nav>
+    </header>
   );
 }

@@ -68,7 +68,7 @@ export default function InstallAppPrompt() {
   const buttonLabel = promptEvent ? 'Install App' : 'Add to Home Screen';
 
   return (
-    <div className="position-sticky bottom-0 start-0 end-0 bg-white border-top shadow-lg p-3 install-app-banner" style={{ zIndex: 1100 }} role="region" aria-label="Install SkillsConnect">
+    <div className="position-sticky bottom-0 start-0 end-0 bg-white border-top shadow-lg p-3 install-app-banner" style={{ zIndex: 1100 }} role="region" aria-label="Install SkillsConnect" aria-live="polite" aria-atomic="true">
       <div className="d-flex flex-column flex-sm-row align-items-center justify-content-between gap-3">
         <div className="d-flex align-items-start gap-3">
           <div className="bg-primary text-white rounded-3 p-2 d-flex align-items-center justify-content-center" style={{ width: '44px', height: '44px' }}>

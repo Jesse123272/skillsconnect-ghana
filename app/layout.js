@@ -122,7 +122,11 @@ export default function RootLayout({ children }) {
             color: #475569 !important;
           }
           .text-success {
-            color: var(--success) !important;
+            color: #146c43 !important;
+          }
+          .btn-outline-secondary {
+            color: #495057 !important;
+            border-color: #6c757d !important;
           }
           .text-danger {
             color: var(--danger) !important;
@@ -318,10 +322,12 @@ export default function RootLayout({ children }) {
             color: #FFD166 !important;
           }
           .footer-copy,
-          .footer-link,
+          .footer-link {
+            color: #E7F2EB !important;
+          }
           .install-app-copy,
           .install-dismiss {
-            color: #E7F2EB !important;
+            color: #475569 !important;
           }
           .install-dismiss:hover,
           .install-dismiss:focus-visible,

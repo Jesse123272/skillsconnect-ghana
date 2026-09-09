@@ -179,7 +179,7 @@ export default async function Home() {
               <div className="mt-4 p-4 rounded-4 bg-white bg-opacity-10 border border-white border-opacity-10 shadow-sm d-block d-md-none">
                 <div className="d-flex flex-column flex-sm-row align-items-center justify-content-between gap-3">
                   <div>
-                    <h3 className="text-white mb-1 install-heading">Install SkillsConnect for faster access</h3>
+                    <h2 className="text-white mb-1 install-heading">Install SkillsConnect for faster access</h2>
                     <p className="hero-support-text mb-0 small">
                       Use the browser menu or share action on mobile to add SkillsConnect to your home screen.
                     </p>

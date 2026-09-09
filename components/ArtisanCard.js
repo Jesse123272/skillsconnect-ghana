@@ -93,6 +93,7 @@ export default function ArtisanCard({ artisan }) {
         <Link 
           href={`/artisan/${artisanId}`} 
           className="btn btn-outline-primary w-100 py-2 rounded-3 text-decoration-none d-flex align-items-center justify-content-center gap-1.5"
+          aria-label={`View Profile: ${name}`}
           style={{ width: '100%' }}
         >
           <span>View Profile</span>
