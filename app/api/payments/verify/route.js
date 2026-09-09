@@ -60,7 +60,7 @@ export async function POST(req) {
     // 3. Query Paystack remote API for live status verification
     let verificationData;
     try {
-      verificationData = await verifyTransaction(reference.trim());
+      verificationData = await verifyTransaction(reference.trim(), transaction.amount);
     } catch (paystackError) {
       console.error('Paystack verification remote error:', paystackError.message);
       return NextResponse.json(
@@ -102,12 +102,29 @@ export async function POST(req) {
     }
 
     // 5. UPDATE transaction row with final outcomes
-    await query(
+    const updateResult = await query(
       `UPDATE transactions 
        SET status = ?, channel = ?, verified_at = NOW(), metadata = ? 
-       WHERE reference = ?`,
+       WHERE reference = ? AND status = 'pending'`,
       [finalStatus, channel, JSON.stringify(verifiedMetadata), reference.trim()]
     );
+
+    const affectedRows = Number(updateResult?.affectedRows ?? updateResult?.changes ?? 1);
+    if (affectedRows === 0) {
+      const current = await query(
+        'SELECT status, amount, channel, verified_at FROM transactions WHERE reference = ? LIMIT 1',
+        [reference.trim()]
+      );
+      return NextResponse.json({
+        success: true,
+        data: {
+          status: current?.[0]?.status || finalStatus,
+          amount: current?.[0]?.amount || transaction.amount,
+          channel: current?.[0]?.channel || channel,
+          verified_at: current?.[0]?.verified_at || new Date()
+        }
+      });
+    }
 
     // 6. Send immediate visual notification alert
     let parsedMeta = {};

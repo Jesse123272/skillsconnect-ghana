@@ -30,12 +30,18 @@ export async function POST(req) {
     if (!reference) return NextResponse.json({ success: false, error: 'Webhook reference is missing.' }, { status: 400 });
 
     const transactions = await query(
-      'SELECT transaction_id, amount, status, metadata FROM transactions WHERE reference = ? LIMIT 1',
+      'SELECT transaction_id, amount, currency, status, metadata FROM transactions WHERE reference = ? LIMIT 1',
       [reference]
     );
     const transaction = transactions?.[0];
     if (!transaction) return NextResponse.json({ success: true, ignored: true });
     if (transaction.status !== 'pending') return NextResponse.json({ success: true, already_processed: true });
+
+    const webhookAmount = Number(data.amount) / 100;
+    const webhookCurrency = String(data.currency || '').toUpperCase();
+    if (!Number.isFinite(webhookAmount) || Math.abs(webhookAmount - Number(transaction.amount)) > 0.01 || webhookCurrency !== String(transaction.currency || 'GHS').toUpperCase()) {
+      return NextResponse.json({ success: false, error: 'Webhook payment details do not match the transaction.' }, { status: 400 });
+    }
 
     const finalStatus = event.event === 'charge.success' && data.status === 'success' ? 'success' : 'failed';
     let originalMetadata = {};
@@ -47,7 +53,7 @@ export async function POST(req) {
       originalMetadata = {};
     }
 
-    await query(
+    const updateResult = await query(
       `UPDATE transactions
        SET status = ?, channel = ?, verified_at = CURRENT_TIMESTAMP, metadata = ?
        WHERE reference = ? AND status = 'pending'`,
@@ -60,6 +66,11 @@ export async function POST(req) {
         webhook_event: event.event
       }), reference]
     );
+
+    const affectedRows = Number(updateResult?.affectedRows ?? updateResult?.changes ?? 1);
+    if (affectedRows === 0) {
+      return NextResponse.json({ success: true, already_processed: true });
+    }
 
     return NextResponse.json({ success: true, status: finalStatus });
   } catch (error) {
