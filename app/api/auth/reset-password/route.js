@@ -36,7 +36,7 @@ export async function POST(req) {
 
     // Find user with matching reset token
     const users = await query(
-      'SELECT user_id, email, full_name, reset_token FROM users WHERE reset_token IS NOT NULL'
+      'SELECT user_id, email, full_name, reset_token FROM users WHERE reset_token IS NOT NULL AND reset_token <> \'\''
     );
 
     let matchingUser = null;

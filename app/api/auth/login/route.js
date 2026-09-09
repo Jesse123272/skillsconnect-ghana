@@ -145,7 +145,7 @@ export async function POST(req) {
     let users = [];
     try {
       users = await query(
-        'SELECT user_id, full_name, email, phone, password_hash, role, region, district, profile_photo, lat, lng, is_verified, is_active FROM users WHERE email = ?',
+        'SELECT user_id, full_name, email, phone, password_hash, role, region, district, profile_photo, lat, lng, is_verified, is_active FROM users WHERE LOWER(email) = LOWER(?)',
         [cleanedEmail]
       );
     } catch (dbError) {

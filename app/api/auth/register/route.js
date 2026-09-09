@@ -139,7 +139,7 @@ export async function POST(req) {
     // 6. Check unique email
     let emailCheck = [];
     try {
-      emailCheck = await query('SELECT user_id FROM users WHERE email = ?', [cleanedEmail]);
+      emailCheck = await query('SELECT user_id FROM users WHERE LOWER(email) = LOWER(?)', [cleanedEmail]);
     } catch (emailLookupError) {
       console.warn('Email lookup failed during registration:', emailLookupError?.message || emailLookupError);
     }

@@ -26,8 +26,8 @@ export async function POST(req) {
 
     // Find user
     const users = await query(
-      'SELECT user_id, full_name, role, is_verified, verification_token FROM users WHERE email = ?',
-      [email.trim()]
+      'SELECT user_id, full_name, email, role, is_verified, verification_token FROM users WHERE LOWER(email) = LOWER(?)',
+      [normalizedEmail]
     );
 
     let user = users?.[0];
@@ -109,7 +109,7 @@ export async function POST(req) {
     try {
       const emailHtml = welcomeEmail(user.full_name, user.role);
       await sendEmail({
-        to: email.trim(),
+        to: normalizedEmail,
         subject: 'Welcome to SkillsConnect Ghana! 🎉',
         html: emailHtml
       });
@@ -179,8 +179,8 @@ export async function PUT(req) {
 
     // Find user
     const users = await query(
-      'SELECT user_id, full_name, is_verified FROM users WHERE email = ?',
-      [email.trim()]
+      'SELECT user_id, full_name, email, is_verified FROM users WHERE LOWER(email) = LOWER(?)',
+      [normalizedEmail]
     );
 
     if (!users || users.length === 0) {
@@ -212,7 +212,7 @@ export async function PUT(req) {
     try {
       const emailHtml = verificationEmail(user.full_name, verificationCode);
       await sendEmail({
-        to: email.trim(),
+        to: normalizedEmail,
         subject: 'Verify your SkillsConnect Ghana Account 🛡️',
         html: emailHtml
       });

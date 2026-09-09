@@ -7,9 +7,10 @@ export async function POST(req) {
   try {
     const body = await req.json();
     const { email } = body;
+    const normalizedEmail = typeof email === 'string' ? email.trim().toLowerCase() : '';
 
     // 1. Validate email input
-    if (!email) {
+    if (!normalizedEmail) {
       return NextResponse.json(
         { success: false, error: 'Email address is required' },
         { status: 400 }
@@ -17,7 +18,10 @@ export async function POST(req) {
     }
 
     // 2. SELECT user by email
-    const users = await query('SELECT user_id, full_name, email FROM users WHERE email = ?', [email]);
+    const users = await query(
+      'SELECT user_id, full_name, email FROM users WHERE LOWER(email) = LOWER(?)',
+      [normalizedEmail]
+    );
 
     // Mask response: always return success message even if email doesn't exist
     const successResponse = NextResponse.json({
@@ -43,7 +47,10 @@ export async function POST(req) {
     await query('UPDATE users SET reset_token = ? WHERE user_id = ?', [resetTokenValue, user.user_id]);
 
     // 5. Send reset email via mailer
-    const resetLink = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/reset-password?token=${token}`;
+    const configuredSiteUrl = process.env.APP_URL || process.env.NEXT_PUBLIC_SITE_URL;
+    const requestOrigin = new URL(req.url).origin;
+    const siteUrl = (configuredSiteUrl || requestOrigin).replace(/\/$/, '');
+    const resetLink = `${siteUrl}/reset-password?token=${encodeURIComponent(token)}`;
     
     const emailHtml = `
       <!DOCTYPE html>
