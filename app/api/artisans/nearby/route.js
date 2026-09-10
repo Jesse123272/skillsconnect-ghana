@@ -8,13 +8,14 @@ export async function GET(req) {
     const longitude = parseFloat(searchParams.get('longitude') || '');
     const radius = parseFloat(searchParams.get('radius') || '10');
     const categoryId = searchParams.get('category_id');
-    const limit = parseInt(searchParams.get('limit') || '12', 10);
+    const requestedLimit = parseInt(searchParams.get('limit') || '12', 10);
+    const limit = Number.isFinite(requestedLimit) ? Math.max(1, Math.min(requestedLimit, 100)) : 12;
     const hasLocation = !Number.isNaN(latitude) && !Number.isNaN(longitude);
     const parsedCategoryId = categoryId ? parseInt(categoryId, 10) : null;
     const useCategoryFilter = parsedCategoryId !== null && !Number.isNaN(parsedCategoryId);
 
     if (hasLocation) {
-      if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
+      if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180 || !Number.isFinite(radius) || radius <= 0) {
         return NextResponse.json(
           { success: false, error: 'Please provide valid latitude and longitude coordinates.' },
           { status: 400 }
@@ -38,7 +39,7 @@ export async function GET(req) {
           AND (6371 * acos(cos(radians(?)) * cos(radians(u.lat)) * cos(radians(u.lng) - radians(?)) + sin(radians(?)) * sin(radians(u.lat)))) <= ?
         ${useCategoryFilter ? 'AND ap.category_id = ?' : ''}
         ORDER BY weighted_score DESC, distance_km ASC
-        LIMIT ?
+        LIMIT ${limit}
       `;
 
       const params = [
@@ -58,8 +59,6 @@ export async function GET(req) {
       if (useCategoryFilter) {
         params.push(parsedCategoryId);
       }
-      params.push(limit);
-
       const artisans = await query(sql, params);
       return NextResponse.json({ success: true, data: artisans || [] });
     }
@@ -74,8 +73,8 @@ export async function GET(req) {
        INNER JOIN categories c ON ap.category_id = c.category_id
        WHERE u.is_active = 1 AND ap.is_approved = 1 ${regionClause}
        ORDER BY ap.average_rating DESC, ap.total_reviews DESC
-       LIMIT ?`,
-      [...regionParams, limit]
+      LIMIT ${limit}`,
+          regionParams
     );
 
     return NextResponse.json({ success: true, data: artisans || [] });
