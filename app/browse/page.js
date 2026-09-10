@@ -134,12 +134,20 @@ function BrowseContent() {
             setLocationHint('Showing artisans based on your saved profile location.');
           }
 
+          if (!coords && authUser?.region) {
+            params.append('region', authUser.region);
+            if (authUser.district) {
+              params.append('district', authUser.district);
+            }
+            setLocationHint(`Showing artisans in ${authUser.region}${authUser.district ? `, ${authUser.district}` : ''}.`);
+          }
+
           if (coords) {
             params.append('latitude', coords[0].toString());
             params.append('longitude', coords[1].toString());
             params.append('radius', '25');
             setUsedLocationSearch(true);
-          } else {
+          } else if (!authUser?.region) {
             setLocationHint('Unable to use location. Showing default artisan listings.');
           }
         }
@@ -170,7 +178,7 @@ function BrowseContent() {
       }
     }
     loadArtisans();
-  }, [searchParams, selectedCategory, selectedRegion, selectedDistrict, selectedRating, selectedSort, currentPage, keyword, authUser?.lat, authUser?.lng]);
+  }, [searchParams, selectedCategory, selectedRegion, selectedDistrict, selectedRating, selectedSort, currentPage, keyword, authUser?.lat, authUser?.lng, authUser?.region, authUser?.district]);
 
   // Handle updates to search and filter and push to URL
   const applyFilters = (newFilters = {}) => {

@@ -11,6 +11,7 @@ import SaveButton from './SaveButton';
 import ReviewCard from './ReviewCard';
 import EmptyState from './EmptyState';
 import dynamic from 'next/dynamic';
+import { normalizeDisplayText } from '@/lib/security';
 
 const ServiceCostEstimator = dynamic(() => import('./ServiceCostEstimator'), { ssr: false, loading: () => null });
 const ReferralShareHub = dynamic(() => import('./ReferralShareHub'), { ssr: false, loading: () => null });
@@ -253,7 +254,7 @@ export default function ArtisanProfileClient({
               <div className="card border-0 bg-transparent py-2">
                 <h5 className="fw-bold text-dark mb-3">Biography</h5>
                 <p className="text-secondary mb-4 fs-6" style={{ lineHeight: '1.7', whiteSpace: 'pre-wrap' }}>
-                  {artisan.bio || 'This artisan has not provided a bio description yet.'}
+                  {normalizeDisplayText(artisan.bio || 'This artisan has not provided a bio description yet.')}
                 </p>
 
                 <h5 className="fw-bold text-dark mb-3">Professional Qualifications</h5>

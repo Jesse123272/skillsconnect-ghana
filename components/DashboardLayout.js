@@ -299,7 +299,7 @@ export default function DashboardLayout({ children, pageTitle = 'Dashboard' }) {
         </div>
 
         {/* Main Content Pane */}
-        <main className="flex-grow-1 p-3 p-md-4 overflow-x-hidden">
+        <main className="dashboard-main-panel flex-grow-1 p-3 p-md-4 overflow-x-hidden">
           {/* Breadcrumbs and Section header info */}
           <div className="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center mb-3 gap-2">
             <div>
@@ -308,7 +308,7 @@ export default function DashboardLayout({ children, pageTitle = 'Dashboard' }) {
           </div>
 
           {/* Main card wrapper */}
-          <div className="card border-0 shadow-sm p-2.5 p-sm-3 p-md-4 rounded-3 bg-white" style={{ minHeight: '80%' }}>
+          <div className="card border-0 shadow-sm p-2.5 p-sm-3 p-md-4 rounded-3 bg-white dashboard-content-shell" style={{ minHeight: '80%' }}>
             {children}
           </div>
         </main>

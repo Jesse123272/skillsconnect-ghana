@@ -70,7 +70,8 @@ export default function AiMatchmaker() {
           filters: {
             category_id: json.data.category_id,
             category_name: json.data.category_name,
-            region: json.data.region
+            region: json.data.region,
+            district: json.data.district
           },
           source: json.data.source
         };
@@ -99,8 +100,10 @@ export default function AiMatchmaker() {
     const params = new URLSearchParams();
     if (filters.category_id) params.append('category_id', filters.category_id);
     if (filters.region) params.append('region', filters.region);
+    if (filters.district) params.append('district', filters.district);
     
-    toast.success(`Applied filters for ${filters.category_name || 'Trade'} in ${filters.region || 'Ghana'}!`);
+    const location = [filters.district, filters.region].filter(Boolean).join(', ') || 'Ghana';
+    toast.success(`Applied filters for ${filters.category_name || 'Trade'} in ${location}!`);
     router.push(`/browse?${params.toString()}`);
     setIsOpen(false);
   };
@@ -174,7 +177,7 @@ export default function AiMatchmaker() {
                     <div>{msg.text}</div>
 
                     {/* Filters application box */}
-                    {msg.filters && (msg.filters.category_id || msg.filters.region) && (
+                    {msg.filters && (msg.filters.category_id || msg.filters.region || msg.filters.district) && (
                       <div className="mt-2 pt-2 border-top border-opacity-10 d-flex flex-column gap-1.5">
                         <div className="d-flex flex-wrap gap-1">
                           {msg.filters.category_name && (
@@ -185,6 +188,11 @@ export default function AiMatchmaker() {
                           {msg.filters.region && (
                             <span className="badge bg-light text-secondary px-2 py-1 fs-9 border">
                               📍 {msg.filters.region}
+                            </span>
+                          )}
+                          {msg.filters.district && (
+                            <span className="badge bg-light text-secondary px-2 py-1 fs-9 border">
+                              📌 {msg.filters.district}
                             </span>
                           )}
                         </div>

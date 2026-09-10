@@ -73,14 +73,85 @@ function findMatch(text, values) {
   return values.find((value) => normalized.includes(value.toLowerCase())) || null;
 }
 
+function normalizeMatchResult(result, message) {
+  const normalizedMessage = message.toLowerCase();
+  const categoryAliases = [
+    ['plumber', 'plumbing'],
+    ['pipe fitter', 'plumbing'],
+    ['electrician', 'electrical work'],
+    ['electrical', 'electrical work'],
+    ['carpenter', 'carpentry'],
+    ['mason', 'masonry'],
+    ['builder', 'masonry'],
+    ['tailor', 'tailoring'],
+    ['seamstress', 'tailoring'],
+    ['hairdresser', 'hairdressing'],
+    ['barber', 'hairdressing'],
+    ['painter', 'painting'],
+    ['welder', 'welding'],
+    ['mechanic', 'mechanics'],
+    ['fashion designer', 'fashion design'],
+    ['fashion', 'fashion design']
+  ];
+  const categoryAlias = categoryAliases.find(([alias]) => normalizedMessage.includes(alias));
+  const category = categoryAlias
+    ? CATEGORIES_LIST.find((item) => item.name.toLowerCase() === categoryAlias[1])
+    : CATEGORIES_LIST.find((item) => item.id === Number(result?.category_id)) ||
+      CATEGORIES_LIST.find((item) => item.name.toLowerCase() === String(result?.category_name || '').toLowerCase());
+
+  const regionAliases = [
+    ['accra', 'Greater Accra'],
+    ['tema', 'Greater Accra'],
+    ['east legon', 'Greater Accra'],
+    ['spintex', 'Greater Accra'],
+    ['airport', 'Greater Accra'],
+    ['osu', 'Greater Accra'],
+    ['madina', 'Greater Accra'],
+    ['adenta', 'Greater Accra'],
+    ['kasoa', 'Central'],
+    ['kumasi', 'Ashanti'],
+    ['cape coast', 'Central'],
+    ['takoradi', 'Western'],
+    ['tarkwa', 'Western'],
+    ['koforidua', 'Eastern'],
+    ['ho ', 'Volta'],
+    ['tamale', 'Northern'],
+    ['bolgatanga', 'Upper East'],
+    ['wa ', 'Upper West'],
+    ['sunyani', 'Bono']
+  ];
+  const regionAlias = regionAliases.find(([alias]) => normalizedMessage.includes(alias));
+  const region = regionAlias?.[1] || findMatch(String(result?.region || ''), REGIONS_LIST) || findMatch(message, REGIONS_LIST);
+  const district = findMatch(message, [
+    'East Legon', 'Spintex', 'Airport', 'Tema', 'Osu', 'Madina', 'Adenta', 'Kasoa',
+    'Dansoman', 'Teshie', 'Nungua', 'Kumasi', 'Bantama', 'Suame', 'Accra', 'Tamale',
+    'Cape Coast', 'Takoradi', 'Koforidua', 'Sunyani'
+  ]) || (typeof result?.district === 'string' ? result.district.trim() : null);
+
+  return {
+    category_id: category?.id || null,
+    category_name: category?.name || null,
+    region: region || null,
+    district: district || null,
+    ai_reply: typeof result?.ai_reply === 'string' && result.ai_reply.trim()
+      ? result.ai_reply.trim()
+      : 'Akwaaba! I found the closest matching trade and location. Here are verified professionals you can contact.'
+  };
+}
+
 function buildLocalMatch(message) {
   const categoryKeywords = [
     ['plumber', 'plumbing'],
+    ['pipe fitter', 'plumbing'],
     ['electrician', 'electrical work'],
+    ['electrical', 'electrical work'],
     ['carpenter', 'carpentry'],
     ['mason', 'masonry'],
+    ['builder', 'masonry'],
     ['tailor', 'tailoring'],
+    ['seamstress', 'tailoring'],
     ['hairdresser', 'hairdressing'],
+    ['barber', 'hairdressing'],
     ['painter', 'painting'],
     ['welder', 'welding'],
     ['mechanic', 'mechanics'],
@@ -91,17 +162,16 @@ function buildLocalMatch(message) {
   const category = categoryMatch
     ? CATEGORIES_LIST.find((item) => item.name.toLowerCase() === categoryMatch[1])
     : null;
-  const region = findMatch(message, REGIONS_LIST);
-  const district = ['East Legon', 'Kumasi', 'Tema', 'Osu', 'Madina', 'Bantama', 'Accra']
-    .find((place) => normalized.includes(place.toLowerCase())) || null;
+  const provisional = normalizeMatchResult({
+    category_id: category?.id,
+    category_name: category?.name,
+    ai_reply: 'placeholder'
+  }, message);
 
   return {
-    category_id: category?.id || null,
-    category_name: category?.name || null,
-    region,
-    district,
+    ...provisional,
     ai_reply: category
-      ? `Akwaaba! I matched your request to ${category.name}${region ? ` in ${region}` : ''}. Here are verified professionals you can contact.`
+      ? `Akwaaba! I matched your request to ${category.name}${provisional.region ? ` in ${provisional.region}` : ''}. Here are verified professionals you can contact.`
       : 'Akwaaba! Please tell me which trade you need, such as plumbing, electrical work, carpentry, or tailoring, and your Ghanaian location.'
   };
 }
@@ -163,7 +233,7 @@ If the customer's request is vague or doesn't specify a trade, set category_id/c
         });
 
         if (!response.ok) throw new Error(`AgentRouter request failed with status ${response.status}.`);
-        parsedResult = parseProviderChatResponse(await response.json());
+        parsedResult = normalizeMatchResult(parseProviderChatResponse(await response.json()), cleanMessage);
         source = 'agentrouter';
       } catch (error) {
         console.warn('AgentRouter unavailable, using local matcher:', error.message);
@@ -190,7 +260,7 @@ If the customer's request is vague or doesn't specify a trade, set category_id/c
         });
 
         if (!response.ok) throw new Error(`OpenRouter request failed with status ${response.status}.`);
-        parsedResult = parseProviderChatResponse(await response.json());
+        parsedResult = normalizeMatchResult(parseProviderChatResponse(await response.json()), cleanMessage);
         source = 'openrouter';
       } catch (error) {
         console.warn('OpenRouter unavailable, using local matcher:', error.message);
@@ -218,7 +288,7 @@ If the customer's request is vague or doesn't specify a trade, set category_id/c
           }
         });
 
-        parsedResult = JSON.parse(response.text.trim());
+        parsedResult = normalizeMatchResult(JSON.parse(response.text.trim()), cleanMessage);
         source = 'gemini';
       } catch (error) {
         console.warn('Gemini unavailable, using local matcher:', error.message);
@@ -239,6 +309,12 @@ If the customer's request is vague or doesn't specify a trade, set category_id/c
     if (parsedResult.region) {
       queryConditions.push('u.region = ?');
       queryParams.push(parsedResult.region);
+    }
+
+    if (parsedResult.district) {
+      const districtLike = `%${parsedResult.district}%`;
+      queryConditions.push('(u.district LIKE ? OR ap.service_areas LIKE ? OR u.region LIKE ?)');
+      queryParams.push(districtLike, districtLike, districtLike);
     }
 
     const whereClause = queryConditions.length > 0 ? 'WHERE ' + queryConditions.join(' AND ') : '';

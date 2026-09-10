@@ -3,6 +3,7 @@ import Link from 'next/link';
 import ProfileAvatar from './ProfileAvatar';
 import StarRating from './StarRating';
 import SaveButton from './SaveButton';
+import { normalizeDisplayText } from '@/lib/security';
 
 export default function ArtisanCard({ artisan }) {
   if (!artisan) return null;
@@ -15,7 +16,7 @@ export default function ArtisanCard({ artisan }) {
   const reviewsCount = parseInt(artisan.total_reviews || artisan.reviews || 0, 10);
   const region = artisan.region || 'Ghana';
   const district = artisan.district || '';
-  const bio = artisan.bio || 'No professional biography provided yet.';
+  const bio = normalizeDisplayText(artisan.bio || 'No professional biography provided yet.');
   const photoUrl = artisan.profile_photo || artisan.image || null;
   const isSaved = artisan.is_saved === true || artisan.is_saved === 1;
   const isAvailable = artisan.is_available !== 0;

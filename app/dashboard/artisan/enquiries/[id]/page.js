@@ -8,6 +8,7 @@ import { useAuth } from '@/context/AuthContext';
 import ProfileAvatar from '@/components/ProfileAvatar';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import AlertMessage from '@/components/AlertMessage';
+import { normalizeDisplayText } from '@/lib/security';
 
 export default function ArtisanEnquiryDetail() {
   const {  user, loading: authLoading , authFetch } = useAuth();
@@ -308,18 +309,19 @@ export default function ArtisanEnquiryDetail() {
                               />
                             </div>
                             <div 
-                              className="p-3 rounded-3 shadow-2xs fs-7.5" 
+                              className="p-3 rounded-3 shadow-2xs fs-7.5 fw-medium" 
                               style={{ 
-                                backgroundColor: isMyMessage ? '#1A6B3C' : '#ffffff', 
-                                color: isMyMessage ? '#ffffff' : '#1e293b', 
-                                border: isMyMessage ? 'none' : '1px solid #e2e8f0',
+                                backgroundColor: isMyMessage ? '#0d6d46' : '#ffffff', 
+                                color: isMyMessage ? '#ffffff' : '#111827', 
+                                border: isMyMessage ? '1px solid #0d6d46' : '1px solid #dfe7ef',
                                 borderRadius: isMyMessage ? '16px 16px 0px 16px' : '0px 16px 16px 16px',
-                                lineHeight: '1.5',
+                                lineHeight: '1.6',
                                 whiteSpace: 'pre-line',
-                                maxWidth: '75%'
+                                maxWidth: '75%',
+                                boxShadow: '0 1px 0 rgba(15, 23, 42, 0.04)'
                               }}
                             >
-                              {msg.message_text}
+                              {normalizeDisplayText(msg.message_text || '')}
                             </div>
                           </div>
                         </div>

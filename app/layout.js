@@ -382,6 +382,17 @@ export default function RootLayout({ children }) {
           .dashboard-container {
             display: flex;
             min-height: calc(100vh - 72px);
+            width: 100%;
+            max-width: 100%;
+          }
+          .dashboard-main-panel {
+            min-width: 0;
+            width: 100%;
+          }
+          .dashboard-content-shell {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
           }
           .sidebar-nav {
             width: 260px;
@@ -403,6 +414,8 @@ export default function RootLayout({ children }) {
             font-size: 0.9rem;
             font-weight: 500;
             transition: all 0.2s ease;
+            min-width: 0;
+            overflow: hidden;
           }
           .sidebar-link:hover {
             background-color: rgba(26, 107, 60, 0.08);
@@ -571,6 +584,23 @@ export default function RootLayout({ children }) {
             -webkit-overflow-scrolling: touch;
           }
 
+          @media (max-width: 991.98px) {
+            .dashboard-container {
+              display: block;
+              min-height: auto;
+            }
+            .dashboard-main-panel {
+              padding: 0.75rem !important;
+            }
+            .dashboard-content-shell {
+              border-radius: 1rem !important;
+              padding: 0.9rem !important;
+            }
+            .offcanvas-backdrop.show {
+              opacity: 0.5;
+            }
+          }
+
           @media (max-width: 576px) {
             .container, .container-fluid {
               padding-left: 1rem !important;
@@ -587,6 +617,22 @@ export default function RootLayout({ children }) {
             }
             .fs-5 {
               font-size: 1.1rem !important;
+            }
+            .dashboard-main-panel {
+              padding: 0.5rem !important;
+            }
+            .dashboard-content-shell {
+              padding: 0.75rem !important;
+            }
+            .quick-action-card .icon-box {
+              width: 38px;
+              height: 38px;
+            }
+            .quick-action-card .icon-box i {
+              font-size: 0.95rem;
+            }
+            .table {
+              min-width: 540px;
             }
           }
 
