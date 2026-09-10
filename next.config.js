@@ -2,26 +2,15 @@
 const nextConfig = {
   reactStrictMode: true,
   outputFileTracingRoot: __dirname,
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   typescript: {
     // Permissive during build to support mixed JS/TS in the workspace
     ignoreBuildErrors: true,
   },
   images: {
-    domains: [
-      'picsum.photos',
-      'images.unsplash.com',
-      'res.cloudinary.com'
-    ],
     remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'picsum.photos',
-        port: '',
-        pathname: '/**',
-      },
+      { protocol: 'https', hostname: 'picsum.photos', port: '', pathname: '/**' },
+      { protocol: 'https', hostname: 'images.unsplash.com', port: '', pathname: '/**' },
+      { protocol: 'https', hostname: 'res.cloudinary.com', port: '', pathname: '/**' },
     ],
   },
   // Expose the public Paystack key to the client side
