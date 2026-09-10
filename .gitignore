@@ -8,3 +8,4 @@ coverage/
 .vercel
 skillsconnect.db
 skillsconnect_test.db
+.vercel-*/

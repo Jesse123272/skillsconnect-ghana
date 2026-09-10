@@ -32,6 +32,23 @@ export default function DashboardLayout({ children, pageTitle = 'Dashboard' }) {
   const { user, logout, loading, unreadNotifications, unreadEnquiries, pendingArtisansCount, refreshBadges } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
+  const closeMobileSidebar = () => {
+    if (typeof window === 'undefined') return;
+
+    const offcanvasEl = document.getElementById('sidebarOffcanvas');
+    if (!offcanvasEl) return;
+
+    const offcanvasInstance = window.bootstrap?.Offcanvas?.getOrCreateInstance?.(offcanvasEl);
+    if (offcanvasInstance) {
+      offcanvasInstance.hide();
+      return;
+    }
+
+    offcanvasEl.classList.remove('show');
+    document.body.classList.remove('offcanvas-open');
+    const backdrop = document.querySelector('.offcanvas-backdrop');
+    if (backdrop) backdrop.remove();
+  };
   
 
   // Handle redirect if not authenticated
@@ -171,6 +188,7 @@ export default function DashboardLayout({ children, pageTitle = 'Dashboard' }) {
             <Link 
               key={index}
               href={item.href}
+              onClick={closeMobileSidebar}
               className={`sidebar-link ${active ? 'active' : ''}`}
             >
               <Icon size={18} className="me-3" />
