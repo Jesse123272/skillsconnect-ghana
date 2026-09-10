@@ -100,10 +100,14 @@ export async function POST(req) {
 
     // Log verification action
     const ip = req.headers.get('x-forwarded-for') || '127.0.0.1';
-    await query(
-      'INSERT INTO activity_logs (user_id, action, entity_type, entity_id, ip_address) VALUES (?, ?, ?, ?, ?)',
-      [user.user_id, 'USER_VERIFY', 'users', user.user_id, ip]
-    );
+    try {
+      await query(
+        'INSERT INTO activity_logs (user_id, action, entity_type, entity_id, ip_address) VALUES (?, ?, ?, ?, ?)',
+        [user.user_id, 'USER_VERIFY', 'users', user.user_id, ip]
+      );
+    } catch (logError) {
+      console.warn('Verification activity log insert failed:', logError?.message || logError);
+    }
 
     // Now send the formal Welcome Email since they verified successfully
     try {

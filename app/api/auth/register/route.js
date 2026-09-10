@@ -228,7 +228,16 @@ export async function POST(req) {
         html: emailHtml
       });
     } catch (emailError) {
-      console.warn('Verification email sending failed:', emailError?.message || emailError);
+      console.error('Verification email sending failed:', emailError?.message || emailError);
+      try {
+        await query('DELETE FROM users WHERE user_id = ?', [userId]);
+      } catch (cleanupError) {
+        console.error('Failed to remove account after verification email failure:', cleanupError?.message || cleanupError);
+      }
+      return NextResponse.json(
+        { success: false, error: 'Your account could not be created because the verification email could not be delivered. Please try again shortly.' },
+        { status: 502 }
+      );
     }
 
     return NextResponse.json({
