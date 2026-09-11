@@ -6,8 +6,20 @@ import path from 'path';
 
 export async function POST(req) {
   try {
-    const payload = await getUserFromRequest(req);
-    if (!payload) {
+    const proxySecret = req.headers.get('x-upload-proxy-secret');
+    const isStorageProxyRequest = Boolean(
+      proxySecret &&
+      process.env.UPLOAD_PROXY_SECRET &&
+      proxySecret === process.env.UPLOAD_PROXY_SECRET
+    );
+    const payload = isStorageProxyRequest
+      ? {
+          user_id: Number(req.headers.get('x-upload-user-id')),
+          role: req.headers.get('x-upload-user-role') || '',
+        }
+      : await getUserFromRequest(req);
+
+    if (!payload || !payload.user_id) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized. Please log in.' },
         { status: 401 }
@@ -17,6 +29,38 @@ export async function POST(req) {
     const formData = await req.formData();
     const file = formData.get('file');
     const type = formData.get('type') || 'profile'; // 'profile' or 'portfolio'
+
+    // Vercel functions cannot persist files to their local filesystem. Forward
+    // authenticated uploads to the Railway service, which owns persistent storage.
+    const storageUrl = process.env.UPLOAD_STORAGE_URL?.trim();
+    if (!isStorageProxyRequest && process.env.VERCEL === '1' && storageUrl) {
+      const forwardedForm = new FormData();
+      forwardedForm.append('file', file);
+      forwardedForm.append('type', type);
+      const response = await fetch(`${storageUrl.replace(/\/$/, '')}/api/uploads`, {
+        method: 'POST',
+        headers: {
+          'x-upload-proxy-secret': process.env.UPLOAD_PROXY_SECRET || '',
+          'x-upload-user-id': String(payload.user_id),
+          'x-upload-user-role': String(payload.role || ''),
+        },
+        body: forwardedForm,
+      });
+      const result = await response.json();
+      if (!response.ok || !result.success) {
+        return NextResponse.json(
+          { success: false, error: result.error || 'Persistent upload storage rejected the file.' },
+          { status: response.status || 502 }
+        );
+      }
+      return NextResponse.json({
+        ...result,
+        data: {
+          ...result.data,
+          file_path: `${storageUrl.replace(/\/$/, '')}${result.data.file_path}`,
+        },
+      });
+    }
 
     if (!file) {
       return NextResponse.json(
@@ -53,11 +97,7 @@ export async function POST(req) {
 
     // 5. Ensure the upload directory exists under the project root at public/uploads
     const publicUploadsDir = path.join(process.cwd(), 'public', 'uploads');
-    try {
-      await fs.mkdir(publicUploadsDir, { recursive: true });
-    } catch (dirError) {
-      console.warn('Directory check or creation warning:', dirError);
-    }
+    await fs.mkdir(publicUploadsDir, { recursive: true });
 
     // 6. Write file to local disk
     const destinationPath = path.join(publicUploadsDir, uniqueFilename);
