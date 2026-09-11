@@ -7,7 +7,7 @@
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint .",
-    "test": "node tests/humanization.test.mjs && node tests/sqlite-fallback-regression.test.mjs && node tests/defense-readiness.test.mjs",
+    "test": "node tests/humanization.test.mjs && node tests/upload-config.test.mjs && node tests/sqlite-fallback-regression.test.mjs && node tests/defense-readiness.test.mjs",
     "clean": "next clean"
   },
   "dependencies": {

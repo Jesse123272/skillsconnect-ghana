@@ -38,6 +38,8 @@ JWT_SECRET=<a long random secret>
 APP_URL=https://<your-vercel-domain>
 NEXTAUTH_URL=https://<your-vercel-domain>
 NEXT_PUBLIC_SITE_URL=https://<your-vercel-domain>
+UPLOAD_STORAGE_URL=https://<your-buffer-or-storage-service>/api
+UPLOAD_PROXY_SECRET=<long-random-secret>
 ```
 
 Alternatively, add Railway's `MYSQLHOST`, `MYSQLPORT`, `MYSQLUSER`, `MYSQLPASSWORD`, and `MYSQLDATABASE` variables with exactly those names. The application now supports both variable formats. Do not set `USE_SQLITE=true`.

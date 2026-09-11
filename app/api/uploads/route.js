@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { getUserFromRequest } from '@/lib/auth';
+import { resolveUploadMode } from '@/lib/upload-config';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -30,10 +31,31 @@ export async function POST(req) {
     const file = formData.get('file');
     const type = formData.get('type') || 'profile'; // 'profile' or 'portfolio'
 
-    // Vercel functions cannot persist files to their local filesystem. Forward
-    // authenticated uploads to the Railway service, which owns persistent storage.
+    if (!file) {
+      return NextResponse.json(
+        { success: false, error: 'No file uploaded' },
+        { status: 400 }
+      );
+    }
+
     const storageUrl = process.env.UPLOAD_STORAGE_URL?.trim();
-    if (!isStorageProxyRequest && process.env.VERCEL === '1' && storageUrl) {
+    const uploadMode = resolveUploadMode({
+      isVercel: process.env.VERCEL,
+      hasStorageUrl: Boolean(storageUrl),
+      isStorageProxyRequest,
+      nodeEnv: process.env.NODE_ENV,
+    });
+
+    if (uploadMode.mode === 'reject') {
+      return NextResponse.json(
+        { success: false, error: uploadMode.message },
+        { status: uploadMode.status }
+      );
+    }
+
+    // Vercel functions cannot persist files to their local filesystem. Forward
+    // authenticated uploads to the persistent service configured in production.
+    if (!isStorageProxyRequest && uploadMode.mode === 'forward' && storageUrl) {
       const forwardedForm = new FormData();
       forwardedForm.append('file', file);
       forwardedForm.append('type', type);
@@ -60,13 +82,6 @@ export async function POST(req) {
           file_path: `${storageUrl.replace(/\/$/, '')}${result.data.file_path}`,
         },
       });
-    }
-
-    if (!file) {
-      return NextResponse.json(
-        { success: false, error: 'No file uploaded' },
-        { status: 400 }
-      );
     }
 
     // 1. Validate file type (images only)
