@@ -23,21 +23,22 @@ export default function NearbyArtisans() {
 
   useEffect(() => {
     async function loadArtisansForPosition(lat, lng, source = 'fresh') {
-      if (!lat || !lng) {
+      if (!Number.isFinite(Number(lat)) || !Number.isFinite(Number(lng))) {
         setError('Invalid location coordinates.');
         setIsLoading(false);
         return;
       }
 
-      setCurrentPosition([lat, lng]);
+      const normalizedPosition = [Number(lat), Number(lng)];
+      setCurrentPosition(normalizedPosition);
       setLocationSource(source);
       setPermissionDenied(false);
       setStatus(source === 'session' ? 'Using location from this browser session.' : 'Showing artisans closest to your location.');
 
       try {
         const params = new URLSearchParams({
-          latitude: lat.toString(),
-          longitude: lng.toString(),
+            latitude: normalizedPosition[0].toString(),
+            longitude: normalizedPosition[1].toString(),
           radius: radius.toString(),
           limit: '12'
         });
@@ -49,7 +50,7 @@ export default function NearbyArtisans() {
           setError('');
           setStatus(source === 'session' ? 'Using location from this browser session.' : 'Showing artisans closest to your location.');
           if (typeof window !== 'undefined' && window.sessionStorage) {
-            window.sessionStorage.setItem('scg_geo_location', JSON.stringify([lat, lng]));
+            window.sessionStorage.setItem('scg_geo_location', JSON.stringify(normalizedPosition));
           }
         } else {
           setError(json.error || 'Unable to load nearby artisans.');

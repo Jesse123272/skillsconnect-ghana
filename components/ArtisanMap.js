@@ -36,8 +36,13 @@ export default function ArtisanMap({ artisans = [], currentPosition }) {
       leafletMapRef.current = null;
     }
 
+    const mapCenter = currentPosition.map(Number);
+    if (mapCenter.some((coordinate) => !Number.isFinite(coordinate))) {
+      return;
+    }
+
     const map = L.map(mapRef.current, {
-      center: currentPosition,
+      center: mapCenter,
       zoom: 11,
       scrollWheelZoom: true,
       doubleClickZoom: true,
@@ -54,11 +59,22 @@ export default function ArtisanMap({ artisans = [], currentPosition }) {
     const markers = [];
 
     artisans.forEach((artisan) => {
-      if (!artisan.lat || !artisan.lng) {
+      const latitude = Number(artisan.lat);
+      const longitude = Number(artisan.lng);
+      if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
         return;
       }
 
-      const marker = L.marker([artisan.lat, artisan.lng]).addTo(map);
+      const marker = L.marker([latitude, longitude], {
+        icon: L.divIcon({
+          className: 'artisan-map-marker',
+          html: '<span class="artisan-map-marker-dot"><i class="fa-solid fa-person"></i></span>',
+          iconSize: [34, 34],
+          iconAnchor: [17, 17],
+          popupAnchor: [0, -17],
+        }),
+        title: artisan.full_name || 'Artisan location',
+      }).addTo(map);
       marker.bindPopup(
         `<div style="max-width:220px;">
            <strong>${artisan.full_name || 'Artisan'}</strong><br />
@@ -70,7 +86,7 @@ export default function ArtisanMap({ artisans = [], currentPosition }) {
       markers.push(marker);
     });
 
-    const currentMarker = L.circleMarker(currentPosition, {
+    const currentMarker = L.circleMarker(mapCenter, {
       radius: 7,
       color: '#0d6efd',
       fillColor: '#0d6efd',
@@ -84,6 +100,8 @@ export default function ArtisanMap({ artisans = [], currentPosition }) {
       const bounds = L.latLngBounds(points);
       map.fitBounds(bounds.pad(0.2));
     }
+
+    window.requestAnimationFrame(() => map.invalidateSize());
 
     return () => {
       if (leafletMapRef.current) {
@@ -110,7 +128,6 @@ export default function ArtisanMap({ artisans = [], currentPosition }) {
       <link
         rel="stylesheet"
         href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        integrity="sha512-sA+eP7uyrUb91ZLQ/eKVF7a8U8FieldO6uB+Sm/QW1p8OZdz8TzorK0aFeyPvE7PWm7CqIT+QmVZxN4ql7k7g=="
         crossOrigin=""
       />
       <div ref={mapRef} style={{ width: '100%', height: '100%' }} className="rounded-3" />

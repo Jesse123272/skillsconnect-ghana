@@ -1,1 +1,26 @@
 @import "tailwindcss";
+
+.artisan-map-marker {
+	background: transparent;
+	border: 0;
+}
+
+.artisan-map-marker-dot {
+	align-items: center;
+	background: #f5a623;
+	border: 3px solid #ffffff;
+	border-radius: 50%;
+	box-shadow: 0 2px 8px rgba(15, 23, 42, 0.35);
+	color: #173f29;
+	display: flex;
+	font-size: 15px;
+	height: 34px;
+	justify-content: center;
+	width: 34px;
+}
+
+.leaflet-container {
+	font-family: inherit;
+	min-height: 360px;
+	z-index: 0;
+}
