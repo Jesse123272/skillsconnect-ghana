@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { getUserFromRequest } from '@/lib/auth';
 import { resolveUploadMode } from '@/lib/upload-config';
+import { put } from '@vercel/blob';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -39,9 +40,11 @@ export async function POST(req) {
     }
 
     const storageUrl = process.env.UPLOAD_STORAGE_URL?.trim();
+    const blobToken = process.env.BLOB_READ_WRITE_TOKEN?.trim();
     const uploadMode = resolveUploadMode({
       isVercel: process.env.VERCEL,
       hasStorageUrl: Boolean(storageUrl),
+      hasBlobToken: Boolean(blobToken),
       isStorageProxyRequest,
       nodeEnv: process.env.NODE_ENV,
     });
@@ -109,6 +112,33 @@ export async function POST(req) {
     const originalExt = path.extname(file.name || 'upload.jpg') || '.jpg';
     const cleanExt = originalExt.toLowerCase();
     const uniqueFilename = `${payload.user_id}_${type}_${Date.now()}${cleanExt}`;
+
+    if (uploadMode.mode === 'blob' && blobToken) {
+      const blob = await put(`uploads/${uniqueFilename}`, file, {
+        access: 'public',
+        addRandomSuffix: false,
+        contentType: file.type,
+        token: blobToken,
+      });
+
+      if (type === 'profile') {
+        await query('UPDATE users SET profile_photo = ? WHERE user_id = ?', [blob.url, payload.user_id]);
+
+        const ip = req.headers.get('x-forwarded-for') || '127.0.0.1';
+        await query(
+          'INSERT INTO activity_logs (user_id, action, entity_type, entity_id, ip_address) VALUES (?, ?, ?, ?, ?)',
+          [payload.user_id, 'UPLOAD_PROFILE_PHOTO', 'users', payload.user_id, ip]
+        );
+      }
+
+      return NextResponse.json({
+        success: true,
+        data: {
+          file_path: blob.url,
+          filename: uniqueFilename,
+        },
+      });
+    }
 
     // 5. Ensure the upload directory exists under the project root at public/uploads
     const publicUploadsDir = path.join(process.cwd(), 'public', 'uploads');

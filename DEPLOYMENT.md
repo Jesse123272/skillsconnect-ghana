@@ -77,4 +77,10 @@ The current application does not claim escrow. To activate marketplace split pay
 
 ## Important: uploads
 
-Vercel's filesystem is ephemeral. The current `public/uploads` storage works locally but uploaded photos will not persist after a Vercel deployment. Use a persistent object-storage provider (such as Cloudinary, S3, or Cloudflare R2) before relying on uploads in production.
+Vercel's filesystem is ephemeral. Production uploads use Vercel Blob and require this Production environment variable:
+
+```text
+BLOB_READ_WRITE_TOKEN=<Vercel Blob read-write token>
+```
+
+The upload route validates image type and size, stores the file in Blob, and saves the returned public URL in the database. The older `UPLOAD_STORAGE_URL` and `UPLOAD_PROXY_SECRET` variables remain available for a separate persistent proxy backend, but they are not needed when `BLOB_READ_WRITE_TOKEN` is configured.

@@ -20,6 +20,15 @@ const forwardMode = resolveUploadMode({
 });
 assert.equal(forwardMode.mode, 'forward');
 
+const blobMode = resolveUploadMode({
+  isVercel: '1',
+  hasStorageUrl: false,
+  hasBlobToken: true,
+  isStorageProxyRequest: false,
+  nodeEnv: 'production',
+});
+assert.equal(blobMode.mode, 'blob');
+
 const localMode = resolveUploadMode({
   isVercel: undefined,
   hasStorageUrl: false,
