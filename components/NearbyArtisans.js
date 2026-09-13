@@ -15,11 +15,12 @@ export default function NearbyArtisans() {
   const [artisans, setArtisans] = useState([]);
   const [status, setStatus] = useState('Finding artisans near you...');
   const [currentPosition, setCurrentPosition] = useState(null);
+  const [locationAccuracy, setLocationAccuracy] = useState(null);
   const [permissionDenied, setPermissionDenied] = useState(false);
   const [retryKey, setRetryKey] = useState(0);
 
   useEffect(() => {
-    async function loadArtisansForPosition(lat, lng, source = 'fresh') {
+    async function loadArtisansForPosition(lat, lng, source = {}) {
       if (!Number.isFinite(Number(lat)) || !Number.isFinite(Number(lng))) {
         setError('Invalid location coordinates.');
         setIsLoading(false);
@@ -28,8 +29,9 @@ export default function NearbyArtisans() {
 
       const normalizedPosition = [Number(lat), Number(lng)];
       setCurrentPosition(normalizedPosition);
+      setLocationAccuracy(source.accuracy || null);
       setPermissionDenied(false);
-      setStatus(source === 'session' ? 'Using location from this browser session.' : 'Showing artisans closest to your location.');
+      setStatus(source.name === 'session' ? 'Using location from this browser session.' : 'Showing artisans closest to your location.');
 
       try {
         const params = new URLSearchParams({
@@ -44,7 +46,7 @@ export default function NearbyArtisans() {
         if (json.success) {
           setArtisans(json.data || []);
           setError('');
-          setStatus(source === 'session' ? 'Using location from this browser session.' : 'Showing artisans closest to your location.');
+          setStatus(source.name === 'session' ? 'Using location from this browser session.' : 'Showing artisans closest to your location.');
           if (typeof window !== 'undefined' && window.sessionStorage) {
             window.sessionStorage.setItem('scg_geo_location', JSON.stringify(normalizedPosition));
           }
@@ -65,11 +67,16 @@ export default function NearbyArtisans() {
       setStatus('Finding artisans near you...');
       setPermissionDenied(false);
       setCurrentPosition(null);
+      setLocationAccuracy(null);
 
       if (typeof window !== 'undefined' && navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           async (position) => {
-            await loadArtisansForPosition(position.coords.latitude, position.coords.longitude, 'fresh');
+            await loadArtisansForPosition(
+              position.coords.latitude,
+              position.coords.longitude,
+              { name: 'fresh', accuracy: position.coords.accuracy }
+            );
           },
           async (geoError) => {
             console.error(geoError);
@@ -77,7 +84,7 @@ export default function NearbyArtisans() {
             setPermissionDenied(true);
             setIsLoading(false);
           },
-          { enableHighAccuracy: true, timeout: 10000 }
+          { enableHighAccuracy: true, maximumAge: 0, timeout: 20000 }
         );
       } else {
         setError('This browser does not support precise location. Use a browser with location access to view the map.');
@@ -118,12 +125,24 @@ export default function NearbyArtisans() {
                 <div className="small text-muted">Zoom and pan to explore artisans near your current location.</div>
               </div>
               <div className="text-end small text-secondary">
-                {currentPosition ? `${currentPosition[0].toFixed(4)}, ${currentPosition[1].toFixed(4)}` : 'Location pending...'}
+                {currentPosition ? (
+                  <>
+                    <span className="d-block text-success fw-semibold">Live device location</span>
+                    <span>{currentPosition[0].toFixed(5)}, {currentPosition[1].toFixed(5)}</span>
+                    {Number.isFinite(locationAccuracy) && (
+                      <span className="d-block">Accuracy +/- {Math.round(locationAccuracy)} m</span>
+                    )}
+                  </>
+                ) : 'Location pending...'}
               </div>
             </div>
             {currentPosition ? (
               <div className="map-container" style={{ height: '360px' }}>
-                <ArtisanMap artisans={artisans} currentPosition={currentPosition} />
+                <ArtisanMap
+                  artisans={artisans}
+                  currentPosition={currentPosition}
+                  locationAccuracy={locationAccuracy}
+                />
               </div>
             ) : (
               <div className="p-4 text-center">

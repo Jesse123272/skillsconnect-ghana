@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Script from 'next/script';
 
-export default function ArtisanMap({ artisans = [], currentPosition }) {
+export default function ArtisanMap({ artisans = [], currentPosition, locationAccuracy }) {
   const mapRef = useRef(null);
   const leafletMapRef = useRef(null);
   const [leafletLoaded, setLeafletLoaded] = useState(false);
@@ -95,7 +95,20 @@ export default function ArtisanMap({ artisans = [], currentPosition }) {
     }).addTo(map);
     currentMarker.bindPopup('<strong>Your location</strong>').openPopup();
 
+    const accuracyCircle = Number(locationAccuracy) > 0
+      ? L.circle(mapCenter, {
+          radius: Number(locationAccuracy),
+          color: '#0d6efd',
+          fillColor: '#0d6efd',
+          fillOpacity: 0.12,
+          weight: 1,
+        }).addTo(map)
+      : null;
+
     const points = markers.map((marker) => marker.getLatLng()).concat(currentMarker.getLatLng());
+    if (accuracyCircle) {
+      points.push(accuracyCircle.getBounds().getNorthEast(), accuracyCircle.getBounds().getSouthWest());
+    }
     if (points.length > 0) {
       const bounds = L.latLngBounds(points);
       map.fitBounds(bounds.pad(0.2));
@@ -110,7 +123,7 @@ export default function ArtisanMap({ artisans = [], currentPosition }) {
         leafletMapRef.current = null;
       }
     };
-  }, [leafletLoaded, artisans, currentPosition]);
+  }, [leafletLoaded, artisans, currentPosition, locationAccuracy]);
 
   return (
     <>
