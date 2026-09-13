@@ -125,22 +125,11 @@ export async function handleGoogleCallback(req) {
 
     if (!user) {
       const passwordHash = await bcrypt.hash(randomBytes(32).toString('hex'), 12);
-      const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
       const result = await query(
         `INSERT INTO users (full_name, email, phone, password_hash, role, profile_photo, google_id, is_verified, is_active)
-         VALUES (?, ?, ?, ?, 'customer', ?, ?, 0, 1)`,
+         VALUES (?, ?, ?, ?, 'customer', ?, ?, 1, 1)`,
         [fullName, email, '+233000000000', passwordHash, profilePhoto, profile.sub]
       );
-      await query('UPDATE users SET verification_token = ? WHERE user_id = ?', [verificationCode, result.insertId]);
-      try {
-        await sendEmail({
-          to: email,
-          subject: 'Verify your SkillsConnect Ghana Account',
-          html: verificationEmail(fullName, verificationCode),
-        });
-      } catch (emailError) {
-        console.warn('Google verification email failed:', emailError?.message || emailError);
-      }
       user = {
         user_id: result.insertId,
         full_name: fullName,
@@ -148,50 +137,17 @@ export async function handleGoogleCallback(req) {
         phone: '+233000000000',
         role: 'customer',
         profile_photo: profilePhoto,
-        is_verified: 0,
+        is_verified: 1,
         is_active: 1,
       };
-      const challenge = await signGoogleVerificationChallenge({
-        email,
-        full_name: fullName,
-        google_id: profile.sub,
-        profile_photo: profilePhoto,
-        verification_code: verificationCode,
-      });
-      return redirectToVerification(req, email, challenge);
     } else {
       if (user.is_active !== 1) {
         return redirectWithError(req, 'Your account has been suspended or deactivated.');
       }
-      if (user.is_verified === 1) {
-        await query(
-          'UPDATE users SET google_id = ?, profile_photo = COALESCE(profile_photo, ?), last_login = NOW() WHERE user_id = ?',
-          [profile.sub, profilePhoto, user.user_id]
-        );
-      } else {
-        const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
-        await query(
-          'UPDATE users SET google_id = ?, verification_token = ?, profile_photo = COALESCE(profile_photo, ?) WHERE user_id = ?',
-          [profile.sub, verificationCode, profilePhoto, user.user_id]
-        );
-        try {
-          await sendEmail({
-            to: email,
-            subject: 'Verify your SkillsConnect Ghana Account',
-            html: verificationEmail(user.full_name, verificationCode),
-          });
-        } catch (emailError) {
-          console.warn('Google verification email failed:', emailError?.message || emailError);
-        }
-        const challenge = await signGoogleVerificationChallenge({
-          email,
-          full_name: user.full_name,
-          google_id: profile.sub,
-          profile_photo: profilePhoto,
-          verification_code: verificationCode,
-        });
-        return redirectToVerification(req, email, challenge);
-      }
+      await query(
+        'UPDATE users SET google_id = ?, is_verified = 1, verification_token = NULL, profile_photo = COALESCE(profile_photo, ?), last_login = NOW() WHERE user_id = ?',
+        [profile.sub, profilePhoto, user.user_id]
+      );
     }
 
     const token = await signToken({

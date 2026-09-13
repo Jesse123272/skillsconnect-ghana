@@ -153,6 +153,11 @@ export default function Register() {
       return;
     }
 
+    if (!/^[\p{L}]+(?:[ \t]+[\p{L}]+)*$/u.test(fullName.trim())) {
+      toast.error('Full name must contain letters only, with spaces allowed between names.');
+      return;
+    }
+
     if (password !== confirmPassword) {
       toast.error('Passwords do not match.');
       return;
@@ -299,6 +304,8 @@ export default function Register() {
                   type="text"
                   className="form-control text-secondary small"
                   placeholder="e.g. Kojo Mensah"
+                  pattern="[A-Za-zÀ-ÖØ-öø-ÿ]+([ \\t]+[A-Za-zÀ-ÖØ-öø-ÿ]+)*"
+                  title="Use letters only, with spaces between names."
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   required
