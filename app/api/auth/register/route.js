@@ -3,7 +3,7 @@ import { query } from '@/lib/db';
 import bcrypt from 'bcryptjs';
 import { sendEmail, welcomeEmail, verificationEmail } from '@/lib/mailer';
 import { sanitizeObject, sanitizeText } from '@/lib/security';
-import { validateEmail, validatePassword, validatePhone } from '@/lib/validators';
+import { validateEmail, validateName, validatePassword, validatePhone } from '@/lib/validators';
 import { resolveCategorySelection } from '@/lib/category-utils';
 import { getInitialArtisanApprovalState } from '@/lib/artisan-approval';
 
@@ -50,6 +50,13 @@ export async function POST(req) {
     if (!cleanedName || !cleanedEmail || !cleanedPhone || !password || !confirm_password || !cleanedRole || !cleanedRegion || !cleanedDistrict) {
       return NextResponse.json(
         { success: false, error: 'All primary registration fields are required' },
+        { status: 400 }
+      );
+    }
+
+    if (!validateName(cleanedName)) {
+      return NextResponse.json(
+        { success: false, error: 'Full name must contain letters only, with spaces allowed between names.' },
         { status: 400 }
       );
     }
