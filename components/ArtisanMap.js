@@ -116,7 +116,6 @@ export default function ArtisanMap({ artisans = [], currentPosition }) {
     <>
       <Script
         src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-        integrity="sha512-1POQ7ypuPxLO08ru9ezSfV2iiV4yjEP6AE9oU0XbIeGxGq92C5Qj4n1SL6x7e/57QLmHq21Q5qNT0C8hG+7vUA=="
         crossOrigin=""
         strategy="afterInteractive"
         onLoad={() => {
