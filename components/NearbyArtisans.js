@@ -4,7 +4,6 @@ import React, { useEffect, useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import ArtisanCard from '@/components/ArtisanCard';
-import { useAuth } from '@/context/AuthContext';
 
 const RADIUS_OPTIONS = [5, 10, 25, 50];
 const ArtisanMap = dynamic(() => import('@/components/ArtisanMap'), { ssr: false });
@@ -17,9 +16,7 @@ export default function NearbyArtisans() {
   const [status, setStatus] = useState('Finding artisans near you...');
   const [currentPosition, setCurrentPosition] = useState(null);
   const [permissionDenied, setPermissionDenied] = useState(false);
-  const [locationSource, setLocationSource] = useState('fresh');
   const [retryKey, setRetryKey] = useState(0);
-  const { user: authUser } = useAuth();
 
   useEffect(() => {
     async function loadArtisansForPosition(lat, lng, source = 'fresh') {
@@ -31,7 +28,6 @@ export default function NearbyArtisans() {
 
       const normalizedPosition = [Number(lat), Number(lng)];
       setCurrentPosition(normalizedPosition);
-      setLocationSource(source);
       setPermissionDenied(false);
       setStatus(source === 'session' ? 'Using location from this browser session.' : 'Showing artisans closest to your location.');
 
@@ -68,19 +64,7 @@ export default function NearbyArtisans() {
       setError('');
       setStatus('Finding artisans near you...');
       setPermissionDenied(false);
-
-      const stored = typeof window !== 'undefined' && window.sessionStorage.getItem('scg_geo_location');
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed) && parsed.length === 2) {
-            await loadArtisansForPosition(parsed[0], parsed[1], 'session');
-            return;
-          }
-        } catch {
-          // Ignore stale stored location
-        }
-      }
+      setCurrentPosition(null);
 
       if (typeof window !== 'undefined' && navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
@@ -89,26 +73,20 @@ export default function NearbyArtisans() {
           },
           async (geoError) => {
             console.error(geoError);
-            if (authUser?.lat && authUser?.lng) {
-              await loadArtisansForPosition(authUser.lat, authUser.lng, 'profile');
-              return;
-            }
-            setError('Enable location to see artisans near you.');
+            setError('Enable precise location access to match artisans near your current position.');
             setPermissionDenied(true);
             setIsLoading(false);
           },
           { enableHighAccuracy: true, timeout: 10000 }
         );
-      } else if (authUser?.lat && authUser?.lng) {
-        await loadArtisansForPosition(authUser.lat, authUser.lng, 'profile');
       } else {
-        setError('Geolocation is not supported in this browser.');
+        setError('This browser does not support precise location. Use a browser with location access to view the map.');
         setIsLoading(false);
       }
     }
 
     locateAndFetch();
-  }, [radius, retryKey, authUser?.lat, authUser?.lng]);
+  }, [radius, retryKey]);
 
   const sortedArtisans = useMemo(() => {
     return [...artisans].sort((a, b) => (b.weighted_score || 0) - (a.weighted_score || 0));
