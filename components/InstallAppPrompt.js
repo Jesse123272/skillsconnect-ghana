@@ -11,7 +11,9 @@ function isStandalone() {
 
 export default function InstallAppPrompt() {
   const [promptEvent, setPromptEvent] = useState(null);
-  const [showBanner, setShowBanner] = useState(() => (typeof window !== 'undefined' ? !isStandalone() : false));
+  const [showBanner, setShowBanner] = useState(() => (
+    typeof window !== 'undefined' && !isStandalone() && window.localStorage.getItem('scg_install_dismissed') !== 'true'
+  ));
   const [deviceHint, setDeviceHint] = useState('');
   const [installed, setInstalled] = useState(() => typeof window !== 'undefined' && isStandalone());
   const [showInstructions, setShowInstructions] = useState(false);
@@ -36,6 +38,9 @@ export default function InstallAppPrompt() {
     window.addEventListener('appinstalled', handleAppInstalled);
 
     const timer = window.setTimeout(() => {
+      if (window.localStorage.getItem('scg_install_dismissed') === 'true') {
+        return;
+      }
       if (ios) {
         setDeviceHint('Open the Share menu, then choose Add to Home Screen.');
         setShowBanner(!isStandalone());
@@ -74,6 +79,11 @@ export default function InstallAppPrompt() {
     }
   };
 
+  const dismissBanner = () => {
+    window.localStorage.setItem('scg_install_dismissed', 'true');
+    setShowBanner(false);
+  };
+
   const buttonLabel = promptEvent ? 'Install App' : 'How to install';
 
   return (
@@ -103,11 +113,11 @@ export default function InstallAppPrompt() {
               {buttonLabel}
             </button>
           ) : (
-            <button type="button" className="btn btn-outline-primary btn-sm px-4" onClick={() => setShowBanner(true)}>
+            <button type="button" className="btn btn-outline-primary btn-sm px-4" onClick={handleInstallTap}>
               {buttonLabel}
             </button>
           )}
-          <button type="button" className="btn btn-link btn-sm install-dismiss" onClick={() => setShowBanner(false)}>
+          <button type="button" className="btn btn-link btn-sm install-dismiss" onClick={dismissBanner}>
             Dismiss
           </button>
         </div>
