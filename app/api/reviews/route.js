@@ -11,7 +11,10 @@ export async function GET(req) {
     const mine = searchParams.get('mine') === 'true';
     const user_id = searchParams.get('user_id');
     const limitVal = searchParams.get('limit');
-    const limit = limitVal ? parseInt(limitVal, 10) : null;
+    const requestedLimit = limitVal ? Number.parseInt(limitVal, 10) : null;
+    const limit = Number.isSafeInteger(requestedLimit) && requestedLimit > 0
+      ? Math.min(requestedLimit, 100)
+      : null;
 
     if (mine || user_id === 'me') {
       const payload = await getUserFromRequest(req);
@@ -57,9 +60,8 @@ export async function GET(req) {
         queryParams = [payload.user_id];
       }
 
-      if (limit) {
-        queryStr += ' LIMIT ?';
-        queryParams.push(limit);
+      if (limit !== null) {
+        queryStr += ` LIMIT ${limit}`;
       }
       const myReviews = await query(queryStr, queryParams);
       return NextResponse.json({
