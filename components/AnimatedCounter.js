@@ -29,5 +29,5 @@ export default function AnimatedCounter({ value = 0, duration = 900 }) {
     return () => window.cancelAnimationFrame(frameId);
   }, [duration, target]);
 
-  return <span aria-live="polite">{count.toLocaleString()}</span>;
+  return <span>{count.toLocaleString()}</span>;
 }

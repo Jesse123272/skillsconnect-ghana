@@ -37,7 +37,7 @@ export default function About() {
                   <i className="fa-solid fa-circle-check fs-5"></i>
                 </div>
                 <div>
-                  <h6 className="fw-bold text-dark mb-1">Profiles with context</h6>
+                  <h3 className="h6 fw-bold text-dark mb-1">Profiles with context</h3>
                   <p className="text-muted small mb-0">Profiles show a trade, service area, experience, and the details a customer needs before making contact.</p>
                 </div>
               </div>
@@ -46,7 +46,7 @@ export default function About() {
                   <i className="fa-solid fa-star fs-5"></i>
                 </div>
                 <div>
-                  <h6 className="fw-bold text-dark mb-1">A record of feedback</h6>
+                  <h3 className="h6 fw-bold text-dark mb-1">A record of feedback</h3>
                   <p className="text-muted small mb-0">Customer ratings and written feedback help people make a more informed choice.</p>
                 </div>
               </div>
@@ -58,16 +58,16 @@ export default function About() {
               <h3 className="fw-bold text-white mb-4">Platform Core Pillars</h3>
               <div className="d-flex flex-column gap-4">
                 <div className="border-bottom border-light border-opacity-20 pb-3">
-                  <h5 className="fw-bold text-warning mb-1">Empowering Local Talents</h5>
-                  <p className="text-white-50 small mb-0">We assist independent local service experts in building an online presence, accessing wider client bases, and generating reliable daily trade income.</p>
+                  <h4 className="h5 fw-bold text-warning mb-1">Empowering Local Talents</h4>
+                  <p className="text-white small mb-0">We assist independent local service experts in building an online presence, accessing wider client bases, and generating reliable daily trade income.</p>
                 </div>
                 <div className="border-bottom border-light border-opacity-20 pb-3">
-                  <h5 className="fw-bold text-warning mb-1">National Wide Access</h5>
-                  <p className="text-white-50 small mb-0">Active across all 16 administrative regions of Ghana, ensuring that whether you are in Accra, Kumasi, Tamale, or Ho, a certified specialist is nearby.</p>
+                  <h4 className="h5 fw-bold text-warning mb-1">National Wide Access</h4>
+                  <p className="text-white small mb-0">Active across all 16 administrative regions of Ghana, ensuring that whether you are in Accra, Kumasi, Tamale, or Ho, a certified specialist is nearby.</p>
                 </div>
                 <div>
-                  <h5 className="fw-bold text-warning mb-1">Seamless Communication</h5>
-                  <p className="text-white-50 small mb-0">Our platform ensures direct communication with no hidden margins. Clients send secure service enquiries directly to the specialists.</p>
+                  <h4 className="h5 fw-bold text-warning mb-1">Seamless Communication</h4>
+                  <p className="text-white small mb-0">Our platform ensures direct communication with no hidden margins. Clients send secure service enquiries directly to the specialists.</p>
                 </div>
               </div>
             </div>

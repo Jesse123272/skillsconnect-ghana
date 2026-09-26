@@ -127,7 +127,7 @@ export default function ServiceCostEstimator({ categoryName, artisanName, onAppl
           <i className="fa-solid fa-calculator text-primary fs-5"></i>
         </div>
         <div>
-          <h5 className="fw-bold text-dark mb-0">Ghanaian Trade Price Estimator</h5>
+          <h2 className="h5 fw-bold text-dark mb-0">Ghanaian Trade Price Estimator</h2>
           <small className="text-muted">Instant estimates based on current local rates</small>
         </div>
       </div>
@@ -135,8 +135,9 @@ export default function ServiceCostEstimator({ categoryName, artisanName, onAppl
       <div className="row g-3">
         {/* Job Selector */}
         <div className="col-12">
-          <label className="form-label text-secondary small fw-medium mb-1">Select Specific Task</label>
+          <label htmlFor="estimator-task" className="form-label text-secondary small fw-medium mb-1">Select Specific Task</label>
           <select 
+            id="estimator-task"
             className="form-select text-dark font-medium" 
             style={{ fontSize: '14px', borderRadius: '8px' }}
             value={selectedJobId}
@@ -150,18 +151,20 @@ export default function ServiceCostEstimator({ categoryName, artisanName, onAppl
 
         {/* Quantity/Scale Input */}
         <div className="col-sm-6">
-          <label className="form-label text-secondary small fw-medium mb-1">
+          <label htmlFor="estimator-quantity" className="form-label text-secondary small fw-medium mb-1">
             Quantity / Scope ({activeJob?.unit || 'units'})
           </label>
           <div className="input-group">
             <button 
               className="btn btn-outline-secondary border px-3" 
               type="button"
+              aria-label="Decrease quantity"
               onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
             >
               -
             </button>
             <input 
+              id="estimator-quantity"
               type="number" 
               className="form-control text-center font-semibold text-dark" 
               style={{ fontSize: '14px' }}
@@ -172,6 +175,7 @@ export default function ServiceCostEstimator({ categoryName, artisanName, onAppl
             <button 
               className="btn btn-outline-secondary border px-3" 
               type="button"
+              aria-label="Increase quantity"
               onClick={() => setQuantity(prev => prev + 1)}
             >
               +
@@ -181,8 +185,9 @@ export default function ServiceCostEstimator({ categoryName, artisanName, onAppl
 
         {/* Urgency Selector */}
         <div className="col-sm-6">
-          <label className="form-label text-secondary small fw-medium mb-1">Required Urgency</label>
+          <label htmlFor="estimator-urgency" className="form-label text-secondary small fw-medium mb-1">Required Urgency</label>
           <select 
+            id="estimator-urgency"
             className="form-select text-dark" 
             style={{ fontSize: '14px', borderRadius: '8px' }}
             value={urgency}

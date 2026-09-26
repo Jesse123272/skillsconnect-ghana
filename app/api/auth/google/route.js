@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { query } from '@/lib/db';
-import { setAuthCookie, signGoogleVerificationChallenge, signToken } from '@/lib/auth';
-import { sendEmail, verificationEmail } from '@/lib/mailer';
+import { setAuthCookie, signToken } from '@/lib/auth';
 import { randomBytes } from 'node:crypto';
 
 function getAppUrl(req) {
@@ -19,20 +18,14 @@ function redirectWithError(req, message) {
   return NextResponse.redirect(url);
 }
 
-async function redirectToVerification(req, email, challenge) {
-  const url = new URL('/verify-email', getAppUrl(req));
-  url.searchParams.set('email', email);
-  url.searchParams.set('redirect', '/dashboard/customer');
-  const response = NextResponse.redirect(url);
-  response.cookies.set('google_oauth_state', '', { maxAge: 0, path: '/' });
-  response.cookies.set('google_verification_challenge', challenge, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    maxAge: 10 * 60,
-    path: '/',
-  });
-  return response;
+export function isGoogleProfileValid(profile, clientId) {
+  if (!profile || !clientId) return false;
+  const isVerified = profile.email_verified === true || profile.email_verified === 'true';
+  return profile.aud === clientId && isVerified && Boolean(profile.email);
+}
+
+export function getGoogleDashboardPath(role) {
+  return role === 'artisan' ? '/dashboard/artisan' : '/dashboard/customer';
 }
 
 export async function GET(req) {
@@ -106,7 +99,7 @@ export async function handleGoogleCallback(req) {
       `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(tokenData.id_token)}`
     );
     const profile = await profileResponse.json();
-    if (!profileResponse.ok || profile.aud !== clientId || profile.email_verified !== 'true' || !profile.email) {
+    if (!profileResponse.ok || !isGoogleProfileValid(profile, clientId)) {
       throw new Error('Google account verification failed.');
     }
 
@@ -126,22 +119,20 @@ export async function handleGoogleCallback(req) {
     if (!user) {
       const passwordHash = await bcrypt.hash(randomBytes(32).toString('hex'), 12);
       const result = await query(
-        `INSERT INTO users (full_name, email, phone, password_hash, role, profile_photo, google_id, is_verified, is_active)
-         VALUES (?, ?, ?, ?, 'customer', ?, ?, 1, 1)`,
+        `INSERT INTO users (full_name, email, phone, password_hash, role, profile_photo, google_id, is_verified, is_active, last_login)
+         VALUES (?, ?, ?, ?, 'customer', ?, ?, 1, 1, NOW())`,
         [fullName, email, '+233000000000', passwordHash, profilePhoto, profile.sub]
       );
       user = {
         user_id: result.insertId,
         full_name: fullName,
         email,
-        phone: '+233000000000',
         role: 'customer',
-        profile_photo: profilePhoto,
         is_verified: 1,
         is_active: 1,
       };
     } else {
-      if (user.is_active !== 1) {
+      if (Number(user.is_active) !== 1) {
         return redirectWithError(req, 'Your account has been suspended or deactivated.');
       }
       await query(
@@ -156,15 +147,14 @@ export async function handleGoogleCallback(req) {
       role: user.role,
       full_name: user.full_name,
     });
-    const dashboardPath = user.role === 'artisan'
-      ? '/dashboard/artisan'
-      : '/dashboard/customer';
+    const dashboardPath = getGoogleDashboardPath(user.role);
     const response = NextResponse.redirect(new URL(dashboardPath, getAppUrl(req)));
     setAuthCookie(response, token, {
       maxAge: 30 * 24 * 60 * 60,
       secure: req.headers.get('x-forwarded-proto') === 'https' || req.url.startsWith('https://'),
     });
     response.cookies.set('google_oauth_state', '', { maxAge: 0, path: '/' });
+    response.cookies.set('google_verification_challenge', '', { maxAge: 0, path: '/' });
     return response;
   } catch (error) {
     console.error('Google sign-in failed:', error?.message || error);

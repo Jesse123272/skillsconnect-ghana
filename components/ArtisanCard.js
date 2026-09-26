@@ -47,7 +47,7 @@ export default function ArtisanCard({ artisan }) {
         </div>
 
         {/* Name with truncation */}
-        <h3 className="card-title fw-bold mb-2 text-dark w-100 px-2" title={name}>
+        <h3 className="card-title fw-bold mb-2 text-dark w-100 px-2">
           {name}
         </h3>
 

@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import React from 'react';
 
-export default function ProfileAvatar({ name, photo_url, size = 'md' }) {
+export default function ProfileAvatar({ name, photo_url, size = 'md', decorative = false }) {
   // Compute initials
   const getInitials = (fullName) => {
     if (!fullName) return 'U';
@@ -28,9 +28,9 @@ export default function ProfileAvatar({ name, photo_url, size = 'md' }) {
   // Use a nice background palette derived from the user name for variance
   const bgColors = [
     '#1A6B3C', // Primary green
-    '#2E7D32', // Medium green
-    '#388E3C', // Accent green
-    '#4CAF50', // Soft green
+    '#1B5E20',
+    '#14532D',
+    '#166534',
     '#2F4F4F', // Dark slate
   ];
   
@@ -43,7 +43,7 @@ export default function ProfileAvatar({ name, photo_url, size = 'md' }) {
       {photo_url ? (
         <img
           src={photo_url}
-          alt={name || 'User Profile Photo'}
+          alt={decorative ? '' : name || 'User Profile Photo'}
           className="rounded-circle border border-2 border-white shadow-sm object-fit-cover"
           referrerPolicy="no-referrer"
           style={{

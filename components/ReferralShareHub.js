@@ -54,7 +54,7 @@ export default function ReferralShareHub({ artisanId, artisanName, categoryName,
           <i className="fa-solid fa-share-nodes text-warning fs-5"></i>
         </div>
         <div>
-          <h5 className="fw-bold text-dark mb-0">Referral & Sharing Hub</h5>
+          <h2 className="h5 fw-bold text-dark mb-0">Referral & Sharing Hub</h2>
           <small className="text-muted">Easily recommend {artisanName} to others</small>
         </div>
       </div>
@@ -68,8 +68,9 @@ export default function ReferralShareHub({ artisanId, artisanName, categoryName,
       <div className="row g-3 mb-3">
         {/* Recipient Input */}
         <div className="col-12">
-          <label className="form-label text-secondary small fw-medium mb-1">Friend&apos;s Name (Optional)</label>
+          <label htmlFor="referral-friend-name" className="form-label text-secondary small fw-medium mb-1">Friend&apos;s Name (Optional)</label>
           <input 
+            id="referral-friend-name"
             type="text" 
             className="form-control text-dark font-medium" 
             style={{ fontSize: '14px', borderRadius: '8px' }}
@@ -81,8 +82,8 @@ export default function ReferralShareHub({ artisanId, artisanName, categoryName,
 
         {/* Quality Highlight */}
         <div className="col-12">
-          <label className="form-label text-secondary small fw-medium mb-1">Key Recommendation Highlight</label>
-          <div className="d-flex flex-wrap gap-2">
+          <p id="referral-highlight-label" className="form-label text-secondary small fw-medium mb-1">Key Recommendation Highlight</p>
+          <div className="d-flex flex-wrap gap-2" role="group" aria-labelledby="referral-highlight-label">
             {[
               'Highly Recommended',
               'Exceptional Quality Craft',
@@ -109,8 +110,8 @@ export default function ReferralShareHub({ artisanId, artisanName, categoryName,
         <div className="col-sm-6">
           <button
             type="button"
-            className="btn btn-success w-100 rounded-pill py-2.5 fw-semibold d-flex align-items-center justify-content-center gap-2 shadow-sm text-white border-0"
-            style={{ backgroundColor: '#25D366' }}
+            className="btn btn-success w-100 rounded-pill py-2.5 fw-semibold d-flex align-items-center justify-content-center gap-2 shadow-sm border-0"
+            style={{ backgroundColor: '#25D366', color: '#064E3B' }}
             onClick={handleWhatsAppShare}
           >
             <i className="fa-brands fa-whatsapp fs-5"></i>

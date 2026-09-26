@@ -57,14 +57,6 @@ export default function Navbar() {
           <ul className="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-3">
             <li className="nav-item">
               <Link
-                href="/"
-                className={`nav-link fw-medium ${isActive('/') ? 'text-primary' : 'text-dark'}`}
-              >
-                Home
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link
                 href="/artisans"
                 className={`nav-link fw-medium ${isActive('/artisans') ? 'text-primary' : 'text-dark'}`}
               >

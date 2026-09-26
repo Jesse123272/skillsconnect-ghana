@@ -31,48 +31,6 @@ export default function CustomerEnquiryDetail() {
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const chatBottomRef = useRef(null);
 
-  // Paystack Payment States
-  const [payAmount, setPayAmount] = useState('150');
-  const [payNote, setPayNote] = useState('');
-  const [initializingPay, setInitializingPay] = useState(false);
-  const [payError, setPayError] = useState('');
-
-  const handlePayArtisan = async (e) => {
-    e.preventDefault();
-    const amtGhs = parseFloat(payAmount);
-    if (!payAmount || isNaN(amtGhs) || amtGhs <= 0) {
-      setPayError('Please enter a valid positive amount in Ghana Cedis (GHS).');
-      return;
-    }
-
-    try {
-      setInitializingPay(true);
-      setPayError('');
-      const res = await authFetch('/api/payments/initialize', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          amount: amtGhs,
-          enquiry_id: id,
-          artisan_id: enquiry?.artisan_id,
-          note: payNote || `Service payment for "${enquiry?.subject || 'Artisan Service'}"`
-        })
-      });
-
-      const data = await res.json();
-      if (res.ok && data.success && data.data.authorization_url) {
-        window.location.href = data.data.authorization_url;
-      } else {
-        setPayError(data.error || 'Failed to initialize Paystack payment gateway.');
-      }
-    } catch (err) {
-      console.error('Paystack initialization error:', err);
-      setPayError('A network error occurred while initializing Paystack payment.');
-    } finally {
-      setInitializingPay(false);
-    }
-  };
-
   const handleUpdateStatus = async (newStatus) => {
     try {
       setUpdatingStatus(true);
@@ -389,80 +347,14 @@ export default function CustomerEnquiryDetail() {
           </div>
         </div>
 
-        {/* PAYSTACK SECURE PAYMENT CARD */}
-        <div className="card border-primary border-opacity-25 rounded-3 p-4 bg-white mb-4 shadow-sm" id="paystack-payment-card">
-          <div className="row g-3 align-items-center">
-            <div className="col-12 col-lg-7">
-              <div className="d-flex align-items-center gap-2 mb-1.5">
-                <span className="badge bg-primary-subtle text-primary border border-primary-subtle px-2.5 py-1 rounded-pill fs-8 fw-bold">
-                  <i className="fa-solid fa-lock me-1"></i> Pay securely with Paystack Ghana
-                </span>
-                <span className="text-muted fs-8">MTN MoMo • Telecel • Cards</span>
-              </div>
-              <h5 className="fw-bold text-dark mb-1">
-                Pay {enquiry.artisan_name} Securely
-              </h5>
-              <p className="text-secondary fs-7.5 mb-0">
-                Send a direct Paystack payment for this service. This is a secure Paystack payment flow, not a marketplace escrow hold. True marketplace escrow requires Paystack Subaccounts / Split Payments approval and settlement setup.
-              </p>
-            </div>
-
-            <div className="col-12 col-lg-5">
-              <form onSubmit={handlePayArtisan} className="p-3 bg-light rounded-3 border">
-                {payError && (
-                  <div className="alert alert-danger py-1.5 px-2.5 fs-8 mb-2.5 rounded-2 d-flex align-items-center gap-1">
-                    <i className="fa-solid fa-circle-exclamation fs-9"></i>
-                    <span>{payError}</span>
-                  </div>
-                )}
-                
-                <div className="mb-2.5">
-                  <label className="form-label fs-8 fw-bold text-dark mb-1">Payment Amount (GHS)</label>
-                  <div className="input-group input-group-sm">
-                    <span className="input-group-text bg-white fw-bold text-dark">GHS</span>
-                    <input
-                      type="number"
-                      step="0.01"
-                      min="1"
-                      className="form-control fw-bold text-dark shadow-none"
-                      value={payAmount}
-                      onChange={(e) => setPayAmount(e.target.value)}
-                      placeholder="e.g. 150"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="mb-3">
-                  <input
-                    type="text"
-                    className="form-control form-control-sm text-secondary shadow-none fs-8"
-                    placeholder="Payment note (optional, e.g. Deposit for materials)"
-                    value={payNote}
-                    onChange={(e) => setPayNote(e.target.value)}
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={initializingPay || !payAmount}
-                  className="btn btn-success w-100 py-2 rounded-pill fw-bold text-white fs-7 d-flex align-items-center justify-content-center gap-2 shadow-2xs"
-                >
-                  {initializingPay ? (
-                    <>
-                      <span className="spinner-border spinner-border-sm" role="status"></span>
-                      <span>Connecting Paystack...</span>
-                    </>
-                  ) : (
-                    <>
-                      <i className="fa-solid fa-credit-card fs-8"></i>
-                      <span>Pay GHS {payAmount || '0'} via Paystack</span>
-                    </>
-                  )}
-                </button>
-              </form>
-            </div>
+        <div className="card border rounded-3 p-3 bg-white mb-4 d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between gap-3" id="enquiry-payment-link">
+          <div>
+            <h5 className="fw-bold text-dark mb-1">Payment</h5>
+            <p className="text-muted small mb-0">Payment has its own page, separate from this conversation.</p>
           </div>
+          <Link href={`/dashboard/customer/payments/enquiry/${id}`} className="btn btn-success rounded-pill px-4 fw-semibold">
+            Go to payment
+          </Link>
         </div>
 
         {/* 3. CONVERSATION THREAD */}

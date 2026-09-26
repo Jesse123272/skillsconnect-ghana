@@ -25,29 +25,23 @@ import {
   Settings, 
   ChevronRight,
   ShieldAlert,
-  HelpCircle
+  HelpCircle,
+  X
 } from 'lucide-react';
 
 export default function DashboardLayout({ children, pageTitle = 'Dashboard' }) {
-  const { user, logout, loading, unreadNotifications, unreadEnquiries, pendingArtisansCount, refreshBadges } = useAuth();
+  const { user, logout, loading, unreadNotifications, unreadEnquiries, pendingArtisansCount } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
-  const closeMobileSidebar = () => {
-    if (typeof window === 'undefined') return;
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const menuButtonRef = useRef(null);
+  const sidebarRef = useRef(null);
 
-    const offcanvasEl = document.getElementById('sidebarOffcanvas');
-    if (!offcanvasEl) return;
-
-    const offcanvasInstance = window.bootstrap?.Offcanvas?.getOrCreateInstance?.(offcanvasEl);
-    if (offcanvasInstance) {
-      offcanvasInstance.hide();
-      return;
+  const closeSidebar = () => {
+    if (sidebarRef.current?.contains(document.activeElement)) {
+      menuButtonRef.current?.focus();
     }
-
-    offcanvasEl.classList.remove('show');
-    document.body.classList.remove('offcanvas-open');
-    const backdrop = document.querySelector('.offcanvas-backdrop');
-    if (backdrop) backdrop.remove();
+    setSidebarOpen(false);
   };
   
 
@@ -57,6 +51,22 @@ export default function DashboardLayout({ children, pageTitle = 'Dashboard' }) {
       router.push('/login');
     }
   }, [user, loading, router]);
+
+  useEffect(() => {
+    if (!sidebarOpen) return undefined;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') setSidebarOpen(false);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [sidebarOpen]);
 
   if (loading) {
     return (
@@ -73,14 +83,17 @@ export default function DashboardLayout({ children, pageTitle = 'Dashboard' }) {
     return null; // Will redirect in useEffect
   }
 
-  // Define sidebar menu configurations
+  // Keep the first-level navigation focused on the tasks users visit most.
   const getSidebarItems = () => {
     switch (user.role) {
       case 'customer':
-        return [
+        return {
+          primary: [
           { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard/customer' },
-          { icon: Search, label: 'Browse Artisans', href: '/artisans' },
+          { icon: Search, label: 'Discover Artisans', href: '/dashboard/customer/discover' },
           { icon: MessageSquare, label: 'My Enquiries', href: '/dashboard/customer/enquiries', badge: unreadEnquiries },
+          ],
+          secondary: [
           { icon: CreditCard, label: 'My Payments', href: '/dashboard/customer/payments' },
           { icon: Heart, label: 'Saved Artisans', href: '/dashboard/customer/saved' },
           { icon: Star, label: 'My Reviews', href: '/dashboard/customer/reviews' },
@@ -88,46 +101,57 @@ export default function DashboardLayout({ children, pageTitle = 'Dashboard' }) {
           { icon: Bell, label: 'Notifications', href: '/dashboard/customer/notifications', badge: unreadNotifications },
           { icon: HelpCircle, label: 'Support', href: '/contact' },
           { icon: User, label: 'Profile Settings', href: '/dashboard/customer/settings' },
-        ];
+          ],
+        };
       case 'artisan':
-        return [
+        return {
+          primary: [
           { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard/artisan' },
           { icon: User, label: 'My Profile', href: '/dashboard/artisan/profile' },
-          { icon: ImageIcon, label: 'My Gallery', href: '/dashboard/artisan/gallery' },
           { icon: MessageSquare, label: 'Enquiries', href: '/dashboard/artisan/enquiries', badge: unreadEnquiries },
+          ],
+          secondary: [
+          { icon: ImageIcon, label: 'My Gallery', href: '/dashboard/artisan/gallery' },
           { icon: CreditCard, label: 'Earnings & Payments', href: '/dashboard/artisan/transactions' },
           { icon: Star, label: 'My Reviews', href: '/dashboard/artisan/reviews' },
           { icon: Bell, label: 'Notifications', href: '/dashboard/artisan/notifications', badge: unreadNotifications },
           { icon: HelpCircle, label: 'Support', href: '/contact' },
           { icon: Settings, label: 'Account Settings', href: '/dashboard/artisan/settings' },
           { icon: User, label: 'Preview Profile', href: `/artisan/${user.user_id}` },
-        ];
+          ],
+        };
       case 'admin':
-        return [
+        return {
+          primary: [
           { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard/admin' },
           { icon: Users, label: 'Manage Artisans', href: '/dashboard/admin/artisans', badge: pendingArtisansCount },
+          { icon: FileText, label: 'Reports', href: '/dashboard/admin/reports' },
+          ],
+          secondary: [
+          { icon: Users, label: 'Manage Users', href: '/dashboard/admin/users' },
           { icon: Users, label: 'Manage Customers', href: '/dashboard/admin/customers' },
           { icon: FolderPlus, label: 'Categories', href: '/dashboard/admin/categories' },
           { icon: Star, label: 'Reviews', href: '/dashboard/admin/reviews' },
           { icon: MessageSquare, label: 'Enquiries', href: '/dashboard/admin/enquiries' },
-          { icon: FileText, label: 'Reports', href: '/dashboard/admin/reports' },
           { icon: CreditCard, label: 'Transactions', href: '/dashboard/admin/transactions' },
           { icon: HelpCircle, label: 'Support', href: '/contact' },
           { icon: Activity, label: 'Activity Logs', href: '/dashboard/admin/logs' },
           { icon: Settings, label: 'Settings', href: '/dashboard/admin/settings' },
-        ];
+          ],
+        };
       default:
-        return [];
+        return { primary: [], secondary: [] };
     }
   };
 
-  const navItems = getSidebarItems();
+  const navGroups = getSidebarItems();
 
   const isLinkActive = (href) => {
-    if (href === '/dashboard') {
-      return pathname === '/dashboard';
+    if (!pathname) return false;
+    if (['/dashboard/customer', '/dashboard/artisan', '/dashboard/admin'].includes(href)) {
+      return pathname === href;
     }
-    return pathname?.startsWith(href);
+    return pathname === href || pathname.startsWith(`${href}/`);
   };
 
   // Helper to generate dynamic breadcrumbs
@@ -156,20 +180,46 @@ export default function DashboardLayout({ children, pageTitle = 'Dashboard' }) {
     );
   };
 
+  const renderNavItems = (items) => items.map((item, index) => {
+    const Icon = item.icon;
+    const active = isLinkActive(item.href);
+    return (
+      <Link
+        key={item.href || index}
+        href={item.href}
+        onClick={closeSidebar}
+        className={`sidebar-link ${active ? 'active' : ''}`}
+      >
+        <Icon size={18} className="me-3 flex-shrink-0" />
+        <span>{item.label}</span>
+        {item.badge > 0 && (
+          <span className={`sidebar-badge badge ${active ? 'bg-dark text-white' : 'bg-danger text-white'}`}>
+            {item.badge}
+          </span>
+        )}
+      </Link>
+    );
+  });
+
+  const hasActiveSecondaryItem = navGroups.secondary.some((item) => isLinkActive(item.href));
+
   const sidebarContent = (
     <div className="d-flex flex-column h-100">
       {/* Brand Header */}
-      <div className="p-4 border-bottom d-flex align-items-center gap-2">
+      <div className="px-3 py-3 border-bottom d-flex align-items-center gap-2">
         <span className="bg-primary text-white p-2 rounded-3 d-flex align-items-center justify-content-center" style={{ width: '36px', height: '36px' }}>
           <i className="fa-solid fa-wrench"></i>
         </span>
-        <span className="fs-6 fw-bold text-primary" style={{ letterSpacing: '-0.5px' }}>
+        <span id="sidebarOffcanvasLabel" className="fs-6 fw-bold text-primary" style={{ letterSpacing: '-0.5px' }}>
           SkillsConnect<span className="text-secondary">Ghana</span>
         </span>
+        <button type="button" className="btn border-0 ms-auto p-2" onClick={closeSidebar} aria-label="Close dashboard menu">
+          <X size={20} />
+        </button>
       </div>
 
       {/* User Info card */}
-      <div className="p-3 mx-3 my-3 bg-light rounded-3 text-center border">
+      <div className="px-3 py-3 mx-2 my-2 bg-light rounded-3 text-center border">
         <div className="d-flex align-items-center justify-content-center mx-auto mb-2">
           <ProfileAvatar name={user.full_name} photo_url={user.profile_photo} size="lg" />
         </div>
@@ -180,33 +230,27 @@ export default function DashboardLayout({ children, pageTitle = 'Dashboard' }) {
       </div>
 
       {/* Nav Links list */}
-      <div className="flex-grow-1 overflow-y-auto px-2">
-        {navItems.map((item, index) => {
-          const Icon = item.icon;
-          const active = isLinkActive(item.href);
-          return (
-            <Link 
-              key={index}
-              href={item.href}
-              onClick={closeMobileSidebar}
-              className={`sidebar-link ${active ? 'active' : ''}`}
-            >
-              <Icon size={18} className="me-3" />
-              <span>{item.label}</span>
-              {item.badge > 0 && (
-                <span className={`sidebar-badge badge ${active ? 'bg-dark text-white' : 'bg-danger text-white'}`}>
-                  {item.badge}
-                </span>
-              )}
-            </Link>
-          );
-        })}
+      <div className="flex-grow-1 overflow-y-auto px-2" style={{ minHeight: 0 }}>
+        {renderNavItems(navGroups.primary)}
+        <details
+          key={pathname}
+          className="sidebar-more"
+          ref={(element) => {
+            if (element) element.open = hasActiveSecondaryItem;
+          }}
+        >
+          <summary className="sidebar-more-toggle">More options</summary>
+          <div>{renderNavItems(navGroups.secondary)}</div>
+        </details>
       </div>
 
       {/* Logout button bottom */}
       <div className="p-3 border-top mt-auto">
         <button 
-          onClick={logout}
+          onClick={() => {
+            closeMobileSidebar();
+            logout();
+          }}
           className="btn btn-outline-danger w-full d-flex align-items-center justify-content-center gap-2 py-2.5 rounded-3 border-0"
           style={{ width: '100%' }}
         >
@@ -222,18 +266,20 @@ export default function DashboardLayout({ children, pageTitle = 'Dashboard' }) {
       {/* Top Header Bar */}
       <nav className="navbar navbar-expand-lg bg-white border-bottom sticky-top py-2 px-3 z-3">
         <div className="container-fluid">
-          {/* Left: Mobile Toggle & Page Title */}
+          {/* Dashboard menu toggle and page title */}
           <div className="d-flex align-items-center gap-2">
             <button 
-              className="btn d-lg-none border-0 p-1"
+              className="btn border-0 p-2"
               type="button"
-              data-bs-toggle="offcanvas"
-              data-bs-target="#sidebarOffcanvas"
+              ref={menuButtonRef}
+              aria-label={sidebarOpen ? 'Close dashboard menu' : 'Open dashboard menu'}
               aria-controls="sidebarOffcanvas"
+              aria-expanded={sidebarOpen}
+              onClick={() => setSidebarOpen((isOpen) => !isOpen)}
             >
-              <Menu size={24} />
+              {sidebarOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
-            <h5 className="mb-0 fw-bold d-none d-sm-inline-block text-dark ms-2">
+            <h5 className="mb-0 fw-bold text-dark ms-2">
               {pageTitle}
             </h5>
           </div>
@@ -298,18 +344,24 @@ export default function DashboardLayout({ children, pageTitle = 'Dashboard' }) {
 
       {/* Master Layout Grid */}
       <div className="dashboard-container flex-grow-1">
-        {/* Desktop Sidebar */}
-        <aside className="sidebar-nav d-none d-lg-block">
-          {sidebarContent}
-        </aside>
+        {sidebarOpen && (
+          <div
+            className="offcanvas-backdrop fade show"
+            onClick={closeSidebar}
+            aria-hidden="true"
+            style={{ zIndex: 1190 }}
+          />
+        )}
 
-        {/* Mobile Sidebar (Offcanvas) */}
         <div 
-          className="offcanvas offcanvas-start d-lg-none" 
+          className={`offcanvas offcanvas-start ${sidebarOpen ? 'show' : ''}`}
           tabIndex="-1" 
           id="sidebarOffcanvas" 
+          ref={sidebarRef}
           aria-labelledby="sidebarOffcanvasLabel"
-          style={{ width: '280px' }}
+          aria-hidden={!sidebarOpen}
+          role="dialog"
+          style={{ width: 'min(86vw, 320px)', visibility: sidebarOpen ? 'visible' : 'hidden', zIndex: 1200 }}
         >
           <div className="offcanvas-body p-0 h-100">
             {sidebarContent}
@@ -318,15 +370,7 @@ export default function DashboardLayout({ children, pageTitle = 'Dashboard' }) {
 
         {/* Main Content Pane */}
         <main className="dashboard-main-panel flex-grow-1 p-3 p-md-4 overflow-x-hidden">
-          {/* Breadcrumbs and Section header info */}
-          <div className="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center mb-3 gap-2">
-            <div>
-              {getBreadcrumbs()}
-            </div>
-          </div>
-
-          {/* Main card wrapper */}
-          <div className="card border-0 shadow-sm p-2.5 p-sm-3 p-md-4 rounded-3 bg-white dashboard-content-shell" style={{ minHeight: '80%' }}>
+          <div className="dashboard-content-shell">
             {children}
           </div>
         </main>

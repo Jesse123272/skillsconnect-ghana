@@ -53,7 +53,7 @@ function PaymentVerifyContent() {
   }, [reference]);
 
   return (
-    <div className="container py-5" style={{ maxWidth: '640px' }}>
+    <main className="container py-5" style={{ maxWidth: '640px' }}>
       
       {/* 1. LOADING / VERIFYING STATE */}
       {verifying && (
@@ -161,16 +161,16 @@ function PaymentVerifyContent() {
         </div>
       )}
 
-    </div>
+    </main>
   );
 }
 
 export default function PaymentVerifyPage() {
   return (
     <Suspense fallback={
-      <div className="container py-5 text-center">
+      <main className="container py-5 text-center" aria-busy="true">
         <div className="spinner-border text-primary" role="status"></div>
-      </div>
+      </main>
     }>
       <PaymentVerifyContent />
     </Suspense>

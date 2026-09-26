@@ -67,7 +67,7 @@ export default function Contact() {
       <div className="bg-light border-bottom py-5" id="contact-hero">
         <div className="container text-center py-4">
           <h1 className="display-6 fw-bold text-dark mb-2">Get in Touch</h1>
-          <p className="text-muted mx-auto lead" style={{ maxWidth: '600px' }}>
+          <p className="text-secondary mx-auto lead" style={{ maxWidth: '600px' }}>
             Have questions about account verification, custom partnerships, or technical support? Our local team is here to assist.
           </p>
         </div>
@@ -78,7 +78,7 @@ export default function Contact() {
           
           {/* Left Column: Contact details cards */}
           <div className="col-lg-5">
-            <h3 className="fw-bold text-dark mb-4">Contact Information</h3>
+            <h2 className="h3 fw-bold text-dark mb-4">Contact Information</h2>
             <p className="text-secondary small mb-4" style={{ lineHeight: '1.7' }}>
               Feel free to reach out to us during standard local working hours (Monday to Friday, 8:00 AM - 5:00 PM GMT). We strive to respond to all inquiries within 24 hours.
             </p>
@@ -91,8 +91,8 @@ export default function Contact() {
                     <i className="fa-solid fa-map-location-dot fs-5"></i>
                   </div>
                   <div>
-                    <h6 className="fw-bold text-dark mb-1">Our Headquarters</h6>
-                    <p className="text-muted small mb-0">Ghana Communication Technology University, Accra</p>
+                    <h3 className="h6 fw-bold text-dark mb-1">Our Headquarters</h3>
+                    <p className="text-secondary small mb-0">Ghana Communication Technology University, Accra</p>
                   </div>
                 </div>
               </div>
@@ -104,8 +104,8 @@ export default function Contact() {
                     <i className="fa-solid fa-envelope-open fs-5"></i>
                   </div>
                   <div>
-                    <h6 className="fw-bold text-dark mb-1">Email Support</h6>
-                    <p className="text-muted small mb-0">skillsconnectgh@zohomail.com</p>
+                    <h3 className="h6 fw-bold text-dark mb-1">Email Support</h3>
+                    <p className="text-secondary small mb-0">skillsconnectgh@zohomail.com</p>
                   </div>
                 </div>
               </div>
@@ -117,8 +117,8 @@ export default function Contact() {
                     <i className="fa-solid fa-phone-volume fs-5"></i>
                   </div>
                   <div>
-                    <h6 className="fw-bold text-dark mb-1">Office Hotlines</h6>
-                    <p className="text-muted small mb-0">+233530600127</p>
+                    <h3 className="h6 fw-bold text-dark mb-1">Office Hotlines</h3>
+                    <p className="text-secondary small mb-0">+233530600127</p>
                   </div>
                 </div>
               </div>
@@ -128,13 +128,14 @@ export default function Contact() {
           {/* Right Column: Interactive contact form */}
           <div className="col-lg-7">
             <div className="card border rounded-4 p-4 p-md-5 bg-white shadow-sm" id="contact-form-card">
-              <h4 className="fw-bold text-dark mb-3">Send a Message</h4>
+              <h2 className="h4 fw-bold text-dark mb-3">Send a Message</h2>
               
               <form onSubmit={handleContactSubmit}>
                 <div className="row g-3 mb-3">
                   <div className="col-md-6">
-                    <label className="form-label text-secondary small fw-medium">Your Name</label>
+                    <label htmlFor="contact-name" className="form-label text-secondary small fw-medium">Your Name</label>
                     <input
+                      id="contact-name"
                       type="text"
                       className="form-control text-secondary small"
                       placeholder="e.g. Ama Serwaa"
@@ -144,8 +145,9 @@ export default function Contact() {
                     />
                   </div>
                   <div className="col-md-6">
-                    <label className="form-label text-secondary small fw-medium">Email Address</label>
+                    <label htmlFor="contact-email" className="form-label text-secondary small fw-medium">Email Address</label>
                     <input
+                      id="contact-email"
                       type="email"
                       className="form-control text-secondary small"
                       placeholder="ama@example.com"
@@ -157,8 +159,9 @@ export default function Contact() {
                 </div>
 
                 <div className="mb-3">
-                  <label className="form-label text-secondary small fw-medium">Subject</label>
+                  <label htmlFor="contact-subject" className="form-label text-secondary small fw-medium">Subject</label>
                   <input
+                    id="contact-subject"
                     type="text"
                     className="form-control text-secondary small"
                     placeholder="e.g. Question about Artisan Verification process"
@@ -169,8 +172,9 @@ export default function Contact() {
                 </div>
 
                 <div className="mb-4">
-                  <label className="form-label text-secondary small fw-medium">Message Body</label>
+                  <label htmlFor="contact-message" className="form-label text-secondary small fw-medium">Message Body</label>
                   <textarea
+                    id="contact-message"
                     className="form-control text-secondary small"
                     rows="6"
                     placeholder="Describe your request in detail..."

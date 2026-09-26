@@ -58,10 +58,16 @@ export default function Footer() {
               Contact Us
             </h2>
             <p className="footer-copy mb-2" style={{ fontSize: '14px' }}>
-              <i className="fa-solid fa-envelope me-2" aria-hidden="true"></i> skillsconnectgh@zohomail.com
+              <span className="fw-semibold">Email:</span>{' '}
+              <a href="mailto:skillsconnectgh@zohomail.com" className="footer-link text-decoration-none" aria-label="Email SkillsConnect support">
+                skillsconnectgh@zohomail.com
+              </a>
             </p>
             <p className="footer-copy mb-2" style={{ fontSize: '14px' }}>
-              <i className="fa-solid fa-phone me-2" aria-hidden="true"></i> +233530600127
+              <span className="fw-semibold">Phone:</span>{' '}
+              <a href="tel:+233530600127" className="footer-link text-decoration-none" aria-label="Call SkillsConnect support">
+                +233530600127
+              </a>
             </p>
             <p className="footer-copy mb-3" style={{ fontSize: '14px' }}>
               <i className="fa-solid fa-map-marker-alt me-2" aria-hidden="true"></i> Accra, Greater Accra, Ghana
@@ -69,8 +75,8 @@ export default function Footer() {
             
             {/* Social Icons */}
             <div className="d-flex gap-3 mt-3">
-              <Link href="/contact" className="footer-link text-decoration-none small">
-                Have a question? Contact the team
+              <Link href="/contact" className="footer-link text-decoration-none small" aria-label="Contact SkillsConnect support team">
+                Contact support
               </Link>
             </div>
           </div>

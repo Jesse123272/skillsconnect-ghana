@@ -67,7 +67,7 @@ export default function RootLayout({ children }) {
           }
 
           html {
-            font-size: 15px;
+            font-size: 16px;
           }
 
           body {
@@ -78,6 +78,15 @@ export default function RootLayout({ children }) {
             display: flex;
             flex-direction: column;
             font-size: 1rem;
+          }
+
+          small,
+          .small,
+          .fs-7,
+          .fs-8,
+          .fs-9 {
+            font-size: 0.875rem !important;
+            line-height: 1.5;
           }
 
           /* Custom styling and overrides */
@@ -304,8 +313,13 @@ export default function RootLayout({ children }) {
 
           .hero-support-text,
           .hero-stat-label,
-          .platform-stat-label {
-            color: #E7F2EB !important;
+          .platform-stat-label,
+          .hero-stat-badge .text-white,
+          .hero-stat-badge .hero-badge-icon {
+            color: #F5FAF7 !important;
+          }
+          .hero-stat-badge {
+            box-shadow: 0 10px 18px rgba(15, 23, 42, 0.12);
           }
           .category-name,
           .testimonial-name,
@@ -388,11 +402,13 @@ export default function RootLayout({ children }) {
           .dashboard-main-panel {
             min-width: 0;
             width: 100%;
+            background: #f8fafc;
           }
           .dashboard-content-shell {
             width: 100%;
             max-width: 100%;
             overflow-x: hidden;
+            padding: 0.25rem;
           }
           .sidebar-nav {
             width: 260px;
@@ -425,6 +441,38 @@ export default function RootLayout({ children }) {
             background-color: var(--secondary) !important;
             color: #212529 !important;
             font-weight: 600;
+          }
+          .sidebar-more {
+            margin: 0.45rem 0.75rem 0;
+            border-top: 1px solid rgba(15, 23, 42, 0.08);
+            padding-top: 0.4rem;
+          }
+          .sidebar-more-toggle {
+            list-style: none;
+            cursor: pointer;
+            padding: 0.55rem 0.5rem;
+            color: #64748b;
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+          }
+          .sidebar-more-toggle::-webkit-details-marker {
+            display: none;
+          }
+          .sidebar-more-toggle::after {
+            content: '+';
+            float: right;
+            font-size: 1rem;
+            line-height: 1;
+          }
+          .sidebar-more[open] .sidebar-more-toggle::after {
+            content: '-';
+          }
+          .sidebar-more .sidebar-link {
+            font-size: 0.84rem;
+            padding-top: 0.6rem;
+            padding-bottom: 0.6rem;
           }
           .sidebar-badge {
             margin-left: auto;
@@ -593,8 +641,7 @@ export default function RootLayout({ children }) {
               padding: 0.75rem !important;
             }
             .dashboard-content-shell {
-              border-radius: 1rem !important;
-              padding: 0.9rem !important;
+              padding: 0 !important;
             }
             .offcanvas-backdrop.show {
               opacity: 0.5;

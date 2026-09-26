@@ -1,5 +1,7 @@
 {
   "files.associations": {
+    "**/*.sql": "sql",
     "database/skillsconnect.sql": "plaintext"
-  }
+  },
+  "mssql.intelliSense.enableErrorChecking": false
 }

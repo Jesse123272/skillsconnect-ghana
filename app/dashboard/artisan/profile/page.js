@@ -33,6 +33,7 @@ export default function ArtisanProfileEdit() {
 
   // SECTION 3 - PROFILE PHOTO
   const [profilePhoto, setProfilePhoto] = useState('');
+  const [portfolioCount, setPortfolioCount] = useState(0);
   const [photoFile, setPhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState('');
 
@@ -52,10 +53,11 @@ export default function ArtisanProfileEdit() {
     async function loadFormData() {
       try {
         setLoadingData(true);
-        const [categoriesRes, regionsRes, meRes] = await Promise.all([
+        const [categoriesRes, regionsRes, meRes, portfolioRes] = await Promise.all([
           authFetch('/api/categories'),
           authFetch('/api/regions'),
-          authFetch('/api/auth/me')
+          authFetch('/api/auth/me'),
+          authFetch('/api/portfolio'),
         ]);
 
         if (categoriesRes.ok) {
@@ -91,6 +93,13 @@ export default function ArtisanProfileEdit() {
             setServiceAreas(artisanProfile.service_areas || '');
             setIsAvailable(artisanProfile.is_available !== 0);
             setAcceptsEmergency(artisanProfile.accepts_emergency === 1 || artisanProfile.accepts_emergency === true);
+          }
+        }
+
+        if (portfolioRes.ok) {
+          const portfolioResult = await portfolioRes.json();
+          if (portfolioResult.success && Array.isArray(portfolioResult.data)) {
+            setPortfolioCount(portfolioResult.data.length);
           }
         }
       } catch (err) {
@@ -190,6 +199,12 @@ export default function ArtisanProfileEdit() {
 
   // Save All Changes Submit
   const filteredCategories = filterCategoriesBySearch(categoriesList, categorySearch);
+  const completionScore = (profilePhoto ? 20 : 0)
+    + (bio.trim() ? 20 : 0)
+    + (categoryId || customCategory.trim() ? 15 : 0)
+    + (region && district ? 15 : 0)
+    + (phone ? 15 : 0)
+    + (portfolioCount > 0 ? 15 : 0);
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
@@ -301,6 +316,19 @@ export default function ArtisanProfileEdit() {
             Manage your personal profile, geographical service zones, trade categories, and profile biography.
           </p>
         </div>
+
+        <section className="card border rounded-3 p-3 p-md-4 bg-white shadow-xs mb-4" aria-labelledby="profile-completion-title">
+          <div className="d-flex justify-content-between align-items-center gap-3 mb-2">
+            <div>
+              <h5 id="profile-completion-title" className="fw-bold text-dark mb-1">Profile completion</h5>
+              <p className="text-muted small mb-0">Complete your details and add portfolio work to improve your listing.</p>
+            </div>
+            <span className="badge bg-primary rounded-pill px-3 py-2">{completionScore}%</span>
+          </div>
+          <div className="progress" role="progressbar" aria-label="Profile completion" aria-valuenow={completionScore} aria-valuemin="0" aria-valuemax="100" style={{ height: '8px' }}>
+            <div className="progress-bar bg-success" style={{ width: `${completionScore}%` }}></div>
+          </div>
+        </section>
 
         {formError && <AlertMessage type="danger" message={formError} onClose={() => setFormError(null)} />}
         {formSuccess && <AlertMessage type="success" message={formSuccess} onClose={() => setFormSuccess(null)} />}

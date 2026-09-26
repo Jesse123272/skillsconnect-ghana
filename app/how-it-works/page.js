@@ -57,7 +57,7 @@ export default function HowItWorks() {
                     <div className="bg-primary-subtle text-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style={{ width: '60px', height: '60px' }}>
                       <span className="fw-bold fs-4">1</span>
                     </div>
-                    <h5 className="fw-bold text-dark mb-2">Search Specialty</h5>
+                    <h2 className="h5 fw-bold text-dark mb-2">Search Specialty</h2>
                     <p className="text-secondary small mb-0">Browse through certified listings by specialty (plumber, painter, welder), location/region, and real-time reviews to match your exact needs.</p>
                   </div>
                 </div>
@@ -68,7 +68,7 @@ export default function HowItWorks() {
                     <div className="bg-primary-subtle text-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style={{ width: '60px', height: '60px' }}>
                       <span className="fw-bold fs-4">2</span>
                     </div>
-                    <h5 className="fw-bold text-dark mb-2">Submit Enquiry</h5>
+                    <h2 className="h5 fw-bold text-dark mb-2">Submit Enquiry</h2>
                     <p className="text-secondary small mb-0">Directly contact your preferred artisan by entering work specifications and location. No broker margins, commissions, or hidden platform fees.</p>
                   </div>
                 </div>
@@ -79,7 +79,7 @@ export default function HowItWorks() {
                     <div className="bg-primary-subtle text-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style={{ width: '60px', height: '60px' }}>
                       <span className="fw-bold fs-4">3</span>
                     </div>
-                    <h5 className="fw-bold text-dark mb-2">Work & Review</h5>
+                    <h2 className="h5 fw-bold text-dark mb-2">Work & Review</h2>
                     <p className="text-secondary small mb-0">Once the trade job is completed, leave an honest, public review and rating on their profile page to build platform integrity and assist other neighbors.</p>
                   </div>
                 </div>
@@ -90,7 +90,7 @@ export default function HowItWorks() {
               <div className="card border rounded-4 bg-light p-4 mt-5">
                 <div className="row align-items-center">
                   <div className="col-md-8 text-start">
-                    <h5 className="fw-bold text-dark mb-1">Looking for high quality hands right now?</h5>
+                    <h2 className="h5 fw-bold text-dark mb-1">Looking for high quality hands right now?</h2>
                     <p className="text-muted small mb-0">Find top-rated technicians with confirmed experience in all 16 regions of Ghana.</p>
                   </div>
                   <div className="col-md-4 mt-3 mt-md-0 d-flex justify-content-md-end">
@@ -115,7 +115,7 @@ export default function HowItWorks() {
                     <div className="bg-warning-subtle text-warning rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style={{ width: '60px', height: '60px' }}>
                       <span className="fw-bold fs-4 text-dark">1</span>
                     </div>
-                    <h5 className="fw-bold text-dark mb-2">Register Specialty</h5>
+                    <h2 className="h5 fw-bold text-dark mb-2">Register Specialty</h2>
                     <p className="text-secondary small mb-0">Sign up as an artisan, specify your local craft, biography, years active, and upload past work photos to make your gallery stand out to prospective clients.</p>
                   </div>
                 </div>
@@ -126,7 +126,7 @@ export default function HowItWorks() {
                     <div className="bg-warning-subtle text-warning rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style={{ width: '60px', height: '60px' }}>
                       <span className="fw-bold fs-4 text-dark">2</span>
                     </div>
-                    <h5 className="fw-bold text-dark mb-2">Direct Service Leads</h5>
+                    <h2 className="h5 fw-bold text-dark mb-2">Direct Service Leads</h2>
                     <p className="text-secondary small mb-0">Receive email alerts and internal notifications immediately when customers request your services. Negotiate details, schedules, and pricing directly.</p>
                   </div>
                 </div>
@@ -137,7 +137,7 @@ export default function HowItWorks() {
                     <div className="bg-warning-subtle text-warning rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style={{ width: '60px', height: '60px' }}>
                       <span className="fw-bold fs-4 text-dark">3</span>
                     </div>
-                    <h5 className="fw-bold text-dark mb-2">Build Trade Status</h5>
+                    <h2 className="h5 fw-bold text-dark mb-2">Build Trade Status</h2>
                     <p className="text-secondary small mb-0">Deliver amazing service to get 5-star ratings. Higher ratings rank you at the top of local browse results, generating consistent, sustainable income flows.</p>
                   </div>
                 </div>

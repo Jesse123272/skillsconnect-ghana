@@ -185,7 +185,7 @@ export default function LoginForm({
         <div className="container d-flex justify-content-center">
           <div className="card border rounded-4 shadow-lg p-4 bg-white w-100" style={{ maxWidth: '440px' }} id="login-form-card">
             <div className="text-center mb-4">
-              <h3 className="fw-bold text-dark mb-1">{pageTitle}</h3>
+              <h1 className="h3 fw-bold text-dark mb-1">{pageTitle}</h1>
               <p className="text-muted small">{description}</p>
               {requiredRole === 'admin' && (
                 <p className="text-muted small mb-0">Use your admin credentials to access the Administrator dashboard.</p>
@@ -208,8 +208,9 @@ export default function LoginForm({
 
             <form onSubmit={handleLoginSubmit} className="text-start">
               <div className="mb-3">
-                <label className="form-label text-secondary small fw-medium">Email Address</label>
+                <label htmlFor="login-email" className="form-label text-secondary small fw-medium">Email Address</label>
                 <input
+                  id="login-email"
                   name="email"
                   type="email"
                   className="form-control text-secondary small"
@@ -222,7 +223,7 @@ export default function LoginForm({
 
               <div className="mb-3">
                 <div className="d-flex justify-content-between mb-1">
-                  <label className="form-label text-secondary small fw-medium mb-0">Password</label>
+                  <label htmlFor="login-password" className="form-label text-secondary small fw-medium mb-0">Password</label>
                   {!requiredRole && (
                     <Link href="/forgot-password" className="text-primary fs-8 fw-semibold text-decoration-none">
                       Forgot Password?
@@ -231,6 +232,7 @@ export default function LoginForm({
                 </div>
                 <div className="input-group">
                   <input
+                    id="login-password"
                     name="password"
                     type={showPassword ? 'text' : 'password'}
                     className="form-control text-secondary small border-end-0"
@@ -243,8 +245,10 @@ export default function LoginForm({
                     className="btn border border-start-0 text-muted"
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    aria-pressed={showPassword}
                   >
-                    <i className={`fa-solid ${showPassword ? 'fa-eye-slash' : 'fa-eye'} fs-7`} />
+                    <i className={`fa-solid ${showPassword ? 'fa-eye-slash' : 'fa-eye'} fs-7`} aria-hidden="true" />
                   </button>
                 </div>
               </div>
@@ -277,20 +281,6 @@ export default function LoginForm({
                   'Sign In'
                 )}
               </button>
-
-              {!requiredRole && (
-                <>
-                  <div className="d-flex align-items-center gap-2 my-3 text-muted small">
-                    <hr className="flex-grow-1" />
-                    <span>or</span>
-                    <hr className="flex-grow-1" />
-                  </div>
-                  <a href="/api/auth/google" className="btn btn-outline-dark w-100 rounded-pill py-2.5 fs-6 fw-semibold mb-3">
-                    <i className="fa-brands fa-google me-2" aria-hidden="true"></i>
-                    Continue with Google
-                  </a>
-                </>
-              )}
 
               {!requiredRole && (
                 <>

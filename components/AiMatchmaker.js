@@ -114,13 +114,15 @@ export default function AiMatchmaker() {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="btn btn-primary rounded-pill shadow-lg d-flex align-items-center gap-2 px-2.5 py-1.5 border-0 transition-all hover-scale"
-          style={{ cursor: 'pointer', fontSize: '0.83rem' }}
+          className="btn btn-primary rounded-pill shadow-lg d-flex align-items-center gap-2 px-3 py-2 border-0 transition-all hover-scale"
+          style={{ cursor: 'pointer', fontSize: '0.95rem', lineHeight: '1.2' }}
           id="ai-matchmaker-trigger"
+          aria-label="Open AI Matchmaker"
+          aria-expanded={isOpen}
         >
-          <Sparkles size={18} className="text-warning animate-pulse" />
+          <Sparkles size={18} className="text-warning animate-pulse" aria-hidden="true" />
           <span className="fw-semibold text-white">Ask AI Matchmaker</span>
-          <span className="badge bg-danger rounded-pill px-2 py-1 fs-9">Beta</span>
+          <span className="badge bg-danger rounded-pill px-2 py-1 fs-9" aria-hidden="true">Beta</span>
         </button>
       )}
 
@@ -144,7 +146,7 @@ export default function AiMatchmaker() {
                 <Sparkles size={16} className="text-warning" />
               </div>
               <div>
-                <h6 className="fw-bold mb-0 text-white leading-tight" style={{ fontSize: '0.95rem' }}>Akwaaba AI Matchmaker</h6>
+                <p className="fw-bold mb-0 text-white leading-tight" style={{ fontSize: '0.95rem', marginBottom: '0' }}>Akwaaba AI Matchmaker</p>
                 <small className="text-white-50 fs-9 d-flex align-items-center gap-1">
                   <span className="bg-success rounded-circle" style={{ width: '5px', height: '5px', display: 'inline-block' }}></span>
                   {messages.some((message) => message.source === 'local') ? 'Local matching available' : 'Powered by Gemini 2.0'}

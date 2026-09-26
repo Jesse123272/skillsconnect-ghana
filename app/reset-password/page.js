@@ -116,7 +116,7 @@ function ResetPasswordForm() {
             <div className="bg-primary-subtle text-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style={{ width: '60px', height: '60px' }}>
               <i className="fa-solid fa-lock fs-4 text-warning"></i>
             </div>
-            <h3 className="fw-bold text-dark mb-1">Set New Password</h3>
+            <h1 className="h3 fw-bold text-dark mb-1">Set New Password</h1>
             <p className="text-muted small">Enter your new account password below.</p>
           </div>
 
@@ -136,9 +136,10 @@ function ResetPasswordForm() {
 
           <form onSubmit={handleResetSubmit} className="text-start">
             <div className="mb-3">
-              <label className="form-label text-secondary small fw-medium">New Password</label>
+              <label htmlFor="reset-password-new" className="form-label text-secondary small fw-medium">New Password</label>
               <div className="input-group">
                 <input
+                  id="reset-password-new"
                   type={showPassword ? 'text' : 'password'}
                   className="form-control text-secondary small border-end-0"
                   placeholder="Use a strong secure password"
@@ -150,24 +151,20 @@ function ResetPasswordForm() {
                   className="btn border border-start-0 text-muted"
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? 'Hide new password' : 'Show new password'}
+                  aria-pressed={showPassword}
                 >
-                  <i className={`fa-solid ${showPassword ? 'fa-eye-slash' : 'fa-eye'} fs-7`}></i>
+                  <i className={`fa-solid ${showPassword ? 'fa-eye-slash' : 'fa-eye'} fs-7`} aria-hidden="true"></i>
                 </button>
               </div>
               <div className="form-text fs-8 mt-2">
-                <span
-                  role="button"
-                  tabIndex={0}
-                  className="badge rounded-pill bg-light text-primary border border-primary px-3 py-2 fw-semibold"
-                  style={{ cursor: 'pointer' }}
+                <button
+                  type="button"
+                  className="btn btn-sm btn-outline-primary rounded-pill px-3 py-2 fw-semibold"
                   onClick={handleRecommendPassword}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') handleRecommendPassword();
-                  }}
-                  aria-label="Click to generate recommended password"
                 >
                   Recommend Password
-                </span>
+                </button>
               </div>
 
               <div className="mt-3">
@@ -197,9 +194,10 @@ function ResetPasswordForm() {
             </div>
 
             <div className="mb-4">
-              <label className="form-label text-secondary small fw-medium">Confirm New Password</label>
+              <label htmlFor="reset-password-confirm" className="form-label text-secondary small fw-medium">Confirm New Password</label>
               <div className="input-group">
                 <input
+                  id="reset-password-confirm"
                   type={showConfirmPassword ? 'text' : 'password'}
                   className="form-control text-secondary small border-end-0"
                   placeholder="Re-enter password"
@@ -211,8 +209,10 @@ function ResetPasswordForm() {
                   className="btn border border-start-0 text-muted"
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
+                  aria-pressed={showConfirmPassword}
                 >
-                  <i className={`fa-solid ${showConfirmPassword ? 'fa-eye-slash' : 'fa-eye'} fs-7`}></i>
+                  <i className={`fa-solid ${showConfirmPassword ? 'fa-eye-slash' : 'fa-eye'} fs-7`} aria-hidden="true"></i>
                 </button>
               </div>
             </div>

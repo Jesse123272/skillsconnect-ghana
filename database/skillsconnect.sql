@@ -16,12 +16,14 @@ DROP TABLE IF EXISTS portfolio_items;
 DROP TABLE IF EXISTS saved_artisans;
 DROP TABLE IF EXISTS gallery;
 DROP TABLE IF EXISTS reviews;
+DROP TABLE IF EXISTS enquiry_messages;
 DROP TABLE IF EXISTS enquiries;
 DROP TABLE IF EXISTS transactions;
+DROP TABLE IF EXISTS guarantors;
+DROP TABLE IF EXISTS testimonials;
 DROP TABLE IF EXISTS artisan_profiles;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS users;
-DROP TABLE IF EXISTS testimonials;
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- Table 1: users

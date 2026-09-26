@@ -164,14 +164,14 @@ export default async function Home() {
 
               {/* Stats badges */}
               <div className="d-flex flex-wrap gap-3 mt-4" id="hero-stats-badges">
-                <div className="badge bg-white bg-opacity-10 border border-white border-opacity-10 px-3 py-2.5 rounded-3 d-flex align-items-center gap-2">
-                  <i className="fa-solid fa-user-check text-secondary" aria-hidden="true"></i>
-                  <span className="fw-semibold"><AnimatedCounter value={stats.total_artisans} /></span>
+                <div className="badge bg-white bg-opacity-10 border border-white border-opacity-10 px-3 py-2.5 rounded-3 d-flex align-items-center gap-2 hero-stat-badge">
+                  <i className="fa-solid fa-user-check text-white hero-badge-icon" aria-hidden="true"></i>
+                  <span className="fw-semibold text-white"><AnimatedCounter value={stats.total_artisans} /></span>
                   <span className="hero-stat-label">Verified Artisans</span>
                 </div>
-                <div className="badge bg-white bg-opacity-10 border border-white border-opacity-10 px-3 py-2.5 rounded-3 d-flex align-items-center gap-2">
-                  <i className="fa-solid fa-star text-secondary" aria-hidden="true"></i>
-                  <span className="fw-semibold"><AnimatedCounter value={stats.total_reviews} /></span>
+                <div className="badge bg-white bg-opacity-10 border border-white border-opacity-10 px-3 py-2.5 rounded-3 d-flex align-items-center gap-2 hero-stat-badge">
+                  <i className="fa-solid fa-star text-white hero-badge-icon" aria-hidden="true"></i>
+                  <span className="fw-semibold text-white"><AnimatedCounter value={stats.total_reviews} /></span>
                   <span className="hero-stat-label">Completed Reviews</span>
                 </div>
               </div>
@@ -341,19 +341,19 @@ export default async function Home() {
         <div className="container py-3">
           <div className="row g-4 text-center">
             <div className="col-6 col-md-3">
-              <p className="display-5 fw-bold text-white mb-1" aria-live="polite"><AnimatedCounter value={stats.total_artisans} /></p>
+              <span className="display-5 fw-bold text-white mb-1 d-block"><AnimatedCounter value={stats.total_artisans} /></span>
               <p className="platform-stat-label mb-0 small uppercase tracking-wider">Total Artisans</p>
             </div>
             <div className="col-6 col-md-3">
-              <p className="display-5 fw-bold text-white mb-1" aria-live="polite"><AnimatedCounter value={stats.total_categories} /></p>
+              <span className="display-5 fw-bold text-white mb-1 d-block"><AnimatedCounter value={stats.total_categories} /></span>
               <p className="platform-stat-label mb-0 small uppercase tracking-wider">Total Categories</p>
             </div>
             <div className="col-6 col-md-3">
-              <p className="display-5 fw-bold text-white mb-1" aria-live="polite"><AnimatedCounter value={stats.total_reviews} /></p>
+              <span className="display-5 fw-bold text-white mb-1 d-block"><AnimatedCounter value={stats.total_reviews} /></span>
               <p className="platform-stat-label mb-0 small uppercase tracking-wider">Total Reviews</p>
             </div>
             <div className="col-6 col-md-3">
-              <p className="display-5 fw-bold text-white mb-1" aria-live="polite"><AnimatedCounter value={stats.regions_covered} /></p>
+              <span className="display-5 fw-bold text-white mb-1 d-block"><AnimatedCounter value={stats.regions_covered} /></span>
               <p className="platform-stat-label mb-0 small uppercase tracking-wider">Regions Covered</p>
             </div>
           </div>
@@ -447,11 +447,11 @@ export default async function Home() {
                 </div>
                 <div className="mb-3">
                   <p className="text-secondary mb-1 small">Support email</p>
-                  <a href="mailto:skillsconnectgh@zohomail.com" className="d-block text-dark fw-semibold">skillsconnectgh@zohomail.com</a>
+                  <span className="d-block text-dark fw-semibold">skillsconnectgh@zohomail.com</span>
                 </div>
                 <div>
                   <p className="text-secondary mb-1 small">Support phone</p>
-                  <a href="tel:+233530600127" className="d-block text-dark fw-semibold">+233 530 600 127</a>
+                  <a href="tel:+233530600127" className="d-block text-dark fw-semibold" aria-label="Call support on +233 530 600 127">+233 530 600 127</a>
                 </div>
               </div>
             </div>

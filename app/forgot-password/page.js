@@ -64,7 +64,7 @@ export default function ForgotPassword() {
                   <div className="bg-primary-subtle text-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style={{ width: '60px', height: '60px' }}>
                     <i className="fa-solid fa-key fs-4"></i>
                   </div>
-                  <h3 className="fw-bold text-dark mb-1">Recover Password</h3>
+                  <h1 className="h3 fw-bold text-dark mb-1">Recover Password</h1>
                   <p className="text-muted small">Enter the email attached to your account and we will send reset instructions.</p>
                 </div>
 
@@ -77,8 +77,9 @@ export default function ForgotPassword() {
 
                 <form onSubmit={handleResetSubmit} className="text-start">
                   <div className="mb-4">
-                    <label className="form-label text-secondary small fw-medium">Email Address</label>
+                    <label htmlFor="forgot-password-email" className="form-label text-secondary small fw-medium">Email Address</label>
                     <input
+                      id="forgot-password-email"
                       type="email"
                       className="form-control text-secondary small"
                       placeholder="you@example.com"

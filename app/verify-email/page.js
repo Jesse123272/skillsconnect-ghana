@@ -140,7 +140,7 @@ function VerifyEmailForm() {
             <div className="bg-primary-subtle text-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style={{ width: '60px', height: '60px' }}>
               <i className="fa-solid fa-shield-halved fs-4 text-warning"></i>
             </div>
-            <h3 className="fw-bold text-dark mb-1">Verify Your Email</h3>
+            <h1 className="h3 fw-bold text-dark mb-1">Verify Your Email</h1>
             <p className="text-muted small px-2">
               For security, we have sent a 6-digit verification code to your email. Please enter it below to activate your account.
             </p>
@@ -167,8 +167,9 @@ function VerifyEmailForm() {
 
           <form onSubmit={handleVerifySubmit} className="text-start">
             <div className="mb-3">
-              <label className="form-label text-secondary small fw-medium">Registered Email</label>
+              <label htmlFor="verification-email" className="form-label text-secondary small fw-medium">Registered Email</label>
               <input
+                id="verification-email"
                 type="email"
                 className="form-control text-secondary small"
                 placeholder="name@example.com"
@@ -180,8 +181,9 @@ function VerifyEmailForm() {
             </div>
 
             <div className="mb-4 text-center">
-              <label className="form-label text-secondary small fw-medium d-block text-start mb-2">6-Digit Code</label>
+              <label htmlFor="verification-code" className="form-label text-secondary small fw-medium d-block text-start mb-2">6-Digit Code</label>
               <input
+                id="verification-code"
                 type="text"
                 maxLength={6}
                 className="form-control text-center fw-bold fs-4 tracking-widest letter-spacing-md"

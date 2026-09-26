@@ -141,11 +141,12 @@ export default function ArtisanProfileClient({
             name={artisan.full_name} 
             photo_url={artisan.profile_photo} 
             size="xl" 
+            decorative
           />
           <div className="flex-grow-1">
             <div className="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-start gap-3">
               <div>
-                <h2 className="fw-bold text-dark mb-1">{artisan.full_name}</h2>
+                <h1 className="h2 fw-bold text-dark mb-1">{artisan.full_name}</h1>
                 <div className="d-flex flex-wrap align-items-center justify-content-center justify-content-md-start gap-2 mb-2">
                   <span className="badge bg-primary px-3 py-1.5 rounded-pill fs-7">
                     {artisan.category_name}
@@ -252,12 +253,12 @@ export default function ArtisanProfileClient({
             {/* ABOUT TAB */}
             {activeTab === 'about' && (
               <div className="card border-0 bg-transparent py-2">
-                <h5 className="fw-bold text-dark mb-3">Biography</h5>
+                <h2 className="h5 fw-bold text-dark mb-3">Biography</h2>
                 <p className="text-secondary mb-4 fs-6" style={{ lineHeight: '1.7', whiteSpace: 'pre-wrap' }}>
                   {normalizeDisplayText(artisan.bio || 'This artisan has not provided a bio description yet.')}
                 </p>
 
-                <h5 className="fw-bold text-dark mb-3">Professional Qualifications</h5>
+                <h2 className="h5 fw-bold text-dark mb-3">Professional Qualifications</h2>
                 <div className="row g-3 mb-4">
                   <div className="col-sm-6">
                     <div className="border rounded-3 p-3 bg-white">
@@ -470,7 +471,7 @@ export default function ArtisanProfileClient({
                           />
                           {item.caption && (
                             <div className="card-body p-3">
-                              <h6 className="fw-bold mb-1 text-dark text-truncate">{item.caption}</h6>
+                              <h3 className="h6 fw-bold mb-1 text-dark text-truncate">{item.caption}</h3>
                               {item.description && (
                                 <p className="text-muted small mb-0 text-truncate">{item.description}</p>
                               )}
@@ -490,7 +491,7 @@ export default function ArtisanProfileClient({
         {/* RIGHT COLUMN: Contact Form / CTA */}
         <div className="col-lg-4" id="contact-card">
           <div className="card border rounded-4 p-4 bg-white shadow-sm sticky-top" style={{ top: '100px', zIndex: '10' }}>
-            <h5 className="fw-bold text-dark mb-3">Contact / Chat With Artisan</h5>
+            <h2 className="h5 fw-bold text-dark mb-3">Contact / Chat With Artisan</h2>
             
             {loadingEnquiry && (
               <div className="alert alert-secondary mb-4 fs-7 d-flex align-items-center gap-2">
@@ -527,8 +528,9 @@ export default function ArtisanProfileClient({
               currentUser.role === 'customer' ? (
                 <form onSubmit={handleEnquirySubmit}>
                   <div className="mb-3">
-                    <label className="form-label text-secondary small fw-medium">Subject of Enquiry</label>
+                    <label htmlFor="artisan-enquiry-subject" className="form-label text-secondary small fw-medium">Subject of Enquiry</label>
                     <input
+                      id="artisan-enquiry-subject"
                       type="text"
                       className="form-control text-secondary small"
                       placeholder="e.g. Toilet Leaking Repair Quote"
@@ -538,8 +540,9 @@ export default function ArtisanProfileClient({
                     />
                   </div>
                   <div className="mb-3">
-                    <label className="form-label text-secondary small fw-medium">Your Message</label>
+                    <label htmlFor="artisan-enquiry-message" className="form-label text-secondary small fw-medium">Your Message</label>
                     <textarea
+                      id="artisan-enquiry-message"
                       className="form-control text-secondary small"
                       rows="5"
                       placeholder="Explain your work requirements in detail, location, and desired timeline..."
