@@ -59,11 +59,11 @@ export async function GET(req) {
       safeRows(`SELECT u.user_id, u.full_name, u.region, ap.years_experience, c.category_name, ap.created_at FROM users u INNER JOIN artisan_profiles ap ON u.user_id = ap.user_id INNER JOIN categories c ON ap.category_id = c.category_id WHERE ap.is_approved = 0 AND u.is_active = 1 ORDER BY ap.created_at ASC LIMIT 5`),
       safeRows(`SELECT c.category_name, COUNT(ap.profile_id) as count FROM categories c LEFT JOIN artisan_profiles ap ON c.category_id = ap.category_id GROUP BY c.category_id, c.category_name ORDER BY count DESC`),
       safeRows(isSqliteFallbackEnabled
-        ? `SELECT strftime('%m', created_at) || ' ' || strftime('%Y', created_at) as month, COUNT(*) as count, created_at FROM users WHERE created_at >= datetime('now', '-6 month') GROUP BY strftime('%Y-%m', created_at) ORDER BY MIN(created_at) ASC`
-        : `SELECT DATE_FORMAT(created_at, '%b %Y') as month, COUNT(*) as count FROM users WHERE created_at >= DATE_SUB(NOW(), INTERVAL 6 MONTH) GROUP BY month ORDER BY MIN(created_at) ASC`),
+        ? `SELECT strftime('%Y-%m', created_at) as month, COUNT(*) as count, MIN(created_at) as first_date FROM users WHERE created_at >= datetime('now', 'start of month', '-5 months') GROUP BY strftime('%Y-%m', created_at) ORDER BY first_date ASC`
+        : `SELECT DATE_FORMAT(created_at, '%Y-%m') as month, COUNT(*) as count, MIN(created_at) as first_date FROM users WHERE created_at >= DATE_SUB(DATE_FORMAT(CURDATE(), '%Y-%m-01'), INTERVAL 5 MONTH) GROUP BY month ORDER BY first_date ASC`),
       safeRows(isSqliteFallbackEnabled
-        ? `SELECT strftime('%m', created_at) || ' ' || strftime('%Y', created_at) as month, COUNT(*) as count, created_at FROM enquiries WHERE created_at >= datetime('now', '-6 month') GROUP BY strftime('%Y-%m', created_at) ORDER BY MIN(created_at) ASC`
-        : `SELECT DATE_FORMAT(created_at, '%b %Y') as month, COUNT(*) as count FROM enquiries WHERE created_at >= DATE_SUB(NOW(), INTERVAL 6 MONTH) GROUP BY month ORDER BY MIN(created_at) ASC`)
+        ? `SELECT strftime('%Y-%m', created_at) as month, COUNT(*) as count, MIN(created_at) as first_date FROM enquiries WHERE created_at >= datetime('now', 'start of month', '-5 months') GROUP BY strftime('%Y-%m', created_at) ORDER BY first_date ASC`
+        : `SELECT DATE_FORMAT(created_at, '%Y-%m') as month, COUNT(*) as count, MIN(created_at) as first_date FROM enquiries WHERE created_at >= DATE_SUB(DATE_FORMAT(CURDATE(), '%Y-%m-01'), INTERVAL 5 MONTH) GROUP BY month ORDER BY first_date ASC`)
     ]);
 
     const categoryLabels = categoryDistribution
@@ -73,12 +73,15 @@ export async function GET(req) {
       .map((item) => Number(item?.count) || 0)
       .filter((value) => value > 0);
 
-    const last6MonthsLabels = [];
+    const last6Months = [];
     for (let i = 5; i >= 0; i--) {
-      const d = new Date();
-      d.setMonth(d.getMonth() - i);
-      const label = d.toLocaleString('en-US', { month: 'short', year: 'numeric' });
-      last6MonthsLabels.push(label);
+      const date = new Date();
+      date.setDate(1);
+      date.setMonth(date.getMonth() - i);
+      last6Months.push({
+        key: `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`,
+        label: date.toLocaleString('en-US', { month: 'short', year: 'numeric' })
+      });
     }
 
     const regMap = {};
@@ -95,8 +98,8 @@ export async function GET(req) {
       }
     });
 
-    const regChartData = last6MonthsLabels.map((label) => regMap[label] || 0);
-    const enqChartData = last6MonthsLabels.map((label) => enqMap[label] || 0);
+    const regChartData = last6Months.map(({ key }) => regMap[key] || 0);
+    const enqChartData = last6Months.map(({ key }) => enqMap[key] || 0);
 
     return NextResponse.json({
       success: true,
@@ -106,7 +109,7 @@ export async function GET(req) {
         total_reviews: totalReviews,
         pending_approvals: pendingApprovals,
         new_registrations_6m: {
-          labels: last6MonthsLabels,
+          labels: last6Months.map(({ label }) => label),
           data: regChartData
         },
         artisans_by_category: {
@@ -116,7 +119,7 @@ export async function GET(req) {
         recent_registrations: recentRegistrations,
         pending_artisan_approvals: pendingArtisanApprovals,
         enquiries_per_month: {
-          labels: last6MonthsLabels,
+          labels: last6Months.map(({ label }) => label),
           data: enqChartData
         }
       }

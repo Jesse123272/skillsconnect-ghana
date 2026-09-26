@@ -17,12 +17,12 @@ export async function GET(req) {
       isSqliteFallbackEnabled
         ? `SELECT strftime('%Y-%m', created_at) as month, COUNT(*) as count, MIN(created_at) as first_date
           FROM users
-          WHERE created_at >= datetime('now', '-12 month')
+          WHERE created_at >= datetime('now', 'start of month', '-11 months')
           GROUP BY strftime('%Y-%m', created_at)
           ORDER BY first_date ASC`
-        : `SELECT DATE_FORMAT(created_at, '%b %Y') as month, COUNT(*) as count, MIN(created_at) as first_date
+        : `SELECT DATE_FORMAT(created_at, '%Y-%m') as month, COUNT(*) as count, MIN(created_at) as first_date
           FROM users
-          WHERE created_at >= DATE_SUB(NOW(), INTERVAL 12 MONTH)
+          WHERE created_at >= DATE_SUB(DATE_FORMAT(CURDATE(), '%Y-%m-01'), INTERVAL 11 MONTH)
           GROUP BY month
           ORDER BY first_date ASC`
      );
@@ -32,12 +32,12 @@ export async function GET(req) {
       isSqliteFallbackEnabled
         ? `SELECT strftime('%Y-%m', created_at) as month, COUNT(*) as count, MIN(created_at) as first_date
           FROM enquiries
-          WHERE created_at >= datetime('now', '-12 month')
+          WHERE created_at >= datetime('now', 'start of month', '-11 months')
           GROUP BY strftime('%Y-%m', created_at)
           ORDER BY first_date ASC`
-        : `SELECT DATE_FORMAT(created_at, '%b %Y') as month, COUNT(*) as count, MIN(created_at) as first_date
+        : `SELECT DATE_FORMAT(created_at, '%Y-%m') as month, COUNT(*) as count, MIN(created_at) as first_date
           FROM enquiries
-          WHERE created_at >= DATE_SUB(NOW(), INTERVAL 12 MONTH)
+          WHERE created_at >= DATE_SUB(DATE_FORMAT(CURDATE(), '%Y-%m-01'), INTERVAL 11 MONTH)
           GROUP BY month
           ORDER BY first_date ASC`
      );
@@ -100,21 +100,24 @@ export async function GET(req) {
     );
 
     // Dynamic month calculations
-    const last12MonthsLabels = [];
+    const last12Months = [];
     for (let i = 11; i >= 0; i--) {
-      const d = new Date();
-      d.setMonth(d.getMonth() - i);
-      const label = d.toLocaleString('en-US', { month: 'short', year: 'numeric' });
-      last12MonthsLabels.push(label);
+      const date = new Date();
+      date.setDate(1);
+      date.setMonth(date.getMonth() - i);
+      last12Months.push({
+        key: `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`,
+        label: date.toLocaleString('en-US', { month: 'short', year: 'numeric' })
+      });
     }
 
     const regMap = {};
     registrations12m.forEach(item => { regMap[item.month] = item.count; });
-    const regData = last12MonthsLabels.map(label => regMap[label] || 0);
+    const regData = last12Months.map(({ key }) => regMap[key] || 0);
 
     const enqMap = {};
     enquiries12m.forEach(item => { enqMap[item.month] = item.count; });
-    const enqData = last12MonthsLabels.map(label => enqMap[label] || 0);
+    const enqData = last12Months.map(({ key }) => enqMap[key] || 0);
 
     // Format star distribution
     const ratingDistribution = [0, 0, 0, 0, 0]; // 1-star to 5-star
@@ -129,11 +132,11 @@ export async function GET(req) {
       success: true,
       data: {
         registrations_chart: {
-          labels: last12MonthsLabels,
+          labels: last12Months.map(({ label }) => label),
           data: regData
         },
         enquiries_chart: {
-          labels: last12MonthsLabels,
+          labels: last12Months.map(({ label }) => label),
           data: enqData
         },
         category_distribution: {
