@@ -288,7 +288,7 @@ export default function DashboardLayout({ children, pageTitle = 'Dashboard' }) {
           <div className="d-flex align-items-center gap-2 gap-sm-3 ms-auto">
             {/* Notification Bell Icon */}
             <Link 
-              href={`/dashboard/${user?.role === 'admin' ? 'admin/logs' : (user?.role === 'artisan' ? 'artisan' : 'customer')}/notifications`} 
+              href={user?.role === 'admin' ? '/dashboard/admin/logs' : `/dashboard/${user?.role === 'artisan' ? 'artisan' : 'customer'}/notifications`} 
               className="position-relative text-dark p-2 rounded-circle hover-bg-light"
               title="Notifications"
             >
