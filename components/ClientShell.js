@@ -5,7 +5,6 @@ import { usePathname } from 'next/navigation';
 import { AuthProvider } from '@/context/AuthContext';
 import { Toaster } from 'react-hot-toast';
 
-const AiMatchmaker = dynamic(() => import('@/components/AiMatchmaker'), { ssr: false, loading: () => null });
 const InstallAppPrompt = dynamic(() => import('@/components/InstallAppPrompt'), { ssr: false, loading: () => null });
 const NotificationPermissionPrompt = dynamic(
   () => import('@/components/NotificationPermissionPrompt'),
@@ -36,7 +35,6 @@ export default function ClientShell({ children }) {
       {!isAuthPage && <InstallAppPrompt />}
       {!isAuthPage && <NotificationPermissionPrompt />}
       {children}
-      {!isAuthPage && <AiMatchmaker />}
     </AuthProvider>
   );
 }

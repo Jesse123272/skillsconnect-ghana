@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import ProfileAvatar from '@/components/ProfileAvatar';
+import dynamic from 'next/dynamic';
 import { 
   LayoutDashboard, 
   Search, 
@@ -28,6 +29,8 @@ import {
   HelpCircle,
   X
 } from 'lucide-react';
+
+const AiMatchmaker = dynamic(() => import('@/components/AiMatchmaker'), { ssr: false, loading: () => null });
 
 export default function DashboardLayout({ children, pageTitle = 'Dashboard' }) {
   const { user, logout, loading, unreadNotifications, unreadEnquiries, pendingArtisansCount } = useAuth();
@@ -375,6 +378,7 @@ export default function DashboardLayout({ children, pageTitle = 'Dashboard' }) {
           </div>
         </main>
       </div>
+      {user.role === 'customer' && <AiMatchmaker />}
     </div>
   );
 }
