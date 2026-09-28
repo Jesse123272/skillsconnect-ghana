@@ -251,7 +251,7 @@ export default function DashboardLayout({ children, pageTitle = 'Dashboard' }) {
       <div className="p-3 border-top mt-auto">
         <button 
           onClick={() => {
-            closeMobileSidebar();
+            closeSidebar();
             logout();
           }}
           className="btn btn-outline-danger w-full d-flex align-items-center justify-content-center gap-2 py-2.5 rounded-3 border-0"

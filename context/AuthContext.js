@@ -250,6 +250,14 @@ export function AuthProvider({ children }) {
       }
     } catch (error) {
       console.error('Error logging out:', error);
+    } finally {
+      setUnreadNotifications(0);
+      setUnreadEnquiries(0);
+      setPendingArtisansCount(0);
+      if (typeof window !== 'undefined') {
+        delete window.__SCG_BADGES;
+      }
+      setLoading(false);
     }
   };
 
