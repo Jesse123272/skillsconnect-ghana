@@ -70,7 +70,7 @@ export default function CustomerDashboardHome() {
 
       <section
         className="card border-0 rounded-3 mb-4 p-4 text-white shadow-sm"
-        style={{ background: 'linear-gradient(135deg, #1A6B3C 0%, #2E7D32 100%)' }}
+        style={{ background: 'linear-gradient(135deg, var(--primary) 0%, #2A8068 100%)' }}
         aria-labelledby="customer-dashboard-title"
       >
         <div className="row align-items-center g-3">

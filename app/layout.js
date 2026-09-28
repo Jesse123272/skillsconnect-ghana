@@ -41,7 +41,7 @@ export default function RootLayout({ children }) {
         <link rel="manifest" href="/manifest.webmanifest" />
         <link rel="icon" href="/icons/icon-192.svg" />
         <link rel="apple-touch-icon" href="/icons/icon-512.svg" />
-        <meta name="theme-color" content="#1A6B3C" />
+        <meta name="theme-color" content="#176B52" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-title" content="SkillsConnect" />
@@ -56,14 +56,36 @@ export default function RootLayout({ children }) {
         
         <style dangerouslySetInnerHTML={{ __html: `
           :root {
-            --primary: #1A6B3C;
-            --secondary: #F5A623;
-            --background: #F8F9FA;
+            --primary: #176B52;
+            --primary-hover: #12523F;
+            --primary-subtle: #E4F2ED;
+            --primary-rgb: 23, 107, 82;
+            --secondary: #E7A93B;
+            --background: #F5F7F6;
             --card: #FFFFFF;
-            --text: #212529;
-            --danger: #DC3545;
-            --success: #198754;
-            --muted: #6C757D;
+            --text: #172B28;
+            --danger: #B42318;
+            --success: #16794A;
+            --warning: #8A4B08;
+            --info: #175CD3;
+            --muted: #566660;
+            --border: #D8E2DE;
+            --bs-primary: var(--primary);
+            --bs-primary-rgb: var(--primary-rgb);
+            --bs-success: var(--success);
+            --bs-success-rgb: 22, 121, 74;
+            --bs-danger: var(--danger);
+            --bs-danger-rgb: 180, 35, 24;
+            --bs-warning: var(--secondary);
+            --bs-warning-rgb: 231, 169, 59;
+            --bs-warning-bg-subtle: #FFF4D6;
+            --bs-warning-border-subtle: #E8C875;
+            --bs-warning-text-emphasis: #713B00;
+            --bs-info: var(--info);
+            --bs-info-rgb: 23, 92, 211;
+            --bs-body-color: var(--text);
+            --bs-body-bg: var(--background);
+            --bs-border-color: var(--border);
           }
 
           html {
@@ -97,8 +119,8 @@ export default function RootLayout({ children }) {
             font-weight: 500;
           }
           .btn-primary:hover, .btn-primary:focus, .btn-primary:active {
-            background-color: #14542F !important;
-            border-color: #14542F !important;
+            background-color: var(--primary-hover) !important;
+            border-color: var(--primary-hover) !important;
           }
 
           .btn-outline-primary {
@@ -120,22 +142,28 @@ export default function RootLayout({ children }) {
             font-weight: 500;
           }
           .btn-secondary:hover {
-            background-color: #e09316 !important;
-            border-color: #e09316 !important;
+            background-color: #EDB951 !important;
+            border-color: #EDB951 !important;
           }
 
           .text-primary {
             color: var(--primary) !important;
           }
           .text-secondary {
-            color: #475569 !important;
+            color: var(--muted) !important;
           }
           .text-success {
-            color: #146c43 !important;
+            color: var(--success) !important;
+          }
+          .text-warning {
+            color: var(--warning) !important;
+          }
+          .text-muted {
+            color: var(--muted) !important;
           }
           .btn-outline-secondary {
-            color: #495057 !important;
-            border-color: #6c757d !important;
+            color: var(--muted) !important;
+            border-color: var(--border) !important;
           }
           .text-danger {
             color: var(--danger) !important;
@@ -146,6 +174,18 @@ export default function RootLayout({ children }) {
           }
           .bg-secondary {
             background-color: var(--secondary) !important;
+          }
+          .bg-secondary.text-white {
+            color: var(--text) !important;
+          }
+          .bg-warning {
+            background-color: var(--secondary) !important;
+          }
+          .bg-warning.text-dark {
+            color: var(--text) !important;
+          }
+          .bg-info.text-dark {
+            color: #FFFFFF !important;
           }
 
           .navbar {
@@ -161,7 +201,7 @@ export default function RootLayout({ children }) {
             box-shadow: 0 16px 30px rgba(0, 0, 0, 0.12);
           }
           :where(a, button, input, select, textarea):focus-visible {
-            outline: 3px solid #F5A623 !important;
+            outline: 3px solid var(--primary) !important;
             outline-offset: 3px;
           }
           :where(section, [id]) {
@@ -183,7 +223,7 @@ export default function RootLayout({ children }) {
             content: '';
             position: absolute;
             inset: 0;
-            background: radial-gradient(circle at top right, rgba(245,166,35,0.20), transparent 32%), radial-gradient(circle at bottom left, rgba(26,107,60,0.12), transparent 28%);
+            background: radial-gradient(circle at top right, rgba(231,169,59,0.18), transparent 32%), radial-gradient(circle at bottom left, rgba(var(--primary-rgb),0.12), transparent 28%);
             pointer-events: none;
           }
           .hero-stats-badge {
@@ -278,7 +318,7 @@ export default function RootLayout({ children }) {
           }
           .feature-card:hover {
             transform: translateY(-5px);
-            border-color: rgba(26,107,60,0.18);
+            border-color: rgba(var(--primary-rgb),0.18);
             box-shadow: 0 24px 40px rgba(15,23,42,0.12);
           }
 
@@ -305,7 +345,7 @@ export default function RootLayout({ children }) {
           }
 
           .bg-primary-subtle {
-            background-color: rgba(26,107,60,0.08) !important;
+            background-color: var(--primary-subtle) !important;
           }
           .text-white-75 {
             color: #E7F2EB !important;
@@ -365,7 +405,7 @@ export default function RootLayout({ children }) {
 
           .form-control:focus {
             border-color: var(--primary);
-            box-shadow: 0 0 0 0.25rem rgba(26,107,60,0.15);
+            box-shadow: 0 0 0 0.25rem rgba(var(--primary-rgb),0.15);
           }
 
           .card.custom-card {
@@ -434,12 +474,12 @@ export default function RootLayout({ children }) {
             overflow: hidden;
           }
           .sidebar-link:hover {
-            background-color: rgba(26, 107, 60, 0.08);
+            background-color: rgba(var(--primary-rgb), 0.08);
             color: var(--primary);
           }
           .sidebar-link.active {
-            background-color: var(--secondary) !important;
-            color: #212529 !important;
+            background-color: var(--primary-subtle) !important;
+            color: var(--primary) !important;
             font-weight: 600;
           }
           .sidebar-more {
@@ -495,7 +535,7 @@ export default function RootLayout({ children }) {
           }
           .quick-action-card:hover {
             transform: translateY(-3px);
-            border-color: rgba(26, 107, 60, 0.16);
+            border-color: rgba(var(--primary-rgb), 0.16);
             box-shadow: 0 22px 44px rgba(15, 23, 42, 0.08);
           }
           .quick-action-card .icon-box {
@@ -505,7 +545,7 @@ export default function RootLayout({ children }) {
             align-items: center;
             justify-content: center;
             border-radius: 14px;
-            background: rgba(26, 107, 60, 0.08);
+            background: var(--primary-subtle);
             color: var(--primary);
           }
           .quick-action-card .icon-box i {

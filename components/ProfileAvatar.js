@@ -27,7 +27,7 @@ export default function ProfileAvatar({ name, photo_url, size = 'md', decorative
 
   // Use a nice background palette derived from the user name for variance
   const bgColors = [
-    '#1A6B3C', // Primary green
+    '#176B52', // Primary green
     '#1B5E20',
     '#14532D',
     '#166534',
