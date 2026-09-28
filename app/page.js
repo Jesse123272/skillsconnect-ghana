@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import AiMatchmaker from '@/components/AiMatchmaker';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import HeroSearch from '@/components/HeroSearch';
@@ -571,6 +572,7 @@ export default async function Home() {
 
       </main>
       <Footer />
+      <AiMatchmaker />
     </div>
   );
 }
