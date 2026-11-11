@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { isSqliteFallbackEnabled, query } from '@/lib/db';
+import { query } from '@/lib/db';
 import { getUserFromRequest } from '@/lib/auth';
 
 export async function GET(req) {
@@ -58,12 +58,8 @@ export async function GET(req) {
       safeRows(`SELECT user_id, full_name, role, region, created_at, is_active FROM users ORDER BY created_at DESC LIMIT 5`),
       safeRows(`SELECT u.user_id, u.full_name, u.region, ap.years_experience, c.category_name, ap.created_at FROM users u INNER JOIN artisan_profiles ap ON u.user_id = ap.user_id INNER JOIN categories c ON ap.category_id = c.category_id WHERE ap.is_approved = 0 AND u.is_active = 1 ORDER BY ap.created_at ASC LIMIT 5`),
       safeRows(`SELECT c.category_name, COUNT(ap.profile_id) as count FROM categories c LEFT JOIN artisan_profiles ap ON c.category_id = ap.category_id GROUP BY c.category_id, c.category_name ORDER BY count DESC`),
-      safeRows(isSqliteFallbackEnabled
-        ? `SELECT strftime('%Y-%m', created_at) as month, COUNT(*) as count, MIN(created_at) as first_date FROM users WHERE created_at >= datetime('now', 'start of month', '-5 months') GROUP BY strftime('%Y-%m', created_at) ORDER BY first_date ASC`
-        : `SELECT DATE_FORMAT(created_at, '%Y-%m') as month, COUNT(*) as count, MIN(created_at) as first_date FROM users WHERE created_at >= DATE_SUB(DATE_FORMAT(CURDATE(), '%Y-%m-01'), INTERVAL 5 MONTH) GROUP BY month ORDER BY first_date ASC`),
-      safeRows(isSqliteFallbackEnabled
-        ? `SELECT strftime('%Y-%m', created_at) as month, COUNT(*) as count, MIN(created_at) as first_date FROM enquiries WHERE created_at >= datetime('now', 'start of month', '-5 months') GROUP BY strftime('%Y-%m', created_at) ORDER BY first_date ASC`
-        : `SELECT DATE_FORMAT(created_at, '%Y-%m') as month, COUNT(*) as count, MIN(created_at) as first_date FROM enquiries WHERE created_at >= DATE_SUB(DATE_FORMAT(CURDATE(), '%Y-%m-01'), INTERVAL 5 MONTH) GROUP BY month ORDER BY first_date ASC`)
+      safeRows(`SELECT TO_CHAR(created_at, 'YYYY-MM') as month, COUNT(*) as count, MIN(created_at) as first_date FROM users WHERE created_at >= DATE_TRUNC('month', NOW()) - INTERVAL '5 months' GROUP BY TO_CHAR(created_at, 'YYYY-MM') ORDER BY first_date ASC`),
+      safeRows(`SELECT TO_CHAR(created_at, 'YYYY-MM') as month, COUNT(*) as count, MIN(created_at) as first_date FROM enquiries WHERE created_at >= DATE_TRUNC('month', NOW()) - INTERVAL '5 months' GROUP BY TO_CHAR(created_at, 'YYYY-MM') ORDER BY first_date ASC`)
     ]);
 
     const categoryLabels = categoryDistribution

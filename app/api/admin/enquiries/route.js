@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { isSqliteFallbackEnabled, query } from '@/lib/db';
+import { query } from '@/lib/db';
 import { getUserFromRequest } from '@/lib/auth';
 
 export async function GET(req) {
@@ -25,9 +25,9 @@ export async function GET(req) {
     const conditions = [];
     const params = [];
 
-    // Search filter
+    // Search filter — PostgreSQL uses ILIKE for case-insensitive
     if (search.trim() !== '') {
-      conditions.push('(c.full_name LIKE ? OR a.full_name LIKE ? OR e.subject LIKE ?)');
+      conditions.push(`(c.full_name ILIKE ? OR a.full_name ILIKE ? OR e.subject ILIKE ?)`);
       const lk = `%${search.trim()}%`;
       params.push(lk, lk, lk);
     }
@@ -54,16 +54,14 @@ export async function GET(req) {
     const totalResult = await query('SELECT COUNT(*) as count FROM enquiries');
     const totalCount = totalResult[0]?.count || 0;
 
-    const pendingResult = await query('SELECT COUNT(*) as count FROM enquiries WHERE status = "pending"');
+    const pendingResult = await query("SELECT COUNT(*) as count FROM enquiries WHERE status = 'pending'");
     const pendingCount = pendingResult[0]?.count || 0;
 
-    const repliedResult = await query('SELECT COUNT(*) as count FROM enquiries WHERE status = "replied"');
+    const repliedResult = await query("SELECT COUNT(*) as count FROM enquiries WHERE status = 'replied'");
     const repliedCount = repliedResult[0]?.count || 0;
 
     const thisMonthResult = await query(
-      isSqliteFallbackEnabled
-        ? "SELECT COUNT(*) as count FROM enquiries WHERE created_at >= datetime('now', '-30 day')"
-        : 'SELECT COUNT(*) as count FROM enquiries WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)'
+      "SELECT COUNT(*) as count FROM enquiries WHERE created_at >= NOW() - INTERVAL '30 days'"
     );
     const thisMonthCount = thisMonthResult[0]?.count || 0;
 

@@ -181,9 +181,50 @@ export default function LoginForm({
 
   return (
     <div className="d-flex flex-column min-vh-100" id="login-root-wrapper">
-      <div className="bg-light d-flex align-items-center justify-content-center py-5" style={{ minHeight: 'calc(100vh - 120px)' }}>
-        <div className="container d-flex justify-content-center">
-          <div className="card border rounded-4 shadow-lg p-4 bg-white w-100" style={{ maxWidth: '440px' }} id="login-form-card">
+      <div className="d-flex align-items-stretch flex-grow-1" style={{ minHeight: 'calc(100vh - 68px)' }}>
+
+        {/* Left brand panel — desktop only */}
+        <div
+          className="d-none d-lg-flex flex-column justify-content-between p-5 text-white"
+          style={{
+            flex: '0 0 44%',
+            background: 'linear-gradient(160deg, #0a1a4a 0%, #1e3a8a 55%, #2563eb 100%)',
+          }}
+          aria-hidden="true"
+        >
+          <div>
+            <div className="d-flex align-items-center gap-2 mb-5">
+              <i className="fa-solid fa-wrench text-secondary fs-5"></i>
+              <span className="fw-bold fs-5">SkillsConnect<span style={{ color: '#FFD166' }}>Ghana</span></span>
+            </div>
+            <h2 className="display-6 fw-bold text-white mb-3 lh-sm">
+              Ghana&apos;s trusted<br />artisan marketplace
+            </h2>
+            <p style={{ color: '#93c5fd', lineHeight: '1.75' }}>
+              Connect with verified plumbers, electricians, carpenters, and more across all 16 regions.
+            </p>
+          </div>
+          <ul className="list-unstyled d-flex flex-column gap-3 mb-0">
+            {[
+              { icon: 'fa-id-card', text: 'Ghana Card verified artisans' },
+              { icon: 'fa-star', text: 'Authentic customer ratings' },
+              { icon: 'fa-map-pin', text: 'Find professionals near you' },
+              { icon: 'fa-shield-halved', text: 'Secure, direct contact' },
+            ].map(({ icon, text }) => (
+              <li key={text} className="d-flex align-items-center gap-3">
+                <span className="d-flex align-items-center justify-content-center rounded-circle bg-white bg-opacity-10 flex-shrink-0" style={{ width: '36px', height: '36px' }}>
+                  <i className={`fa-solid ${icon} text-secondary`}></i>
+                </span>
+                <span style={{ color: '#bfdbfe', fontSize: '14px' }}>{text}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Right form panel */}
+        <div className="flex-grow-1 bg-light d-flex align-items-center justify-content-center p-4">
+          <div className="w-100" style={{ maxWidth: '420px' }}>
+            <div className="card border-0 rounded-4 shadow-lg p-4 p-md-5 bg-white" id="login-form-card">
             <div className="text-center mb-4">
               <h1 className="h3 fw-bold text-dark mb-1">{pageTitle}</h1>
               <p className="text-muted small">{description}</p>
@@ -313,6 +354,7 @@ export default function LoginForm({
                 </div>
               )}
             </form>
+            </div>
           </div>
         </div>
       </div>

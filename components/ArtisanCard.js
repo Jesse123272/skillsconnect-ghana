@@ -28,8 +28,8 @@ export default function ArtisanCard({ artisan }) {
   return (
     <div className="card custom-card custom-card-hover h-100 overflow-hidden d-flex flex-column" id={`artisan-card-${artisanId}`}>
       {/* Card Header Section */}
-      <div className="p-3 bg-light border-bottom position-relative d-flex justify-content-between align-items-start">
-        <span className="badge bg-primary-subtle text-primary border border-primary-subtle px-2.5 py-1.5 rounded-pill fs-7 fw-semibold text-capitalize">
+      <div className="px-3 py-2 bg-light border-bottom position-relative d-flex justify-content-between align-items-center" style={{ minHeight: '44px' }}>
+        <span className="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill fw-semibold text-capitalize" style={{ fontSize: '0.72rem', padding: '0.3em 0.75em' }}>
           {category}
         </span>
         
@@ -64,20 +64,20 @@ export default function ArtisanCard({ artisan }) {
 
         <div className="d-flex flex-wrap justify-content-center gap-1 mb-3">
           <span className={`badge ${isAvailable ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary'}`}>
-            {isAvailable ? 'Available' : 'Busy'}
+            {isAvailable ? '● Available' : '○ Busy'}
           </span>
-          {acceptsEmergency && <span className="badge bg-danger-subtle text-danger">Emergency ready</span>}
-          {artisan.is_verified === 1 && <span className="badge bg-info-subtle text-info">Verified</span>}
-          {artisan.ghana_card_verified === 1 && <span className="badge bg-success-subtle text-success">Ghana Card</span>}
-          {artisan.police_checked === 1 && <span className="badge bg-success-subtle text-success">Police checked</span>}
-          {artisan.trade_certified === 1 && <span className="badge bg-warning-subtle text-warning-emphasis">Trade certified</span>}
+          {acceptsEmergency && <span className="badge bg-danger-subtle text-danger">⚡ Emergency ready</span>}
+          {artisan.is_verified === 1 && <span className="badge bg-info-subtle text-info">✓ Verified</span>}
+          {artisan.ghana_card_verified === 1 && <span className="badge bg-success-subtle text-success">✓ Ghana Card</span>}
+          {artisan.police_checked === 1 && <span className="badge bg-success-subtle text-success">✓ Police checked</span>}
+          {artisan.trade_certified === 1 && <span className="badge bg-warning-subtle text-warning-emphasis">✓ Trade certified</span>}
           {Number(artisan.approved_guarantor_count) > 0 && <span className="badge bg-primary-subtle text-primary">{artisan.approved_guarantor_count} reference{Number(artisan.approved_guarantor_count) === 1 ? '' : 's'}</span>}
         </div>
 
         {/* Location display with pin icon */}
-        <p className="card-text text-muted fs-7 mb-3 d-flex align-items-center justify-content-center w-100 px-2">
-          <i className="fa-solid fa-location-dot text-danger me-1.5 fs-6" aria-hidden="true"></i>
-          <span>{locationString}</span>
+        <p className="card-text text-muted fs-7 mb-3 d-flex align-items-center justify-content-center gap-1 w-100 px-2">
+          <i className="fa-solid fa-location-dot text-danger fs-7 flex-shrink-0" aria-hidden="true"></i>
+          <span className="text-truncate">{locationString}</span>
         </p>
 
         {/* Bio excerpt with line truncation */}

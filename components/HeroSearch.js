@@ -97,10 +97,11 @@ export default function HeroSearch() {
         {/* Submit Button */}
         <button
           type="submit"
-          className="btn btn-primary rounded-3 px-4 py-3 fw-bold fs-6 d-flex align-items-center justify-content-center gap-2 text-nowrap shadow-sm"
+          className="btn btn-secondary rounded-3 px-4 py-3 fw-bold fs-6 d-flex align-items-center justify-content-center gap-2 text-nowrap shadow"
+          style={{ minWidth: '150px' }}
         >
+          <i className="fa-solid fa-magnifying-glass fs-7" aria-hidden="true"></i>
           <span>Find Artisans</span>
-          <i className="fa-solid fa-arrow-right fs-7"></i>
         </button>
 
       </div>

@@ -25,13 +25,16 @@ export default function ProfileAvatar({ name, photo_url, size = 'md', decorative
 
   const initials = getInitials(name);
 
-  // Use a nice background palette derived from the user name for variance
+  // Vibrant, diverse avatar background palette — blue, orange, teal, violet, rose
   const bgColors = [
-    '#176B52', // Primary green
-    '#1B5E20',
-    '#14532D',
-    '#166534',
-    '#2F4F4F', // Dark slate
+    '#2563EB', // Royal blue (primary)
+    '#F97316', // Warm orange (secondary)
+    '#0891B2', // Cyan teal
+    '#7C3AED', // Violet
+    '#DB2777', // Rose pink
+    '#0D9488', // Teal green
+    '#EA580C', // Deep orange
+    '#4F46E5', // Indigo
   ];
   
   // Calculate index deterministically

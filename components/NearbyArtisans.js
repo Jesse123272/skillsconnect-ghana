@@ -95,26 +95,51 @@ export default function NearbyArtisans() {
     locateAndFetch();
   }, [radius, retryKey]);
 
+  const [expanded, setExpanded] = useState(false);
+
   const sortedArtisans = useMemo(() => {
     return [...artisans].sort((a, b) => (b.weighted_score || 0) - (a.weighted_score || 0));
   }, [artisans]);
 
   return (
-    <div className="border rounded-3 bg-white p-3 p-md-4 shadow-sm">
-      <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
-        <div>
-          <h5 className="fw-bold mb-1 text-dark">Nearby artisans</h5>
-          <p className="text-muted small mb-0">Discover professionals ranked by closeness, ratings, and response quality.</p>
+    <div className="border rounded-3 bg-white shadow-sm overflow-hidden">
+      {/* Header — always visible, click to expand */}
+      <button
+        type="button"
+        className="w-100 d-flex justify-content-between align-items-center p-3 p-md-4 bg-white text-start border-0"
+        onClick={() => setExpanded((v) => !v)}
+        aria-expanded={expanded}
+        style={{ cursor: 'pointer' }}
+      >
+        <div className="d-flex align-items-center gap-3">
+          <div className="d-flex align-items-center justify-content-center bg-primary-subtle rounded-3 flex-shrink-0" style={{ width: '38px', height: '38px' }}>
+            <i className="fa-solid fa-location-crosshairs text-primary" aria-hidden="true"></i>
+          </div>
+          <div>
+            <h5 className="fw-bold mb-0 text-dark fs-6">Nearby artisans</h5>
+            <p className="text-muted mb-0" style={{ fontSize: '12px' }}>
+              {expanded ? 'Professionals ranked by closeness, ratings, and response quality.' : 'Click to find artisans near your current location.'}
+            </p>
+          </div>
         </div>
-        <div className="d-flex align-items-center gap-2">
-          <label className="form-label small mb-0 text-muted">Radius</label>
-          <select className="form-select form-select-sm" value={radius} onChange={(e) => setRadius(Number(e.target.value))} style={{ width: '100px' }}>
-            {RADIUS_OPTIONS.map((option) => (
-              <option key={option} value={option}>{option} km</option>
-            ))}
-          </select>
+        <div className="d-flex align-items-center gap-3 ms-3 flex-shrink-0">
+          {expanded && (
+            <div className="d-flex align-items-center gap-2" onClick={(e) => e.stopPropagation()}>
+              <label className="form-label small mb-0 text-muted">Radius</label>
+              <select className="form-select form-select-sm" value={radius} onChange={(e) => setRadius(Number(e.target.value))} style={{ width: '100px' }}>
+                {RADIUS_OPTIONS.map((option) => (
+                  <option key={option} value={option}>{option} km</option>
+                ))}
+              </select>
+            </div>
+          )}
+          <i className={`fa-solid fa-chevron-${expanded ? 'up' : 'down'} text-muted`} style={{ fontSize: '13px' }} aria-hidden="true"></i>
         </div>
-      </div>
+      </button>
+
+      {/* Collapsible body */}
+      {expanded && (
+        <div className="p-3 p-md-4 border-top">
 
       <div className="row g-3 mb-4">
         <div className="col-md-12">
@@ -160,7 +185,7 @@ export default function NearbyArtisans() {
           <p className="text-muted mt-3">Finding artisans near you...</p>
         </div>
       ) : error ? (
-        <div className="alert alert-warning" role="alert">
+        <div className="alert alert-warning mb-0" role="alert">
           {error}
           {permissionDenied && (
             <div className="mt-3">
@@ -175,11 +200,11 @@ export default function NearbyArtisans() {
           )}
         </div>
       ) : sortedArtisans.length === 0 ? (
-        <div className="alert alert-info" role="alert">
+        <div className="alert alert-info mb-0" role="alert">
           No nearby artisans matched this search radius. Try increasing the radius or update your location permissions.
         </div>
       ) : (
-        <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mt-1">
           {sortedArtisans.map((artisan, index) => (
             <div key={artisan.user_id || index} className="col">
               <div className="position-relative">
@@ -192,6 +217,9 @@ export default function NearbyArtisans() {
           ))}
         </div>
       )}
+        </div>
+      )}
     </div>
   );
 }
+

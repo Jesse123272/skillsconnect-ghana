@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { isSqliteFallbackEnabled, query } from '@/lib/db';
+import { query } from '@/lib/db';
 import { getUserFromRequest } from '@/lib/auth';
 
 export async function GET(req) {
@@ -8,8 +8,6 @@ export async function GET(req) {
     if (!payload) {
       return NextResponse.json({ success: false, error: 'Unauthorized.' }, { status: 401 });
     }
-
-    const useSqliteFallback = isSqliteFallbackEnabled;
 
     const fetchCount = async (sql) => {
       try {
@@ -27,23 +25,15 @@ export async function GET(req) {
     const reviews = await fetchCount('SELECT COUNT(*) AS total FROM reviews');
     const featured = await fetchCount('SELECT COUNT(*) AS total FROM artisan_profiles WHERE is_featured = 1');
     const recent = await fetchCount(
-      useSqliteFallback
-        ? "SELECT COUNT(*) AS total FROM profile_view_logs WHERE viewed_at >= datetime('now', '-30 day')"
-        : 'SELECT COUNT(*) AS total FROM profile_view_logs WHERE viewed_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)'
+      "SELECT COUNT(*) AS total FROM profile_view_logs WHERE viewed_at >= NOW() - INTERVAL '30 days'"
     );
 
     const monthly = await query(
-      useSqliteFallback
-        ? `SELECT strftime('%Y-%m', created_at) AS month, COUNT(*) AS value
-           FROM users
-           WHERE created_at >= datetime('now', '-6 month')
-           GROUP BY strftime('%Y-%m', created_at)
-           ORDER BY month ASC`
-        : `SELECT DATE_FORMAT(created_at, '%Y-%m') AS month, COUNT(*) AS value
-           FROM users
-           WHERE created_at >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
-           GROUP BY DATE_FORMAT(created_at, '%Y-%m')
-           ORDER BY month ASC`
+      `SELECT TO_CHAR(created_at, 'YYYY-MM') AS month, COUNT(*) AS value
+       FROM users
+       WHERE created_at >= NOW() - INTERVAL '6 months'
+       GROUP BY TO_CHAR(created_at, 'YYYY-MM')
+       ORDER BY month ASC`
     );
 
     return NextResponse.json({

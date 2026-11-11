@@ -519,8 +519,9 @@ function BrowseContent() {
             )}
 
             {locationHint && (
-              <div className="alert alert-info py-3 mb-4" role="alert">
-                {locationHint}
+              <div className="d-flex align-items-center gap-2 px-3 py-2 rounded-3 mb-4 small text-muted" style={{ background: 'rgba(23,107,82,0.06)', border: '1px solid rgba(23,107,82,0.12)' }} role="status">
+                <i className="fa-solid fa-circle-info text-primary flex-shrink-0" aria-hidden="true"></i>
+                <span>{locationHint}</span>
               </div>
             )}
 

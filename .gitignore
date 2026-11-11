@@ -9,3 +9,7 @@ coverage/
 skillsconnect.db
 skillsconnect_test.db
 .vercel-*/
+screenshots/
+tmp_*.js
+sql-wasm.wasm
+cookies.txt
