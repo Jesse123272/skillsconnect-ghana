@@ -19,7 +19,7 @@ const nextConfig = {
   },
   // Transpile package for proper bundle loading of motion
   transpilePackages: ['motion'],
-  serverExternalPackages: ['mysql2', 'sql.js'],
+  serverExternalPackages: ['mysql2', 'sql.js', 'pg', 'pg-pool', 'pg-connection-string'],
   webpack: (config, { dev }) => {
     // Maintain standard dev server performance and HMR disable settings for AI Studio
     if (dev && process.env.DISABLE_HMR === 'true') {

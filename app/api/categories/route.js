@@ -26,13 +26,6 @@ const DEFAULT_CATEGORIES = [
 
 export async function GET() {
   try {
-    // Quick env check
-    const dbUrl = process.env.DATABASE_URL;
-    const useSqlite = process.env.USE_SQLITE;
-    if (!dbUrl) {
-      return NextResponse.json({ success: false, error: 'DATABASE_URL not configured', detail: `USE_SQLITE=${useSqlite}` }, { status: 500 });
-    }
-
     const existingCategories = await query(
       'SELECT category_id, category_name, icon_class, description FROM categories WHERE is_active = 1 ORDER BY category_name ASC'
     );
@@ -59,9 +52,9 @@ export async function GET() {
     });
 
   } catch (error) {
-    console.error('Fetch Categories API Error:', error.message, error.code);
+    console.error('Fetch Categories API Error:', error);
     return NextResponse.json(
-      { success: false, error: 'An unexpected internal server error occurred while loading categories', detail: error.message },
+      { success: false, error: 'An unexpected internal server error occurred while loading categories' },
       { status: 500 }
     );
   }
