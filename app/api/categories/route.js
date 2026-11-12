@@ -26,6 +26,13 @@ const DEFAULT_CATEGORIES = [
 
 export async function GET() {
   try {
+    // Quick env check
+    const dbUrl = process.env.DATABASE_URL;
+    const useSqlite = process.env.USE_SQLITE;
+    if (!dbUrl) {
+      return NextResponse.json({ success: false, error: 'DATABASE_URL not configured', detail: `USE_SQLITE=${useSqlite}` }, { status: 500 });
+    }
+
     const existingCategories = await query(
       'SELECT category_id, category_name, icon_class, description FROM categories WHERE is_active = 1 ORDER BY category_name ASC'
     );
