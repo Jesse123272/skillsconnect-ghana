@@ -76,14 +76,17 @@ export async function GET(req) {
        LIMIT 5`
     );
 
-    // 8. Summary Table: Top 5 Most Active Customers (name, enquiries sent, reviews written)
+    // 8. Summary Table: Top 5 Most Active Customers
     const activeCustomers = await query(
       `SELECT u.full_name,
               (SELECT COUNT(*) FROM enquiries WHERE customer_id = u.user_id) as enquiries_count,
               (SELECT COUNT(*) FROM reviews WHERE customer_id = u.user_id) as reviews_count
        FROM users u
        WHERE u.role = 'customer'
-       ORDER BY (enquiries_count + reviews_count) DESC
+       ORDER BY (
+         (SELECT COUNT(*) FROM enquiries WHERE customer_id = u.user_id) +
+         (SELECT COUNT(*) FROM reviews WHERE customer_id = u.user_id)
+       ) DESC
        LIMIT 5`
     );
 

@@ -1,4 +1,6 @@
 import { query } from '@/lib/db';
+import { NextResponse } from 'next/server';
+import { getUserFromRequest } from '@/lib/auth';
 
 export async function GET() {
   try {
@@ -9,6 +11,38 @@ export async function GET() {
   } catch (err) {
     console.error('Admin categories GET error:', err);
     return new Response(JSON.stringify({ success: false, error: 'Server error' }), { status: 500 });
+  }
+}
+
+export async function POST(request) {
+  try {
+    const payload = await getUserFromRequest(request);
+    if (!payload || payload.role !== 'admin') {
+      return NextResponse.json({ success: false, error: 'Admin access required.' }, { status: 403 });
+    }
+
+    const body = await request.json();
+    const { category_name, icon_class, description, is_active } = body;
+
+    if (!category_name || !icon_class) {
+      return NextResponse.json({ success: false, error: 'category_name and icon_class are required.' }, { status: 400 });
+    }
+
+    const result = await query(
+      'INSERT INTO categories (category_name, icon_class, description, is_active) VALUES (?, ?, ?, ?)',
+      [category_name.trim(), icon_class.trim(), description || '', is_active !== undefined ? (is_active ? 1 : 0) : 1]
+    );
+
+    const newId = result?.insertId;
+    const rows = newId ? await query('SELECT * FROM categories WHERE category_id = ?', [newId]) : [];
+
+    return NextResponse.json({ success: true, message: 'Category created successfully.', data: rows[0] || { category_id: newId } });
+  } catch (err) {
+    if (err.message?.includes('unique') || err.code === '23505') {
+      return NextResponse.json({ success: false, error: 'A category with that name already exists.' }, { status: 409 });
+    }
+    console.error('Admin categories POST error:', err);
+    return NextResponse.json({ success: false, error: 'Server error creating category.' }, { status: 500 });
   }
 }
 
