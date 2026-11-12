@@ -52,9 +52,9 @@ export async function GET() {
     });
 
   } catch (error) {
-    console.error('Fetch Categories API Error:', error);
+    console.error('Fetch Categories API Error:', error.message, error.code);
     return NextResponse.json(
-      { success: false, error: 'An unexpected internal server error occurred while loading categories' },
+      { success: false, error: 'An unexpected internal server error occurred while loading categories', detail: error.message },
       { status: 500 }
     );
   }
